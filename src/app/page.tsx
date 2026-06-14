@@ -188,7 +188,7 @@ const stats = [
 ]
 
 const testimonials = [
-  { quote: "LearnHealth transformed how I study. The AI-generated quizzes are incredibly relevant.", author: "Alex M.", role: "Medical Student" },
+  { quote: "Syntra transformed how I study. The AI-generated quizzes are incredibly relevant.", author: "Alex M.", role: "Medical Student" },
   { quote: "The analytics helped me identify exactly which topics I was struggling with.", author: "Sarah K.", role: "Computer Science" },
   { quote: "Uploading lecture notes and getting instant practice questions is a game changer.", author: "James R.", role: "Engineering" },
 ]
@@ -222,7 +222,7 @@ export default function LandingPage() {
             <motion.div whileHover={{ rotate: -10, scale: 1.1 }} className="flex size-8 items-center justify-center rounded-lg bg-primary">
               <BrainCircuit className="size-5 text-primary-foreground" />
             </motion.div>
-            <span className="text-lg font-bold tracking-tight">LearnHealth</span>
+            <span className="text-lg font-bold tracking-tight">Syntra</span>
           </Link>
           <nav className="hidden md:flex items-center gap-8">
             {["Features", "How It Works", "Testimonials"].map((item) => (
@@ -298,7 +298,7 @@ export default function LandingPage() {
                 transition={{ duration: 0.6, delay: 0.25 }}
                 className="mt-6 text-base leading-relaxed text-muted-foreground sm:text-lg max-w-xl mx-auto"
               >
-                Upload your materials, generate intelligent quizzes, and track your understanding over time. LearnHealth adapts to your pace.
+                Upload your materials, generate intelligent quizzes, and track your understanding over time. Syntra adapts to your pace.
               </motion.p>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -456,7 +456,7 @@ export default function LandingPage() {
                 </div>
                 <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Trusted by Learners</h2>
                 <p className="mt-4 text-base text-muted-foreground">
-                  See how students and professionals are using LearnHealth to accelerate their learning.
+                  See how students and professionals are using Syntra to accelerate their learning.
                 </p>
               </div>
             </FadeIn>
@@ -546,7 +546,7 @@ export default function LandingPage() {
                 <div className="flex size-8 items-center justify-center rounded-lg bg-primary">
                   <BrainCircuit className="size-5 text-primary-foreground" />
                 </div>
-                <span className="text-lg font-bold tracking-tight">LearnHealth</span>
+                <span className="text-lg font-bold tracking-tight">Syntra</span>
               </Link>
               <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
                 AI-powered learning analytics platform that helps students and professionals master new subjects faster through intelligent practice and data-driven insights.
@@ -579,7 +579,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="mt-12 border-t pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} LearnHealth. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Syntra. All rights reserved.</p>
             <div className="flex items-center gap-6">
               <span className="hover:text-foreground transition-colors cursor-pointer">Privacy</span>
               <span className="hover:text-foreground transition-colors cursor-pointer">Terms</span>

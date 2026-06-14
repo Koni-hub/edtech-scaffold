@@ -91,7 +91,7 @@ export default function RegisterPage() {
     <form onSubmit={handleSubmit}>
       <CardHeader>
         <CardTitle>Create account</CardTitle>
-        <CardDescription>Get started with LearnHealth</CardDescription>
+        <CardDescription>Get started with Syntra</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {error && (

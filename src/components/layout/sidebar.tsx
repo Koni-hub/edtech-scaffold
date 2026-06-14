@@ -78,7 +78,7 @@ export function Sidebar() {
       <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:shrink-0 lg:border-r lg:bg-sidebar">
         <div className="flex h-14 items-center gap-2 border-b px-6">
           <BrainCircuit className="size-6 text-primary" />
-          <span className="font-semibold">LearnHealth</span>
+          <span className="font-semibold">Syntra</span>
         </div>
         <nav className="flex-1 space-y-1 p-4">
           <NavItems />
@@ -95,7 +95,7 @@ export function Sidebar() {
             <div className="flex h-14 items-center justify-between border-b px-6">
               <div className="flex items-center gap-2">
                 <BrainCircuit className="size-6 text-primary" />
-                <span className="font-semibold">LearnHealth</span>
+                <span className="font-semibold">Syntra</span>
               </div>
               <button
                 type="button"

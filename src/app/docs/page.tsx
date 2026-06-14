@@ -1,11 +1,11 @@
-import Link from "next/link"
-import { BrainCircuit, BookOpen, BarChart3, Sparkles, Upload, Target, ArrowRight, Search, ChevronRight, Menu, GraduationCap, Bot, LineChart } from "lucide-react"
-import type { Metadata } from "next"
+"use client"
 
-export const metadata: Metadata = {
-  title: "Documentation - LearnHealth",
-  description: "LearnHealth documentation and user guide",
-}
+import { useState, useEffect, useRef, useMemo, useCallback } from "react"
+import Link from "next/link"
+import {
+  BrainCircuit, BookOpen, BarChart3, Sparkles, Upload, Target,
+  ArrowRight, Search, ChevronRight, Menu, X, GraduationCap, Bot, Copy, Check
+} from "lucide-react"
 
 const sidebarNav = [
   {
@@ -53,6 +53,16 @@ const { data, error } = await supabase.auth.signInWithPassword({
   password: "your-password",
 })`
 
+const quickstartCode2 = `// Upload a module
+const formData = new FormData()
+formData.append("file", pdfFile)
+formData.append("title", "Cell Biology")
+
+const { data: module } = await fetch("/api/modules/upload", {
+  method: "POST",
+  body: formData,
+}).then(r => r.json())`
+
 const quickstartQuiz = `// Generate a quiz from module content
 const response = await fetch("/api/quiz/generate", {
   method: "POST",
@@ -64,12 +74,13 @@ const response = await fetch("/api/quiz/generate", {
   }),
 })
 
-const quiz = await response.json()`
+const quiz = await response.json()
+console.log(quiz.questions)`
 
 const buildPaths = [
   {
     icon: BrainCircuit,
-    title: "LearnHealth Dashboard",
+    title: "Syntra Dashboard",
     description: "Use the interactive dashboard to manage modules, take quizzes, and track your analytics in real time.",
     href: "/dashboard",
     cta: "Go to Dashboard",
@@ -122,17 +133,111 @@ const startBuilding = [
   },
 ]
 
+const faqItems = [
+  { q: "What file formats are supported?", a: "Currently we support PDF files for module uploads. Support for DOCX, TXT, and Markdown is coming soon." },
+  { q: "Is my data secure?", a: "Yes. All data is encrypted in transit and at rest. We use Supabase for secure authentication and data storage." },
+  { q: "How accurate is AI quiz generation?", a: "The AI generates questions based on your content. Quality depends on the clarity of your source materials." },
+  { q: "Is there a limit on modules or quizzes?", a: "Free accounts have a reasonable usage limit. Check your account settings for specific limits." },
+]
+
+const sectionTitles: Record<string, string> = {
+  overview: "Overview",
+  quickstart: "Quickstart",
+  "build-paths": "Build paths",
+  "start-building": "Start building",
+  faq: "Frequently asked questions",
+}
+
+const codeBlocks = [
+  { label: "Authentication", code: quickstartCode },
+  { label: "Upload Module", code: quickstartCode2 },
+  { label: "Quiz Generation", code: quickstartQuiz },
+]
+
 export default function DocsPage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [activeSection, setActiveSection] = useState("overview")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [copiedIdx, setCopiedIdx] = useState<number | null>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    document.documentElement.style.scrollBehavior = "smooth"
+    return () => { document.documentElement.style.scrollBehavior = "" }
+  }, [])
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+        if (visible.length > 0) setActiveSection(visible[0].target.id)
+      },
+      { rootMargin: "-80px 0px -60% 0px", threshold: 0 },
+    )
+    const sections = document.querySelectorAll("section[id]")
+    sections.forEach((s) => observer.observe(s))
+    return () => observer.disconnect()
+  }, [])
+
+  const filteredSections = useMemo(() => {
+    if (!searchQuery.trim()) return null
+    const q = searchQuery.toLowerCase()
+    const matches: string[] = []
+    for (const [id, title] of Object.entries(sectionTitles)) {
+      if (title.toLowerCase().includes(q)) matches.push(id)
+    }
+    return matches
+  }, [searchQuery])
+
+  const handleNavClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault()
+    const id = href.replace("/docs#", "")
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })
+    setMobileMenuOpen(false)
+  }, [])
+
+  const copyCode = useCallback(async (text: string, idx: number) => {
+    try {
+      await navigator.clipboard.writeText(text)
+    } catch {
+      const ta = document.createElement("textarea")
+      ta.value = text
+      document.body.appendChild(ta)
+      ta.select()
+      document.execCommand("copy")
+      document.body.removeChild(ta)
+    }
+    setCopiedIdx(idx)
+    setTimeout(() => setCopiedIdx(null), 2000)
+  }, [])
+
+  const handleSearchKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && filteredSections && filteredSections.length > 0) {
+      document.getElementById(filteredSections[0])?.scrollIntoView({ behavior: "smooth" })
+      searchInputRef.current?.blur()
+    }
+  }, [filteredSections])
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-6">
+            <button
+              type="button"
+              className="lg:hidden p-1.5 -ml-1.5 rounded-md hover:bg-muted transition-colors"
+              onClick={() => setMobileMenuOpen(true)}
+              aria-label="Open navigation"
+            >
+              <Menu className="size-5" />
+            </button>
             <Link href="/" className="flex items-center gap-2">
               <div className="flex size-7 items-center justify-center rounded-md bg-primary">
                 <BrainCircuit className="size-4 text-primary-foreground" />
               </div>
-              <span className="text-sm font-bold">LearnHealth</span>
+              <span className="text-sm font-bold">Syntra</span>
             </Link>
             <nav className="hidden md:flex items-center gap-5">
               <Link href="/" className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">Home</Link>
@@ -155,17 +260,28 @@ export default function DocsPage() {
                 <div key={group.category}>
                   <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{group.category}</h4>
                   <ul className="space-y-0.5">
-                    {group.items.map((item) => (
-                      <li key={item.href}>
-                        <Link
-                          href={item.href}
-                          className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                        >
-                          <ChevronRight className="size-2.5 shrink-0 opacity-0 group-hover:opacity-100" />
-                          {item.label}
-                        </Link>
-                      </li>
-                    ))}
+                    {group.items.map((item) => {
+                      const id = item.href.replace("/docs#", "")
+                      const isActive = activeSection === id
+                      return (
+                        <li key={item.href}>
+                          <a
+                            href={item.href}
+                            onClick={(e) => handleNavClick(e, item.href)}
+                            className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs transition-colors ${
+                              isActive
+                                ? "bg-primary/10 text-primary font-medium"
+                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                            }`}
+                          >
+                            <ChevronRight className={`size-2.5 shrink-0 transition-all ${
+                              isActive ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-1"
+                            }`} />
+                            {item.label}
+                          </a>
+                        </li>
+                      )
+                    })}
                   </ul>
                 </div>
               ))}
@@ -178,86 +294,75 @@ export default function DocsPage() {
                 <BookOpen className="size-3 text-primary" />
                 Documentation
               </div>
-              <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">LearnHealth Docs</h1>
+              <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Syntra Docs</h1>
               <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                Everything you need to get started with LearnHealth — from uploading your first module to tracking your learning analytics.
+                Everything you need to get started with Syntra — from uploading your first module to tracking your learning analytics.
               </p>
 
               <div className="relative mt-6 max-w-md">
                 <Search className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
                 <input
+                  ref={searchInputRef}
                   type="search"
-                  placeholder="Search docs..."
+                  placeholder="Search sections..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleSearchKeyDown}
                   className="h-9 w-full rounded-md border bg-background pl-9 pr-3 text-xs outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring"
-                  readOnly
                 />
+                {filteredSections && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-muted-foreground">
+                    {filteredSections.length} result{filteredSections.length !== 1 ? "s" : ""}
+                  </div>
+                )}
               </div>
             </section>
 
-            <section id="quickstart" className="mt-12 scroll-mt-20">
+            <section
+              id="quickstart"
+              className={`mt-12 scroll-mt-20 transition-opacity duration-200 ${
+                filteredSections && !filteredSections.includes("quickstart") ? "hidden" : ""
+              }`}
+            >
               <h2 className="mb-1 text-lg font-semibold">Quickstart</h2>
-              <p className="mb-5 text-xs text-muted-foreground">Get started with LearnHealth in minutes.</p>
+              <p className="mb-5 text-xs text-muted-foreground">Get started with Syntra in minutes.</p>
 
-              <div className="rounded-lg border">
-                <div className="flex items-center gap-2 border-b bg-muted/30 px-3 py-1.5">
-                  <div className="flex gap-1">
-                    <div className="size-2 rounded-full bg-red-400" />
-                    <div className="size-2 rounded-full bg-yellow-400" />
-                    <div className="size-2 rounded-full bg-green-400" />
+              {codeBlocks.map((block, idx) => (
+                <div key={idx} className={`rounded-lg border ${idx > 0 ? "mt-4" : ""}`}>
+                  <div className="flex items-center justify-between border-b bg-muted/30 px-3 py-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className="flex gap-1">
+                        <div className="size-2 rounded-full bg-red-400" />
+                        <div className="size-2 rounded-full bg-yellow-400" />
+                        <div className="size-2 rounded-full bg-green-400" />
+                      </div>
+                      <span className="text-[11px] font-medium text-muted-foreground">{block.label}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => copyCode(block.code, idx)}
+                      className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground hover:bg-muted transition-colors"
+                    >
+                      {copiedIdx === idx ? (
+                        <><Check className="size-3 text-green-500" /> Copied</>
+                      ) : (
+                        <><Copy className="size-3" /> Copy</>
+                      )}
+                    </button>
                   </div>
-                  <span className="text-[11px] font-medium text-muted-foreground">Authentication</span>
-                </div>
-                <div className="overflow-x-auto p-3">
-                  <pre className="text-[11px] leading-relaxed"><code>{`import { createClient } from "@/lib/supabase/client"
-
-const supabase = createClient()
-
-// Sign in to your account
-const { data, error } = await supabase.auth.signInWithPassword({
-  email: "student@example.com",
-  password: "your-password",
-})
-
-// Upload a module
-const formData = new FormData()
-formData.append("file", pdfFile)
-formData.append("title", "Cell Biology")
-
-const { data: module } = await fetch("/api/modules/upload", {
-  method: "POST",
-  body: formData,
-}).then(r => r.json())`}</code></pre>
-                </div>
-              </div>
-
-              <div className="mt-4 rounded-lg border">
-                <div className="flex items-center gap-2 border-b bg-muted/30 px-3 py-1.5">
-                  <div className="flex gap-1">
-                    <div className="size-2 rounded-full bg-red-400" />
-                    <div className="size-2 rounded-full bg-yellow-400" />
-                    <div className="size-2 rounded-full bg-green-400" />
+                  <div className="overflow-x-auto p-3">
+                    <pre className="text-[11px] leading-relaxed"><code>{block.code}</code></pre>
                   </div>
-                  <span className="text-[11px] font-medium text-muted-foreground">Quiz Generation</span>
                 </div>
-                <div className="overflow-x-auto p-3">
-                  <pre className="text-[11px] leading-relaxed"><code>{`// Generate a quiz from module content
-const response = await fetch("/api/quiz/generate", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    moduleId: "module_123",
-    topic: "Cell Biology",
-    questionCount: 5,
-  }),
-})
-
-const quiz = await response.json()
-console.log(quiz.questions)`}</code></pre>
-                </div>
-              </div>
+              ))}
             </section>
 
-            <section id="build-paths" className="mt-12">
+            <section
+              id="build-paths"
+              className={`mt-12 scroll-mt-20 transition-opacity duration-200 ${
+                filteredSections && !filteredSections.includes("build-paths") ? "hidden" : ""
+              }`}
+            >
               <h2 className="mb-1 text-lg font-semibold">Build paths</h2>
               <p className="mb-5 text-xs text-muted-foreground">Choose your path to start learning effectively.</p>
               <div className="grid gap-3 sm:grid-cols-2">
@@ -284,9 +389,14 @@ console.log(quiz.questions)`}</code></pre>
               </div>
             </section>
 
-            <section id="start-building" className="mt-12">
+            <section
+              id="start-building"
+              className={`mt-12 scroll-mt-20 transition-opacity duration-200 ${
+                filteredSections && !filteredSections.includes("start-building") ? "hidden" : ""
+              }`}
+            >
               <h2 className="mb-1 text-lg font-semibold">Start building</h2>
-              <p className="mb-5 text-xs text-muted-foreground">Explore what you can do with LearnHealth.</p>
+              <p className="mb-5 text-xs text-muted-foreground">Explore what you can do with Syntra.</p>
               <div className="grid gap-px overflow-hidden rounded-lg border sm:grid-cols-2 lg:grid-cols-3">
                 {startBuilding.map((item) => {
                   const Icon = item.icon
@@ -303,20 +413,20 @@ console.log(quiz.questions)`}</code></pre>
               </div>
             </section>
 
-            <section id="faq" className="mt-12 scroll-mt-20">
+            <section
+              id="faq"
+              className={`mt-12 scroll-mt-20 transition-opacity duration-200 ${
+                filteredSections && !filteredSections.includes("faq") ? "hidden" : ""
+              }`}
+            >
               <h2 className="mb-1 text-lg font-semibold">Frequently asked questions</h2>
-              <p className="mb-5 text-xs text-muted-foreground">Common questions about using LearnHealth.</p>
+              <p className="mb-5 text-xs text-muted-foreground">Common questions about using Syntra.</p>
               <div className="space-y-2">
-                {[
-                  { q: "What file formats are supported?", a: "Currently we support PDF files for module uploads. Support for DOCX, TXT, and Markdown is coming soon." },
-                  { q: "Is my data secure?", a: "Yes. All data is encrypted in transit and at rest. We use Supabase for secure authentication and data storage." },
-                  { q: "How accurate is AI quiz generation?", a: "The AI generates questions based on your content. Quality depends on the clarity of your source materials." },
-                  { q: "Is there a limit on modules or quizzes?", a: "Free accounts have a reasonable usage limit. Check your account settings for specific limits." },
-                ].map((faq) => (
+                {faqItems.map((faq) => (
                   <details key={faq.q} className="group rounded-lg border bg-card">
-                    <summary className="flex cursor-pointer items-center justify-between px-4 py-3 text-sm font-medium transition-colors hover:bg-muted/50">
+                    <summary className="flex cursor-pointer items-center justify-between px-4 py-3 text-sm font-medium transition-colors hover:bg-muted/50 min-h-[44px]">
                       {faq.q}
-                      <ChevronRight className="size-3.5 shrink-0 text-muted-foreground transition-transform group-open:rotate-90" />
+                      <ChevronRight className="size-3.5 shrink-0 text-muted-foreground transition-transform group-open:rotate-90 ml-2" />
                     </summary>
                     <div className="border-t px-4 py-3 text-xs leading-relaxed text-muted-foreground">{faq.a}</div>
                   </details>
@@ -324,7 +434,12 @@ console.log(quiz.questions)`}</code></pre>
               </div>
             </section>
 
-            <section className="mt-12 rounded-lg border bg-card p-6 text-center">
+            <section
+              id="support"
+              className={`mt-12 scroll-mt-20 rounded-lg border bg-card p-6 text-center ${
+                filteredSections && !filteredSections.includes("support") ? "hidden" : ""
+              }`}
+            >
               <div className="mx-auto max-w-sm">
                 <h2 className="text-sm font-semibold">Still have questions?</h2>
                 <p className="mt-1 text-xs text-muted-foreground">Get started today and explore all features hands-on.</p>
@@ -341,7 +456,7 @@ console.log(quiz.questions)`}</code></pre>
                   <div className="flex size-5 items-center justify-center rounded bg-primary">
                     <BrainCircuit className="size-3 text-primary-foreground" />
                   </div>
-                  LearnHealth Docs
+                  Syntra Docs
                 </div>
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
                   <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
@@ -350,11 +465,72 @@ console.log(quiz.questions)`}</code></pre>
                   <span className="hover:text-foreground transition-colors cursor-pointer">Terms</span>
                 </div>
               </div>
-              <p className="mt-4 text-[11px] text-muted-foreground">&copy; {new Date().getFullYear()} LearnHealth. All rights reserved.</p>
+              <p className="mt-4 text-[11px] text-muted-foreground">&copy; {new Date().getFullYear()} Syntra. All rights reserved.</p>
             </footer>
           </main>
         </div>
       </div>
+
+      {mobileMenuOpen && (
+        <>
+          <div className="fixed inset-0 z-50 bg-black/50 lg:hidden" onClick={() => setMobileMenuOpen(false)} />
+          <aside className="fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r bg-background lg:hidden">
+            <div className="flex h-14 items-center justify-between border-b px-4">
+              <div className="flex items-center gap-2">
+                <div className="flex size-7 items-center justify-center rounded-md bg-primary">
+                  <BrainCircuit className="size-4 text-primary-foreground" />
+                </div>
+                <span className="text-sm font-bold">Syntra</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-md p-1.5 hover:bg-muted transition-colors"
+                aria-label="Close navigation"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+            <nav className="flex-1 overflow-y-auto px-4 py-4">
+              {sidebarNav.map((group) => (
+                <div key={group.category} className="mb-5">
+                  <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{group.category}</h4>
+                  <ul className="space-y-0.5">
+                    {group.items.map((item) => {
+                      const id = item.href.replace("/docs#", "")
+                      const isActive = activeSection === id
+                      return (
+                        <li key={item.href}>
+                          <a
+                            href={item.href}
+                            onClick={(e) => handleNavClick(e, item.href)}
+                            className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors ${
+                              isActive
+                                ? "bg-primary/10 text-primary font-medium"
+                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                            }`}
+                          >
+                            {item.label}
+                          </a>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </div>
+              ))}
+            </nav>
+            <div className="border-t p-4">
+              <Link
+                href="/register"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/80 transition-colors"
+              >
+                Get Started Free
+              </Link>
+            </div>
+          </aside>
+        </>
+      )}
     </div>
   )
 }

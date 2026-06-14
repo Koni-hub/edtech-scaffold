@@ -16,7 +16,7 @@ const jetbrainsMono = JetBrains_Mono({
 const siteUrl = "https://edtech-scaffold.vercel.app"
 
 export const metadata: Metadata = {
-  title: "LearnHealth - AI-Powered Learning Analytics",
+  title: "Syntra - AI-Powered Learning Analytics",
   description:
     "Transform your learning with AI-powered insights. Upload materials, generate quizzes, and track your understanding.",
   icons: {
@@ -24,17 +24,17 @@ export const metadata: Metadata = {
     shortcut: "/favicon.svg",
   },
   openGraph: {
-    title: "LearnHealth - AI-Powered Learning Analytics",
+    title: "Syntra - AI-Powered Learning Analytics",
     description:
       "Transform your learning with AI-powered insights. Upload materials, generate quizzes, and track your understanding.",
     url: siteUrl,
-    siteName: "LearnHealth",
+    siteName: "Syntra",
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "LearnHealth - AI-Powered Learning Analytics",
+    title: "Syntra - AI-Powered Learning Analytics",
     description:
       "Transform your learning with AI-powered insights. Upload materials, generate quizzes, and track your understanding.",
   },

@@ -14,8 +14,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LearnHealth - AI Learning Analytics",
-  description: "AI-powered learning analytics platform",
+  title: "LearnHealth - AI-Powered Learning Analytics",
+  description: "Transform your learning with AI-powered insights. Upload materials, generate quizzes, and track your understanding.",
 };
 
 export default function RootLayout({

@@ -53,7 +53,7 @@ export default function RegisterPage() {
     // Check if session is immediately active (email confirmation disabled).
     const { data: sessionData } = await supabase.auth.getSession()
     if (sessionData?.session) {
-      router.push("/")
+      router.push("/dashboard")
       return
     }
 

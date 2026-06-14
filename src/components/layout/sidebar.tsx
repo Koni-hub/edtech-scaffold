@@ -30,7 +30,7 @@ export function useSidebar() {
 }
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/modules", label: "Modules", icon: BookOpen },
   { href: "/quizzes", label: "Quizzes", icon: BrainCircuit },
   { href: "/analytics", label: "Analytics", icon: ChartNoAxesCombined },
@@ -44,7 +44,7 @@ function NavItems({ onClick }: { onClick?: () => void }) {
     <>
       {navItems.map((item) => {
         const Icon = item.icon
-        const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href)
+        const isActive = pathname.startsWith(item.href)
         return (
           <Link
             key={item.href}

@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
   if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 })
 
   // Try embeddings (best-effort)
-  if (process.env.OPENAI_API_KEY) {
+  if (process.env.GEMINI_API_KEY) {
     try {
       const { generateEmbeddings } = await import("@/lib/llm/embedder")
       const chunkContents = inserted.map((c: { content: string }) => c.content)

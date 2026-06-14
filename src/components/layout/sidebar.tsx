@@ -3,23 +3,29 @@
 import { createContext, useContext, useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BrainCircuit, LayoutDashboard, BookOpen, ChartNoAxesCombined, Settings, X } from "lucide-react"
+import { BrainCircuit, LayoutDashboard, BookOpen, ChartNoAxesCombined, Settings, X, ChevronLeft, PanelLeft } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 
 interface SidebarContextType {
   open: boolean
   setOpen: (open: boolean) => void
+  collapsed: boolean
+  setCollapsed: (collapsed: boolean) => void
 }
 
 const SidebarContext = createContext<SidebarContextType>({
   open: false,
   setOpen: () => {},
+  collapsed: false,
+  setCollapsed: () => {},
 })
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
   return (
-    <SidebarContext.Provider value={{ open, setOpen }}>
+    <SidebarContext.Provider value={{ open, setOpen, collapsed, setCollapsed }}>
       {children}
     </SidebarContext.Provider>
   )
@@ -37,7 +43,7 @@ const navItems = [
   { href: "/settings", label: "Settings", icon: Settings },
 ]
 
-function NavItems({ onClick }: { onClick?: () => void }) {
+function NavItems({ collapsed, onClick }: { collapsed?: boolean; onClick?: () => void }) {
   const pathname = usePathname()
   return (
     <>
@@ -49,15 +55,17 @@ function NavItems({ onClick }: { onClick?: () => void }) {
             key={item.href}
             href={item.href}
             onClick={onClick}
+            title={collapsed ? item.label : undefined}
             className={cn(
               "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+              collapsed && "justify-center px-2",
               isActive
                 ? "bg-sidebar-accent text-sidebar-accent-foreground"
                 : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
             )}
           >
-            <Icon className="size-4 shrink-0" />
-            {item.label}
+            <Icon className="size-5 shrink-0" />
+            {!collapsed && item.label}
           </Link>
         )
       })}
@@ -66,7 +74,7 @@ function NavItems({ onClick }: { onClick?: () => void }) {
 }
 
 export function Sidebar() {
-  const { open, setOpen } = useSidebar()
+  const { open, setOpen, collapsed, setCollapsed } = useSidebar()
   const pathname = usePathname()
 
   useEffect(() => {
@@ -75,16 +83,39 @@ export function Sidebar() {
 
   return (
     <>
-      <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:shrink-0 lg:border-r lg:bg-sidebar">
-        <div className="flex h-14 items-center gap-2 border-b px-6">
-          <BrainCircuit className="size-6 text-primary" />
-          <span className="font-semibold">Syntra</span>
+      {/* Desktop sidebar */}
+      <aside
+        className={cn(
+          "hidden lg:flex lg:flex-col lg:shrink-0 lg:border-r lg:bg-sidebar transition-all duration-200",
+          collapsed ? "lg:w-16" : "lg:w-64"
+        )}
+      >
+        <div className={cn(
+          "flex h-14 items-center border-b",
+          collapsed ? "justify-center px-0" : "gap-2 px-6"
+        )}>
+          <BrainCircuit className="size-6 shrink-0 text-primary" />
+          {!collapsed && <span className="font-semibold">Syntra</span>}
         </div>
-        <nav className="flex-1 space-y-1 p-4">
-          <NavItems />
+
+        <nav className={cn("flex-1 space-y-1", collapsed ? "p-2" : "p-4")}>
+          <NavItems collapsed={collapsed} />
         </nav>
+
+        <div className={cn("border-t p-2", collapsed && "flex justify-center")}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setCollapsed(!collapsed)}
+            className="text-sidebar-foreground hover:bg-sidebar-accent"
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            <ChevronLeft className={cn("size-4 transition-transform", collapsed && "rotate-180")} />
+          </Button>
+        </div>
       </aside>
 
+      {/* Mobile sidebar overlay */}
       {open && (
         <>
           <div

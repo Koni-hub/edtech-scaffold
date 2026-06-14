@@ -1,12 +1,6 @@
--- Enable required extensions
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE EXTENSION IF NOT EXISTS vector;
 
--- ============================================================================
--- TABLES
--- ============================================================================
-
--- 1. profiles
 CREATE TABLE profiles (
   id          UUID PRIMARY KEY REFERENCES auth.users ON DELETE CASCADE,
   display_name TEXT NOT NULL,
@@ -17,7 +11,6 @@ CREATE TABLE profiles (
   updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- 2. modules
 CREATE TABLE modules (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id       UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
@@ -27,6 +20,7 @@ CREATE TABLE modules (
                 CHECK (content_type IN ('pdf','text','markdown')),
   storage_path  TEXT,
   raw_text      TEXT,
+  raw_pdf       TEXT,
   status        TEXT NOT NULL DEFAULT 'processing'
                 CHECK (status IN ('processing','ready','failed')),
   topic_labels  TEXT[] NOT NULL DEFAULT '{}',
@@ -34,7 +28,6 @@ CREATE TABLE modules (
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- 3. module_chunks
 CREATE TABLE module_chunks (
   id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   module_id    UUID NOT NULL REFERENCES modules(id) ON DELETE CASCADE,
@@ -46,7 +39,6 @@ CREATE TABLE module_chunks (
   UNIQUE (module_id, chunk_index)
 );
 
--- 4. quizzes
 CREATE TABLE quizzes (
   id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   module_id        UUID NOT NULL REFERENCES modules(id) ON DELETE CASCADE,
@@ -62,7 +54,6 @@ CREATE TABLE quizzes (
   created_at       TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- 5. questions
 CREATE TABLE questions (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   quiz_id         UUID NOT NULL REFERENCES quizzes(id) ON DELETE CASCADE,
@@ -79,7 +70,6 @@ CREATE TABLE questions (
   created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- 6. quiz_attempts
 CREATE TABLE quiz_attempts (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   quiz_id       UUID NOT NULL REFERENCES quizzes(id) ON DELETE CASCADE,
@@ -91,7 +81,6 @@ CREATE TABLE quiz_attempts (
   attempted_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- 7. topic_mastery
 CREATE TABLE topic_mastery (
   id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id              UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
@@ -106,7 +95,6 @@ CREATE TABLE topic_mastery (
   UNIQUE (user_id, topic)
 );
 
--- 8. analytics_snapshots
 CREATE TABLE analytics_snapshots (
   id                       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id                  UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
@@ -121,11 +109,6 @@ CREATE TABLE analytics_snapshots (
   UNIQUE (user_id, snapshot_date)
 );
 
--- ============================================================================
--- ROW LEVEL SECURITY
--- ============================================================================
-
--- Helper: users can only access their own data (or rows they own via user_id)
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE modules ENABLE ROW LEVEL SECURITY;
 ALTER TABLE module_chunks ENABLE ROW LEVEL SECURITY;
@@ -135,49 +118,24 @@ ALTER TABLE quiz_attempts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE topic_mastery ENABLE ROW LEVEL SECURITY;
 ALTER TABLE analytics_snapshots ENABLE ROW LEVEL SECURITY;
 
--- profiles: user sees own row
 CREATE POLICY "users_see_own_profile"
-  ON profiles FOR ALL
-  USING (id = auth.uid());
-
--- modules: user sees own modules
+  ON profiles FOR ALL USING (id = auth.uid());
 CREATE POLICY "users_see_own_modules"
-  ON modules FOR ALL
-  USING (user_id = auth.uid());
-
--- module_chunks: via module ownership
+  ON modules FOR ALL USING (user_id = auth.uid());
 CREATE POLICY "users_see_own_chunks"
   ON module_chunks FOR ALL
   USING (module_id IN (SELECT id FROM modules WHERE user_id = auth.uid()));
-
--- quizzes: user sees own quizzes
 CREATE POLICY "users_see_own_quizzes"
-  ON quizzes FOR ALL
-  USING (user_id = auth.uid());
-
--- questions: via quiz ownership
+  ON quizzes FOR ALL USING (user_id = auth.uid());
 CREATE POLICY "users_see_own_questions"
   ON questions FOR ALL
   USING (quiz_id IN (SELECT id FROM quizzes WHERE user_id = auth.uid()));
-
--- quiz_attempts: user sees own attempts
 CREATE POLICY "users_see_own_attempts"
-  ON quiz_attempts FOR ALL
-  USING (user_id = auth.uid());
-
--- topic_mastery: user sees own mastery
+  ON quiz_attempts FOR ALL USING (user_id = auth.uid());
 CREATE POLICY "users_see_own_mastery"
-  ON topic_mastery FOR ALL
-  USING (user_id = auth.uid());
-
--- analytics_snapshots: user sees own snapshots
+  ON topic_mastery FOR ALL USING (user_id = auth.uid());
 CREATE POLICY "users_see_own_snapshots"
-  ON analytics_snapshots FOR ALL
-  USING (user_id = auth.uid());
-
--- ============================================================================
--- TRIGGERS (updated_at)
--- ============================================================================
+  ON analytics_snapshots FOR ALL USING (user_id = auth.uid());
 
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -188,22 +146,12 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER set_profiles_updated_at
-  BEFORE UPDATE ON profiles
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
+  BEFORE UPDATE ON profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER set_modules_updated_at
-  BEFORE UPDATE ON modules
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
+  BEFORE UPDATE ON modules FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER set_topic_mastery_updated_at
-  BEFORE UPDATE ON topic_mastery
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON topic_mastery FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- ============================================================================
--- INDEXES
--- ============================================================================
-
--- Foreign-key indexes
 CREATE INDEX idx_modules_user_id          ON modules(user_id);
 CREATE INDEX idx_module_chunks_module_id  ON module_chunks(module_id);
 CREATE INDEX idx_quizzes_module_id        ON quizzes(module_id);
@@ -215,18 +163,8 @@ CREATE INDEX idx_quiz_attempts_question_id ON quiz_attempts(question_id);
 CREATE INDEX idx_topic_mastery_user_id    ON topic_mastery(user_id);
 CREATE INDEX idx_analytics_snapshots_user_id ON analytics_snapshots(user_id);
 
--- IVFFlat index on embedding column for vector similarity search
 CREATE INDEX idx_module_chunks_embedding
-  ON module_chunks
-  USING ivfflat (embedding vector_cosine_ops)
-  WITH (lists = 100);
-
--- ============================================================================
--- AUTO-PROFILE CREATION TRIGGER
--- ============================================================================
--- Creates a profile row automatically when a new user signs up via Supabase Auth.
--- The display_name is taken from raw_user_meta_data (set via signUp options).
--- This means the frontend registration page does NOT need to insert into profiles.
+  ON module_chunks USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
@@ -235,10 +173,7 @@ SECURITY DEFINER SET search_path = ''
 AS $$
 BEGIN
   INSERT INTO public.profiles (id, display_name)
-  VALUES (
-    NEW.id,
-    COALESCE(NEW.raw_user_meta_data ->> 'display_name', '')
-  );
+  VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data ->> 'display_name', ''));
   RETURN NEW;
 END;
 $$;

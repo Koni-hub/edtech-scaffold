@@ -1,10 +1,9 @@
 import { notFound, redirect } from "next/navigation"
-import { ArrowLeft, BookOpen, FileText, FileCode, Loader2, CheckCircle2, AlertCircle, Search } from "lucide-react"
+import { ArrowLeft, BookOpen, FileText, FileCode, Loader2, CheckCircle2, AlertCircle } from "lucide-react"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { DeleteButton } from "@/components/shared/delete-button"
 import { createClient } from "@/lib/supabase/server"
+import { ModuleTabs } from "@/components/shared/module-tabs"
 
 const statusIcon: Record<string, React.ReactNode> = {
   processing: <Loader2 size={14} className="animate-spin text-amber-500" />,
@@ -34,12 +33,10 @@ async function deleteModule(moduleId: string) {
   redirect("/modules")
 }
 
-export default async function ModuleDetailPage({ params, searchParams }: {
+export default async function ModuleDetailPage({ params }: {
   params: Promise<{ moduleId: string }>
-  searchParams: Promise<{ q?: string }>
 }) {
   const { moduleId } = await params
-  const { q } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return notFound()
@@ -52,17 +49,6 @@ export default async function ModuleDetailPage({ params, searchParams }: {
     .single()
 
   if (!mod) return notFound()
-
-  let { data: chunks } = await supabase
-    .from("module_chunks")
-    .select("content, chunk_index, token_count")
-    .eq("module_id", moduleId)
-    .order("chunk_index", { ascending: true })
-
-  if (q && chunks) {
-    const lower = q.toLowerCase()
-    chunks = chunks.filter((c) => c.content.toLowerCase().includes(lower))
-  }
 
   return (
     <div className="space-y-6">
@@ -110,57 +96,11 @@ export default async function ModuleDetailPage({ params, searchParams }: {
         )}
       </div>
 
-      <div className="flex flex-wrap gap-3">
-        <Link href={`/quizzes/generate?moduleId=${moduleId}`}>
-          <Button>AI Quiz</Button>
-        </Link>
-        <Link href={`/quizzes/generate-local?moduleId=${moduleId}`}>
-          <Button variant="secondary">Local Quiz</Button>
-        </Link>
-        <Link href={`/modules/${moduleId}/flashcards`}>
-          <Button variant="outline">Flashcards</Button>
-        </Link>
-      </div>
-
-      <div>
-        <form className="relative mb-3">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            name="q"
-            defaultValue={q ?? ""}
-            placeholder="Search within module..."
-            className="pl-9"
-          />
-        </form>
-      </div>
-
-      {chunks && chunks.length > 0 ? (
-        <div>
-          <h2 className="text-lg font-semibold mb-3">Content ({chunks.length} chunks{q ? ` matching "${q}"` : ""})</h2>
-          <div className="space-y-3">
-            {chunks.map((chunk) => {
-              const lowerQ = q?.toLowerCase()
-              const escapedQ = q?.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-              const content = lowerQ && escapedQ
-                ? chunk.content.replace(new RegExp(`(${escapedQ})`, "gi"), "<mark>$1</mark>")
-                : chunk.content
-              return (
-                <details key={chunk.chunk_index} className="rounded-xl border bg-card">
-                  <summary className="cursor-pointer px-4 py-3 text-sm font-medium hover:bg-accent/50 rounded-xl">
-                    Chunk {chunk.chunk_index + 1}
-                    <span className="ml-2 text-xs text-muted-foreground">(~{chunk.token_count} tokens)</span>
-                  </summary>
-                  <div className="border-t px-4 py-3 text-sm text-muted-foreground whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: content }} />
-                </details>
-              )
-            })}
-          </div>
-        </div>
-      ) : (
-        <p className="text-sm text-muted-foreground py-4 text-center">
-          {q ? `No chunks match "${q}"` : "No content chunks found."}
-        </p>
-      )}
+      <ModuleTabs
+        moduleId={moduleId}
+        rawPdf={mod.raw_pdf}
+        title={mod.title}
+      />
     </div>
   )
 }

@@ -65,7 +65,7 @@ export default function ModuleUploadPage() {
         if (!pollRes.ok) { pollRef.current = setTimeout(poll, 1500); return }
         const pollData = await pollRes.json()
         if (pollData.status === "ready") {
-          setCurrentStepIndex(3)
+          setCurrentStepIndex(steps.length)
           setUploading(false)
         } else if (pollData.status === "failed") {
           setFailed(true)
@@ -138,7 +138,7 @@ export default function ModuleUploadPage() {
             </div>
             {failed ? (
               <XCircle size={20} className="shrink-0 text-red-500" />
-            ) : currentStepIndex >= 3 ? (
+            ) : currentStepIndex >= steps.length ? (
               <CheckCircle2 size={20} className="shrink-0 text-green-500" />
             ) : (
               <Loader2 size={20} className="shrink-0 animate-spin text-amber-500" />
@@ -179,7 +179,7 @@ export default function ModuleUploadPage() {
         </div>
       )}
 
-      {currentStepIndex >= 3 && moduleId && (
+      {currentStepIndex >= steps.length && moduleId && (
         <div className="flex justify-center gap-3">
           <Button onClick={() => router.push("/modules")}>
             View All Modules

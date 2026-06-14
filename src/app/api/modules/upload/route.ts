@@ -1,6 +1,32 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 
+async function extractPdfText(uint8: Uint8Array): Promise<string> {
+  const { getDocument, GlobalWorkerOptions } = await import("pdfjs-dist/legacy/build/pdf.mjs")
+  const pathMod = await import("path")
+  const fsMod = await import("fs")
+
+  const workerPath = pathMod.resolve(
+    pathMod.dirname(require.resolve("pdfjs-dist/legacy/build/pdf.mjs")),
+    "pdf.worker.mjs"
+  )
+  GlobalWorkerOptions.workerSrc = workerPath
+
+  const loadingTask = getDocument({ data: uint8 })
+  const pdf = await loadingTask.promise
+  const pageTexts: string[] = []
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i)
+    const content = await page.getTextContent({ includeMarkedContent: false, disableNormalization: false })
+    const texts = content.items.filter((item: any) => "str" in item).map((item: any) => item.str).join(" ")
+    pageTexts.push(texts)
+    page.cleanup()
+  }
+  const fullText = pageTexts.join("\n\n")
+  await pdf.destroy()
+  return fullText
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
@@ -9,8 +35,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: authError?.message ?? "Unauthorized" }, { status: 401 })
     }
 
-    // Ensure profile exists for FK constraint (modules.user_id -> profiles.id)
-    // Silently ignore if profile already exists (trigger should handle it)
     const { error: profileError } = await supabase
       .from("profiles")
       .insert({ id: user.id, display_name: user.user_metadata?.display_name ?? user.email ?? "" })
@@ -29,51 +53,90 @@ export async function POST(request: NextRequest) {
     const isPdf = file.name.toLowerCase().endsWith(".pdf")
 
     let rawText = ""
+    let rawPdf: string | null = null
+
     if (isPdf) {
+      const arrayBuffer = await file.arrayBuffer()
+      const uint8 = new Uint8Array(arrayBuffer)
+      rawPdf = `data:application/pdf;base64,${Buffer.from(uint8).toString("base64")}`
+
       try {
-        const { getDocument, GlobalWorkerOptions } = await import("pdfjs-dist/legacy/build/pdf.mjs")
-        GlobalWorkerOptions.workerSrc = ""
-        const pdfDoc = await getDocument({ data: await file.arrayBuffer() }).promise
-        const pages: string[] = []
-        for (let i = 1; i <= pdfDoc.numPages; i++) {
-          const page = await pdfDoc.getPage(i)
-          const content = await page.getTextContent()
-          const pageText = (content.items as Array<{ str: string }>)
-            .filter((item) => typeof item.str === "string")
-            .map((item) => item.str)
-            .join(" ")
-          pages.push(pageText)
-        }
-        rawText = pages.join("\n")
-      } catch {
+        rawText = await extractPdfText(uint8)
+      } catch (e) {
+        console.error("PDF extraction failed:", e)
         rawText = "[PDF content extraction pending]"
       }
     } else {
       rawText = await file.text()
     }
 
-    const { data: module, error: insertError } = await supabase
-      .from("modules")
-      .insert({
-        user_id: user.id,
-        title,
-        content_type: isPdf ? "pdf" : "text",
-        storage_path: null,
-        raw_text: rawText,
-        status: "processing",
-        topic_labels: [],
-      })
-      .select("id")
-      .single()
+    let moduleId: string | null = null
 
-    if (insertError) {
-      return NextResponse.json({ error: `DB: ${insertError.message}` }, { status: 500 })
+    if (rawPdf) {
+      const { data, error } = await supabase
+        .from("modules")
+        .insert({
+          user_id: user.id,
+          title,
+          content_type: "pdf",
+          storage_path: null,
+          raw_text: rawText,
+          raw_pdf: rawPdf,
+          status: "processing",
+          topic_labels: [],
+        })
+        .select("id")
+        .single()
+
+      if (error?.message?.includes("raw_pdf")) {
+        const fallback = await supabase
+          .from("modules")
+          .insert({
+            user_id: user.id,
+            title,
+            content_type: "pdf",
+            storage_path: null,
+            raw_text: rawText,
+            status: "processing",
+            topic_labels: [],
+          })
+          .select("id")
+          .single()
+        moduleId = fallback.data?.id ?? null
+        if (fallback.error) {
+          return NextResponse.json({ error: `DB: ${fallback.error.message}` }, { status: 500 })
+        }
+      } else if (error) {
+        return NextResponse.json({ error: `DB: ${error.message}` }, { status: 500 })
+      } else {
+        moduleId = data?.id ?? null
+      }
+    } else {
+      const { data, error } = await supabase
+        .from("modules")
+        .insert({
+          user_id: user.id,
+          title,
+          content_type: "text",
+          storage_path: null,
+          raw_text: rawText,
+          status: "processing",
+          topic_labels: [],
+        })
+        .select("id")
+        .single()
+
+      if (error) {
+        return NextResponse.json({ error: `DB: ${error.message}` }, { status: 500 })
+      }
+      moduleId = data?.id ?? null
     }
-    if (!module) {
+
+    if (!moduleId) {
       return NextResponse.json({ error: "No module returned" }, { status: 500 })
     }
 
-    return NextResponse.json({ moduleId: module.id })
+    return NextResponse.json({ moduleId })
   } catch (err) {
     return NextResponse.json({ error: `Upload failed: ${err instanceof Error ? err.message : String(err)}` }, { status: 500 })
   }

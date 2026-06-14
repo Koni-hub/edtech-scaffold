@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { generateLocalQuiz } from "@/lib/llm/local-quiz-generator"
+import { PDFParse } from "pdf-parse"
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,12 +15,27 @@ export async function POST(request: NextRequest) {
 
     const { data: mod } = await supabase
       .from("modules")
-      .select("id, title, raw_text, user_id")
+      .select("id, title, raw_text, raw_pdf, user_id")
       .eq("id", moduleId)
       .eq("user_id", user.id)
       .single()
 
     if (!mod) return NextResponse.json({ error: "Module not found" }, { status: 404 })
+
+    let rawText = mod.raw_text
+    if (rawText?.includes("[PDF content extraction pending]") && mod.raw_pdf) {
+      try {
+        const base64 = mod.raw_pdf.replace(/^data:application\/pdf;base64,/, "")
+        const uint8 = new Uint8Array(Buffer.from(base64, "base64"))
+        const parser = new PDFParse({ data: uint8 })
+        const result = await parser.getText()
+        rawText = result.text
+        await parser.destroy()
+        await supabase.from("modules").update({ raw_text: rawText }).eq("id", moduleId)
+      } catch (e) {
+        console.error("PDF re-extraction failed:", e)
+      }
+    }
 
     const { data: chunks } = await supabase
       .from("module_chunks")
@@ -29,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     const chunkData = chunks?.length
       ? chunks.map((c) => ({ content: c.content, tokenCount: c.token_count }))
-      : [{ content: mod.raw_text ?? "", tokenCount: Math.ceil((mod.raw_text?.length ?? 0) / 4) }]
+      : [{ content: rawText ?? "", tokenCount: Math.ceil((rawText?.length ?? 0) / 4) }]
 
     const generated = generateLocalQuiz({
       title: mod.title,

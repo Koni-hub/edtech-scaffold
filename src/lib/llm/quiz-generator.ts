@@ -1,8 +1,10 @@
-import OpenAI from "openai"
+import { GoogleGenerativeAI } from "@google/generative-ai"
 import { QUIZ_GENERATION_SYSTEM_PROMPT } from "./prompts"
 
-function getOpenAI() {
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+function getGenAI() {
+  const key = process.env.GEMINI_API_KEY
+  if (!key) throw new Error("GEMINI_API_KEY is not set")
+  return new GoogleGenerativeAI(key)
 }
 
 export interface GeneratedQuestion {
@@ -38,20 +40,20 @@ export async function generateQuiz(input: GenerateQuizInput): Promise<GeneratedQ
     contextText = candidate
   }
 
-  const response = await getOpenAI().chat.completions.create({
-    model: "gpt-4o-mini",
-    temperature: 0.7,
-    response_format: { type: "json_object" },
-    messages: [
-      { role: "system", content: QUIZ_GENERATION_SYSTEM_PROMPT },
-      {
-        role: "user",
-        content: `Module: "${input.moduleTitle}"\n\nContent:\n${contextText}\n\nGenerate exactly ${input.questionCount} questions at ${input.difficulty} difficulty.`,
-      },
-    ],
+  const model = getGenAI().getGenerativeModel({
+    model: "gemini-2.0-flash",
+    generationConfig: {
+      temperature: 0.7,
+      responseMimeType: "application/json",
+    },
   })
 
-  const content = response.choices[0]?.message?.content
+  const result = await model.generateContent([
+    QUIZ_GENERATION_SYSTEM_PROMPT,
+    `Module: "${input.moduleTitle}"\n\nContent:\n${contextText}\n\nGenerate exactly ${input.questionCount} questions at ${input.difficulty} difficulty.`,
+  ])
+
+  const content = result.response.text()
   if (!content) throw new Error("No content in LLM response")
 
   const parsed = JSON.parse(content)

@@ -352,31 +352,75 @@ export default function LandingPage() {
                 </p>
               </div>
             </FadeIn>
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="relative mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
-            >
-              {steps.map((step, index) => {
-                const Icon = step.icon
-                return (
-                  <motion.div key={step.title} variants={itemVariants} className="relative">
-                    <div className="relative flex flex-col items-center text-center p-6 rounded-xl border bg-card transition-all hover:shadow-md hover:-translate-y-0.5">
-                      <div className="flex size-16 items-center justify-center rounded-xl border bg-background mb-4">
-                        <Icon className="size-7 text-primary" />
+            <div className="relative mt-16">
+              <div className="hidden lg:flex items-start justify-between gap-0">
+                {steps.map((step, index) => {
+                  const Icon = step.icon
+                  return (
+                    <motion.div
+                      key={step.title}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.15, duration: 0.5 }}
+                      className="relative flex flex-col items-center text-center flex-1 px-2"
+                    >
+                      <div className="relative z-10 flex size-16 items-center justify-center rounded-full border-2 border-primary/30 bg-background shadow-sm">
+                        <span className="text-lg font-bold text-primary">{index + 1}</span>
                       </div>
-                      <div className="inline-flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground mb-2">
-                        {index + 1}
+                      {index < steps.length - 1 && (
+                        <div className="absolute top-8 left-[calc(50%+2.5rem)] right-[calc(-50%+2.5rem)] h-px">
+                          <motion.div
+                            initial={{ scaleX: 0 }}
+                            whileInView={{ scaleX: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: index * 0.15 + 0.25, duration: 0.4, ease: "easeInOut" }}
+                            className="h-full w-full origin-left border-t border-dashed border-muted-foreground/30"
+                          />
+                        </div>
+                      )}
+                      <div className="mt-4 flex size-12 items-center justify-center rounded-xl bg-primary/10">
+                        <Icon className="size-6 text-primary" />
                       </div>
-                      <h3 className="text-base font-semibold">{step.title}</h3>
-                      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{step.description}</p>
-                    </div>
-                  </motion.div>
-                )
-              })}
-            </motion.div>
+                      <h3 className="mt-3 text-sm font-semibold">{step.title}</h3>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground max-w-[180px]">{step.description}</p>
+                    </motion.div>
+                  )
+                })}
+              </div>
+
+              <div className="lg:hidden space-y-6">
+                {steps.map((step, index) => {
+                  const Icon = step.icon
+                  return (
+                    <motion.div
+                      key={step.title}
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.1, duration: 0.4 }}
+                      className="relative flex items-start gap-4 pl-0"
+                    >
+                      {index < steps.length - 1 && (
+                        <div className="absolute left-[15px] top-10 bottom-0 w-px border-l border-dashed border-muted-foreground/30" />
+                      )}
+                      <div className="relative z-10 flex size-[30px] shrink-0 items-center justify-center rounded-full border-2 border-primary/30 bg-background">
+                        <span className="text-xs font-bold text-primary">{index + 1}</span>
+                      </div>
+                      <div className="flex items-start gap-3 rounded-lg border bg-card p-4 flex-1">
+                        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                          <Icon className="size-5 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-semibold">{step.title}</h3>
+                          <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{step.description}</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )
+                })}
+              </div>
+            </div>
           </div>
         </Section>
 

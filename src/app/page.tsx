@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { BrainCircuit, BookOpen, BarChart3, Sparkles, Upload, Target, ArrowRight, Menu, X, Zap, Layers, GraduationCap, LineChart, Bot, Check, XIcon } from "lucide-react"
 import { ThemeToggle } from "@/components/layout/theme-toggle"
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect } from "react"
 import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion"
 
 function useMousePosition() {
@@ -14,29 +14,6 @@ function useMousePosition() {
     return () => window.removeEventListener("mousemove", handler)
   }, [])
   return pos
-}
-
-function useTilt(ref: React.RefObject<HTMLElement | null>) {
-  const [tilt, setTilt] = useState({ x: 0, y: 0 })
-  const handleMouse = useCallback((e: MouseEvent) => {
-    if (!ref.current) return
-    const rect = ref.current.getBoundingClientRect()
-    const x = (e.clientX - rect.left) / rect.width - 0.5
-    const y = (e.clientY - rect.top) / rect.height - 0.5
-    setTilt({ x: y * -20, y: x * 20 })
-  }, [ref])
-  const handleLeave = useCallback(() => setTilt({ x: 0, y: 0 }), [])
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    el.addEventListener("mousemove", handleMouse)
-    el.addEventListener("mouseleave", handleLeave)
-    return () => {
-      el.removeEventListener("mousemove", handleMouse)
-      el.removeEventListener("mouseleave", handleLeave)
-    }
-  }, [ref, handleMouse, handleLeave])
-  return tilt
 }
 
 function useParticles(count: number) {
@@ -128,24 +105,6 @@ function FadeIn({ children, delay = 0, className }: { children: React.ReactNode;
   )
 }
 
-function StaggerGrid({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={className}>{children}</div>
-}
-
-function TiltCard({ children, className }: { children: React.ReactNode; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const tilt = useTilt(ref)
-  return (
-    <div
-      ref={ref}
-      className={className}
-      style={{ transform: `perspective(800px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)` }}
-    >
-      {children}
-    </div>
-  )
-}
-
 const features = [
   {
     icon: Upload, title: "Upload & Process",
@@ -225,7 +184,7 @@ export default function LandingPage() {
             <span className="text-lg font-bold tracking-tight">Syntra</span>
           </Link>
           <nav className="hidden md:flex items-center gap-8">
-                {["Features", "How It Works", "Comparison", "Testimonials"].map((item) => (
+                {["Features", "How It Works", "Testimonials"].map((item) => (
               <Link key={item} href={`#${item.toLowerCase().replace(/\s/g, "-")}`} className="relative text-sm font-medium text-muted-foreground hover:text-foreground transition-colors group">
                 {item}
                 <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-foreground transition-all group-hover:w-full" />
@@ -249,7 +208,7 @@ export default function LandingPage() {
           {mobileMenuOpen && (
             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="border-t bg-background md:hidden overflow-hidden">
               <div className="space-y-1 px-4 py-4">
-            {["Features", "How It Works", "Comparison", "Testimonials"].map((item) => (
+            {["Features", "How It Works", "Testimonials"].map((item) => (
                   <Link key={item} href={`#${item.toLowerCase().replace(/\s/g, "-")}`} onClick={() => setMobileMenuOpen(false)} className="block rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted">{item}</Link>
                 ))}
                 <Link href="/docs" onClick={() => setMobileMenuOpen(false)} className="block rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted">Docs</Link>
@@ -270,12 +229,7 @@ export default function LandingPage() {
             style={{ transform: `translate(${(mouse.x - winSize.w / 2) * 0.02}px, ${(mouse.y - winSize.h / 2) * 0.02}px)` }}
           />
           <div
-            className="absolute top-1/4 -right-32 size-96 rounded-full bg-primary/5 blur-3xl pointer-events-none"
-            style={{ transform: `translate(${(mouse.x - winSize.w / 2) * -0.01}px, ${(mouse.y - winSize.h / 2) * -0.01}px)` }}
-          />
-          <div
-            className="absolute -bottom-32 -left-32 size-96 rounded-full bg-primary/5 blur-3xl pointer-events-none"
-            style={{ transform: `translate(${(mouse.x - winSize.w / 2) * 0.01}px, ${(mouse.y - winSize.h / 2) * 0.01}px)` }}
+            className="absolute -top-32 -right-32 size-96 rounded-full bg-primary/5 blur-3xl pointer-events-none"
           />
           <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative w-full mx-auto max-w-7xl px-4 pb-16 pt-24 sm:px-6 sm:pt-32 lg:px-8">
             <div className="mx-auto max-w-3xl text-center">
@@ -341,15 +295,7 @@ export default function LandingPage() {
               ))}
             </motion.div>
           </motion.div>
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:block"
-          >
-            <div className="size-6 rounded-full border-2 border-muted-foreground/30 flex items-center justify-center">
-              <div className="size-1.5 rounded-full bg-muted-foreground/50" />
-            </div>
-          </motion.div>
+
         </section>
 
         <Section id="features" className="border-t py-20 sm:py-28 relative">
@@ -372,23 +318,23 @@ export default function LandingPage() {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
-              className="mt-14 grid gap-px overflow-hidden rounded-xl border sm:grid-cols-2 lg:grid-cols-3"
+              className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
             >
               {features.map((feature) => {
                 const Icon = feature.icon
                 return (
                   <motion.div key={feature.title} variants={itemVariants}>
-                    <TiltCard className="relative bg-card p-6 sm:p-8 h-full transition-shadow hover:shadow-lg">
+                    <div className="relative rounded-xl border bg-card p-6 sm:p-8 h-full transition-all hover:shadow-md hover:-translate-y-0.5">
                       <motion.div
-                        whileHover={{ rotate: [0, -10, 10, -5, 0], scale: 1.1 }}
-                        transition={{ duration: 0.4 }}
+                        whileHover={{ scale: 1.15 }}
+                        transition={{ duration: 0.2 }}
                         className="mb-4 flex size-10 items-center justify-center rounded-lg border bg-background"
                       >
                         <Icon className="size-5 text-primary" />
                       </motion.div>
                       <h3 className="mb-2 text-base font-semibold">{feature.title}</h3>
                       <p className="text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
-                    </TiltCard>
+                    </div>
                   </motion.div>
                 )
               })}
@@ -396,7 +342,7 @@ export default function LandingPage() {
           </div>
         </Section>
 
-        <Section id="how-it-works" className="border-t bg-muted/30 py-20 sm:py-28">
+        <Section id="how-it-works" className="border-t py-20 sm:py-28">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <FadeIn>
               <div className="mx-auto max-w-2xl text-center">
@@ -417,28 +363,16 @@ export default function LandingPage() {
                 const Icon = step.icon
                 return (
                   <motion.div key={step.title} variants={itemVariants} className="relative">
-                    {index < steps.length - 1 && (
-                      <div className="absolute left-10 top-10 hidden h-px w-[calc(100%-5rem)] border-t border-dashed lg:block" />
-                    )}
-                    <TiltCard className="relative flex flex-col items-center text-center p-6 rounded-2xl transition-shadow hover:shadow-lg">
-                      <motion.div
-                        whileHover={{ scale: 1.1, rotate: 5 }}
-                        className="flex size-20 items-center justify-center rounded-2xl border bg-card shadow-sm"
-                      >
-                        <Icon className="size-8 text-primary" />
-                      </motion.div>
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        whileInView={{ scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.3 + index * 0.1, type: "spring" }}
-                        className="mt-5 inline-flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground"
-                      >
+                    <div className="relative flex flex-col items-center text-center p-6 rounded-xl border bg-card transition-all hover:shadow-md hover:-translate-y-0.5">
+                      <div className="flex size-16 items-center justify-center rounded-xl border bg-background mb-4">
+                        <Icon className="size-7 text-primary" />
+                      </div>
+                      <div className="inline-flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground mb-2">
                         {index + 1}
-                      </motion.div>
-                      <h3 className="mt-3 text-base font-semibold">{step.title}</h3>
-                      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground max-w-xs">{step.description}</p>
-                    </TiltCard>
+                      </div>
+                      <h3 className="text-base font-semibold">{step.title}</h3>
+                      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{step.description}</p>
+                    </div>
                   </motion.div>
                 )
               })}
@@ -474,21 +408,19 @@ export default function LandingPage() {
                   whileHover={{ y: -6 }}
                   className="rounded-xl border bg-card p-6 transition-shadow hover:shadow-md"
                 >
-                  <div className="flex gap-1 mb-4">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1, duration: 0.3 }}
+                    className="flex gap-1 mb-4"
+                  >
                     {[...Array(5)].map((_, j) => (
-                      <motion.svg
-                        key={j}
-                        initial={{ opacity: 0, scale: 0 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: i * 0.1 + j * 0.05, type: "spring" }}
-                        className="size-4 fill-primary"
-                        viewBox="0 0 20 20"
-                      >
+                      <svg key={j} className="size-4 fill-primary" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </motion.svg>
+                      </svg>
                     ))}
-                  </div>
+                  </motion.div>
                   <blockquote className="text-sm leading-relaxed text-muted-foreground">&ldquo;{t.quote}&rdquo;</blockquote>
                   <div className="mt-4 border-t pt-4">
                     <div className="text-sm font-medium">{t.author}</div>
@@ -569,7 +501,7 @@ export default function LandingPage() {
           </div>
         </Section>
 
-        <Section className="border-t bg-muted/30 py-20 sm:py-28">
+        <Section className="border-t py-20 sm:py-28">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 40 }}

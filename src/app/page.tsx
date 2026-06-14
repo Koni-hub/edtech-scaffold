@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { BrainCircuit, BookOpen, BarChart3, Sparkles, Upload, Target, ArrowRight, Menu, X, Zap, Layers, GraduationCap, LineChart, Bot } from "lucide-react"
+import { BrainCircuit, BookOpen, BarChart3, Sparkles, Upload, Target, ArrowRight, Menu, X, Zap, Layers, GraduationCap, LineChart, Bot, Check, XIcon } from "lucide-react"
 import { ThemeToggle } from "@/components/layout/theme-toggle"
 import { useState, useRef, useEffect, useCallback } from "react"
 import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion"
@@ -225,7 +225,7 @@ export default function LandingPage() {
             <span className="text-lg font-bold tracking-tight">Syntra</span>
           </Link>
           <nav className="hidden md:flex items-center gap-8">
-            {["Features", "How It Works", "Testimonials"].map((item) => (
+                {["Features", "How It Works", "Comparison", "Testimonials"].map((item) => (
               <Link key={item} href={`#${item.toLowerCase().replace(/\s/g, "-")}`} className="relative text-sm font-medium text-muted-foreground hover:text-foreground transition-colors group">
                 {item}
                 <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-foreground transition-all group-hover:w-full" />
@@ -249,7 +249,7 @@ export default function LandingPage() {
           {mobileMenuOpen && (
             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="border-t bg-background md:hidden overflow-hidden">
               <div className="space-y-1 px-4 py-4">
-                {["Features", "How It Works", "Testimonials"].map((item) => (
+            {["Features", "How It Works", "Comparison", "Testimonials"].map((item) => (
                   <Link key={item} href={`#${item.toLowerCase().replace(/\s/g, "-")}`} onClick={() => setMobileMenuOpen(false)} className="block rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted">{item}</Link>
                 ))}
                 <Link href="/docs" onClick={() => setMobileMenuOpen(false)} className="block rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted">Docs</Link>
@@ -497,6 +497,75 @@ export default function LandingPage() {
                 </motion.div>
               ))}
             </motion.div>
+          </div>
+        </Section>
+
+        <Section id="comparison" className="border-t py-20 sm:py-28">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <FadeIn>
+              <div className="mx-auto max-w-2xl text-center">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border bg-muted/50 px-3 py-1 text-xs font-medium">
+                  <BarChart3 className="size-3 text-primary" />
+                  Comparison
+                </div>
+                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Why Syntra?</h2>
+                <p className="mt-4 text-base text-muted-foreground">
+                  See how we compare to other learning platforms across the features that matter most.
+                </p>
+              </div>
+            </FadeIn>
+            <div className="mt-14 overflow-x-auto">
+              <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+                <thead>
+                  <tr className="border-b">
+                    <th className="py-3 pr-4 font-semibold text-foreground">Feature</th>
+                    <th className="py-3 px-4 font-semibold text-primary">Syntra</th>
+                    <th className="py-3 px-4 font-semibold text-muted-foreground">NotebookLM</th>
+                    <th className="py-3 px-4 font-semibold text-muted-foreground">StudyFetch</th>
+                    <th className="py-3 px-4 font-semibold text-muted-foreground">Quizlet</th>
+                    <th className="py-3 px-4 font-semibold text-muted-foreground">Knowt</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { feature: "AI quiz from uploads", syntra: true, nlm: false, sf: true, qz: false, kt: true },
+                    { feature: "Deep learning analytics", syntra: true, nlm: false, sf: true, qz: false, kt: false },
+                    { feature: "Topic mastery breakdown", syntra: true, nlm: false, sf: false, qz: false, kt: false },
+                    { feature: "Spaced repetition", syntra: true, nlm: false, sf: true, qz: true, kt: true },
+                    { feature: "Multiple question formats", syntra: true, nlm: true, sf: true, qz: true, kt: true },
+                    { feature: "Progress over time", syntra: true, nlm: false, sf: false, qz: true, kt: true },
+                    { feature: "Upload your own materials", syntra: true, nlm: true, sf: true, qz: false, kt: false },
+                    { feature: "Free tier available", syntra: true, nlm: true, sf: false, qz: true, kt: true },
+                    { feature: "Adaptive difficulty", syntra: true, nlm: false, sf: false, qz: false, kt: false },
+                    { feature: "Flashcard review", syntra: true, nlm: true, sf: true, qz: true, kt: true },
+                  ].map((row, i) => (
+                    <motion.tr
+                      key={row.feature}
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.05, duration: 0.3 }}
+                      className="border-b last:border-0 hover:bg-muted/30 transition-colors"
+                    >
+                      <td className="py-3 pr-4 font-medium text-foreground whitespace-nowrap">{row.feature}</td>
+                      <td className="py-3 px-4"><Check className="size-4 text-primary" /></td>
+                      <td className="py-3 px-4">{row.nlm ? <Check className="size-4 text-muted-foreground" /> : <XIcon className="size-4 text-muted-foreground/40" />}</td>
+                      <td className="py-3 px-4">{row.sf ? <Check className="size-4 text-muted-foreground" /> : <XIcon className="size-4 text-muted-foreground/40" />}</td>
+                      <td className="py-3 px-4">{row.qz ? <Check className="size-4 text-muted-foreground" /> : <XIcon className="size-4 text-muted-foreground/40" />}</td>
+                      <td className="py-3 px-4">{row.kt ? <Check className="size-4 text-muted-foreground" /> : <XIcon className="size-4 text-muted-foreground/40" />}</td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="mt-8 text-center text-xs text-muted-foreground"
+            >
+              Feature availability based on free tiers as of June 2026. Syntra features subject to change.
+            </motion.p>
           </div>
         </Section>
 

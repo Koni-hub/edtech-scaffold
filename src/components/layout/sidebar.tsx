@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BrainCircuit, LayoutDashboard, BookOpen, ChartNoAxesCombined, Settings, FileText, X } from "lucide-react"
+import { BrainCircuit, LayoutDashboard, BookOpen, ChartNoAxesCombined, Settings, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface SidebarContextType {
@@ -35,7 +35,6 @@ const navItems = [
   { href: "/quizzes", label: "Quizzes", icon: BrainCircuit },
   { href: "/analytics", label: "Analytics", icon: ChartNoAxesCombined },
   { href: "/settings", label: "Settings", icon: Settings },
-  { href: "/docs", label: "Documentation", icon: FileText },
 ]
 
 function NavItems({ onClick }: { onClick?: () => void }) {

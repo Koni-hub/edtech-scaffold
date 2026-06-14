@@ -156,21 +156,21 @@ interface SearchIndexEntry {
 
 function buildSearchIndex(): SearchIndexEntry[] {
   return [
-    { id: "overview", title: "Overview", text: "Everything you need to get started with Syntra — from uploading your first module to tracking your learning analytics. Documentation." },
-    { id: "quickstart", title: "Quickstart", text: "Get started with Syntra in minutes. Authentication Upload Module Quiz Generation  import createClient signInWithPassword upload fetch module quiz generate api" },
-    { id: "build-paths", title: "Build paths", text: "Choose your path to start learning effectively. Syntra Dashboard AI Quiz Engine interactive dashboard manage modules take quizzes track analytics Generate quizzes from uploaded materials adaptive difficulty instant feedback." },
-    { id: "start-building", title: "Start building", text: "Explore what you can do with Syntra. Upload modules Generate quizzes Track analytics Review weak areas Study flashcards Browse modules Upload PDFs AI processes Generate custom quizzes question formats Monitor understanding scores retention topic mastery Identify weak areas data insights Spaced repetition Organize learning modules by subject topic." },
-    { id: "faq", title: "Frequently asked questions", text: "Common questions about using Syntra. file formats supported PDF DOCX TXT Markdown data secure encrypted Supabase authentication AI quiz generation accuracy content limits Free accounts usage limit" },
-    { id: "support", title: "Support", text: "Still have questions? Get started today explore all features hands-on free." },
-    { id: "modules", title: "Modules", text: "Upload and manage learning modules. AI processes PDF documents into structured learning modules." },
-    { id: "quizzes", title: "Quizzes", text: "Generate and take quizzes with multiple question formats. AI-generated questions from your content." },
-    { id: "analytics", title: "Analytics", text: "Track analytics monitor understanding scores retention rates topic mastery over time." },
-    { id: "flashcards", title: "Flashcards", text: "Study flashcards reinforce knowledge with spaced repetition." },
-    { id: "upload", title: "Uploading materials", text: "Upload PDFs and documents. AI automatically processes them into structured learning modules." },
-    { id: "generate", title: "Generating quizzes", text: "Create custom quizzes from your materials with multiple question formats." },
-    { id: "review", title: "Reviewing results", text: "Review quiz results and identify areas for improvement with data-driven insights." },
-    { id: "track", title: "Tracking progress", text: "Track your learning progress understanding scores retention and topic mastery over time." },
-    { id: "pricing", title: "Pricing", text: "Free accounts available with reasonable usage limits." },
+    { id: "overview", title: "Overview", text: "Everything you need to get started with Syntra from uploading your first module to tracking your learning analytics documentation" },
+    { id: "quickstart", title: "Quickstart", text: "Get started with Syntra in minutes authentication upload module quiz generation import createClient signInWithPassword fetch api" },
+    { id: "pricing", title: "Pricing", text: "Free to start affordable to scale Free plan includes modules quizzes basic analytics flashcard review Pro plan unlimited modules quizzes advanced analytics priority support per month" },
+    { id: "build-paths", title: "Build paths", text: "Choose your path to start learning effectively Syntra Dashboard AI Quiz Engine interactive dashboard manage modules take quizzes track analytics adaptive difficulty instant feedback" },
+    { id: "start-building", title: "Start building", text: "Explore what you can do with Syntra upload modules generate quizzes track analytics review weak areas study flashcards browse modules PDF AI processes" },
+    { id: "modules", title: "Modules", text: "Upload your learning materials Syntra turns them into structured interactive modules AI automatically parses PDFs and documents into topics extracts key concepts creates navigable learning modules foundation for quizzes flashcards and analytics" },
+    { id: "quizzes", title: "Quizzes", text: "Generate AI powered quizzes from your module content multiple choice true false fill in the blank control question count difficulty and topics instant feedback with correct answers and explanations" },
+    { id: "analytics", title: "Analytics", text: "Track your learning performance with data driven insights understanding score retention trends topic mastery breakdown recent quiz performance focus study time on weak areas" },
+    { id: "flashcards", title: "Flashcards", text: "Reinforce knowledge with AI generated flashcards and spaced repetition review cards shuffled mark confidence levels track which cards need more practice optimal intervals" },
+    { id: "upload", title: "Uploading materials", text: "Supported formats PDF DOCX TXT Markdown best practices for uploading learning materials files up to 50 MB supported on all plans use clear headings for best AI processing" },
+    { id: "generate", title: "Generating quizzes", text: "Create custom quizzes from your uploaded modules in seconds select module choose question count pick topics click generate quiz ready in seconds" },
+    { id: "review", title: "Reviewing results", text: "Understand your quiz performance breakdown of correct and incorrect answers explanations for every question track scores over time highlights topics needing more practice" },
+    { id: "track", title: "Tracking progress", text: "Monitor your learning journey over time dashboard aggregates modules created quizzes taken average scores retention trends analytics page for topic radar charts and score trends" },
+    { id: "faq", title: "Frequently asked questions", text: "Common questions about using Syntra file formats supported PDF DOCX TXT Markdown data secure encrypted Supabase authentication AI quiz generation accuracy content limits free accounts" },
+    { id: "support", title: "Support", text: "Still have questions get started today explore all features hands on free" },
   ]
 }
 
@@ -524,6 +524,38 @@ export default function DocsPage() {
             </SectionFadeIn>
 
             <SectionFadeIn>
+              <section id="pricing" className="mt-12 scroll-mt-20">
+                <h2 className="mb-1 text-lg font-semibold">Pricing</h2>
+                <p className="mb-5 text-xs text-muted-foreground">Free to start, affordable to scale.</p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-lg border bg-card p-5">
+                    <h3 className="text-sm font-semibold">Free</h3>
+                    <p className="mt-1 text-2xl font-bold">$0</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">forever</p>
+                    <ul className="mt-4 space-y-2 text-xs">
+                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Up to 3 modules</li>
+                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> 10 quizzes per month</li>
+                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Basic analytics</li>
+                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Flashcard review</li>
+                    </ul>
+                  </div>
+                  <div className="rounded-lg border border-primary/30 bg-card p-5">
+                    <div className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">Most popular</div>
+                    <h3 className="mt-1 text-sm font-semibold">Pro</h3>
+                    <p className="mt-1 text-2xl font-bold">$12</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">per month</p>
+                    <ul className="mt-4 space-y-2 text-xs">
+                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Unlimited modules</li>
+                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Unlimited quizzes</li>
+                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Advanced analytics & insights</li>
+                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Priority support</li>
+                    </ul>
+                  </div>
+                </div>
+              </section>
+            </SectionFadeIn>
+
+            <SectionFadeIn>
               <section id="build-paths" className="mt-12 scroll-mt-20">
                 <h2 className="mb-1 text-lg font-semibold">Build paths</h2>
                 <p className="mb-5 text-xs text-muted-foreground">Choose your path to start learning effectively.</p>
@@ -573,6 +605,186 @@ export default function DocsPage() {
                       </Link>
                     )
                   })}
+                </div>
+              </section>
+            </SectionFadeIn>
+
+            <SectionFadeIn>
+              <section id="modules" className="mt-12 scroll-mt-20">
+                <h2 className="mb-1 text-lg font-semibold">Modules</h2>
+                <p className="mb-4 text-xs text-muted-foreground">Upload your learning materials and Syntra turns them into structured, interactive modules.</p>
+                <div className="rounded-lg border bg-card p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-md border bg-background">
+                      <BookOpen className="size-4 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold">How modules work</h3>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        Upload PDFs or documents in the Modules section. Syntra&rsquo;s AI automatically parses the content into structured topics, extracts key concepts, and creates a navigable learning module. Each module becomes the foundation for quizzes, flashcards, and analytics.
+                      </p>
+                      <Link href="/modules/upload" className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+                        Upload a module <ArrowRight className="size-3" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </SectionFadeIn>
+
+            <SectionFadeIn>
+              <section id="quizzes" className="mt-12 scroll-mt-20">
+                <h2 className="mb-1 text-lg font-semibold">Quizzes</h2>
+                <p className="mb-4 text-xs text-muted-foreground">Generate AI-powered quizzes from your module content to test your understanding.</p>
+                <div className="rounded-lg border bg-card p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-md border bg-background">
+                      <BrainCircuit className="size-4 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold">Quiz formats</h3>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        Quizzes include multiple-choice, true-or-false, and fill-in-the-blank questions. You control the number of questions, difficulty level, and specific topics. After submission, receive instant feedback with correct answers and explanations.
+                      </p>
+                      <Link href="/quizzes/generate" className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+                        Try a quiz <ArrowRight className="size-3" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </SectionFadeIn>
+
+            <SectionFadeIn>
+              <section id="analytics" className="mt-12 scroll-mt-20">
+                <h2 className="mb-1 text-lg font-semibold">Analytics</h2>
+                <p className="mb-4 text-xs text-muted-foreground">Track your learning performance with data-driven insights.</p>
+                <div className="rounded-lg border bg-card p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-md border bg-background">
+                      <BarChart3 className="size-4 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold">Understanding at a glance</h3>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        The Analytics dashboard shows your overall understanding score, retention trends over time, topic-by-topic mastery breakdown, and recent quiz performance. Use these insights to focus your study time on weak areas.
+                      </p>
+                      <Link href="/analytics" className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+                        View analytics <ArrowRight className="size-3" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </SectionFadeIn>
+
+            <SectionFadeIn>
+              <section id="flashcards" className="mt-12 scroll-mt-20">
+                <h2 className="mb-1 text-lg font-semibold">Flashcards</h2>
+                <p className="mb-4 text-xs text-muted-foreground">Reinforce knowledge with AI-generated flashcards and spaced repetition.</p>
+                <div className="rounded-lg border bg-card p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-md border bg-background">
+                      <GraduationCap className="size-4 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold">Built-in review system</h3>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        Every module generates a flashcard deck. Review cards in order or shuffled, mark confidence levels, and track which cards need more practice. Spaced repetition scheduling ensures you review concepts at optimal intervals.
+                      </p>
+                      <Link href="/modules" className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+                        Start reviewing <ArrowRight className="size-3" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </SectionFadeIn>
+
+            <SectionFadeIn>
+              <section id="upload" className="mt-12 scroll-mt-20">
+                <h2 className="mb-1 text-lg font-semibold">Uploading materials</h2>
+                <p className="mb-4 text-xs text-muted-foreground">Supported formats and best practices for uploading learning materials.</p>
+                <div className="rounded-lg border bg-card p-4">
+                  <h3 className="text-sm font-semibold">Supported formats</h3>
+                  <ul className="mt-2 space-y-1.5 text-xs text-muted-foreground">
+                    <li className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-primary shrink-0" /> <strong>PDF</strong> &mdash; Best for lecture notes, textbooks, and articles</li>
+                    <li className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-primary shrink-0" /> <strong>DOCX</strong> &mdash; Word documents</li>
+                    <li className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-primary shrink-0" /> <strong>TXT</strong> &mdash; Plain text files</li>
+                    <li className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-primary shrink-0" /> <strong>Markdown</strong> &mdash; Structured text with headings</li>
+                  </ul>
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    For best results, use clear headings and structured content. Files up to 50 MB are supported on all plans.
+                  </p>
+                  <Link href="/modules/upload" className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+                    Upload now <ArrowRight className="size-3" />
+                  </Link>
+                </div>
+              </section>
+            </SectionFadeIn>
+
+            <SectionFadeIn>
+              <section id="generate" className="mt-12 scroll-mt-20">
+                <h2 className="mb-1 text-lg font-semibold">Generating quizzes</h2>
+                <p className="mb-4 text-xs text-muted-foreground">Create custom quizzes from your uploaded modules in seconds.</p>
+                <div className="rounded-lg border bg-card p-4">
+                  <h3 className="text-sm font-semibold">How to generate a quiz</h3>
+                  <ol className="mt-2 space-y-2 text-xs text-muted-foreground list-decimal list-inside">
+                    <li>Navigate to the <strong>Generate</strong> page from the sidebar</li>
+                    <li>Select a module you&rsquo;ve uploaded</li>
+                    <li>Choose the number of questions (5&ndash;20)</li>
+                    <li>Pick specific topics or let AI cover the full module</li>
+                    <li>Click <strong>Generate</strong> &mdash; your quiz is ready in seconds</li>
+                  </ol>
+                  <Link href="/quizzes/generate" className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+                    Generate a quiz <ArrowRight className="size-3" />
+                  </Link>
+                </div>
+              </section>
+            </SectionFadeIn>
+
+            <SectionFadeIn>
+              <section id="review" className="mt-12 scroll-mt-20">
+                <h2 className="mb-1 text-lg font-semibold">Reviewing results</h2>
+                <p className="mb-4 text-xs text-muted-foreground">Understand your quiz performance and identify areas for improvement.</p>
+                <div className="rounded-lg border bg-card p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-md border bg-background">
+                      <Target className="size-4 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold">Detailed feedback</h3>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        After each quiz, view a breakdown of correct and incorrect answers, see explanations for every question, and track how your score compares to previous attempts. The system highlights topics where you need more practice.
+                      </p>
+                      <Link href="/quizzes" className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+                        View past results <ArrowRight className="size-3" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </SectionFadeIn>
+
+            <SectionFadeIn>
+              <section id="track" className="mt-12 scroll-mt-20">
+                <h2 className="mb-1 text-lg font-semibold">Tracking progress</h2>
+                <p className="mb-4 text-xs text-muted-foreground">Monitor your learning journey over time with comprehensive tracking.</p>
+                <div className="rounded-lg border bg-card p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-md border bg-background">
+                      <BarChart3 className="size-4 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold">Your learning dashboard</h3>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        The dashboard aggregates all your activity: modules created, quizzes taken, average scores, and retention trends. Use the analytics page for deeper insights including topic-radar charts and score trends over days and weeks.
+                      </p>
+                      <Link href="/dashboard" className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+                        Go to dashboard <ArrowRight className="size-3" />
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </section>
             </SectionFadeIn>

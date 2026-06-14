@@ -41,6 +41,7 @@ function useTilt(ref: React.RefObject<HTMLElement | null>) {
 
 function useParticles(count: number) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const darkRef = useRef(false)
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -57,15 +58,20 @@ function useParticles(count: number) {
       vy: (Math.random() - 0.5) * 0.3,
       r: Math.random() * 1.5 + 0.5,
     }))
+    function update() { darkRef.current = document.documentElement.classList.contains("dark") }
+    update()
+    const mo = new MutationObserver(update)
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
+      const fill = darkRef.current ? "oklch(0.922 0 0 / 0.12)" : "oklch(0.205 0 0 / 0.12)"
       for (const p of particles) {
         p.x += p.vx; p.y += p.vy
         if (p.x < 0 || p.x > canvas.width) p.vx *= -1
         if (p.y < 0 || p.y > canvas.height) p.vy *= -1
         ctx.beginPath()
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
-        ctx.fillStyle = "hsl(var(--primary) / 0.15)"
+        ctx.fillStyle = fill
         ctx.fill()
       }
       for (let i = 0; i < particles.length; i++) {
@@ -77,7 +83,8 @@ function useParticles(count: number) {
             ctx.beginPath()
             ctx.moveTo(particles[i].x, particles[i].y)
             ctx.lineTo(particles[j].x, particles[j].y)
-            ctx.strokeStyle = `hsl(var(--primary) / ${0.05 * (1 - dist / 120)})`
+            const a = 0.04 * (1 - dist / 120)
+            ctx.strokeStyle = darkRef.current ? `oklch(0.922 0 0 / ${a})` : `oklch(0.205 0 0 / ${a})`
             ctx.stroke()
           }
         }
@@ -85,7 +92,7 @@ function useParticles(count: number) {
       animId = requestAnimationFrame(animate)
     }
     animate()
-    return () => { cancelAnimationFrame(animId); window.removeEventListener("resize", resize) }
+    return () => { cancelAnimationFrame(animId); window.removeEventListener("resize", resize); mo.disconnect() }
   }, [count])
   return canvasRef
 }

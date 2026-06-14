@@ -31,10 +31,20 @@ export async function POST(request: NextRequest) {
     let rawText = ""
     if (isPdf) {
       try {
-        const { PDFParse } = await import("pdf-parse")
-        const pdf = new PDFParse({ data: await file.arrayBuffer() })
-        const result = await pdf.getText()
-        rawText = result.text
+        const { getDocument, GlobalWorkerOptions } = await import("pdfjs-dist/legacy/build/pdf.mjs")
+        GlobalWorkerOptions.workerSrc = ""
+        const pdfDoc = await getDocument({ data: await file.arrayBuffer() }).promise
+        const pages: string[] = []
+        for (let i = 1; i <= pdfDoc.numPages; i++) {
+          const page = await pdfDoc.getPage(i)
+          const content = await page.getTextContent()
+          const pageText = (content.items as Array<{ str: string }>)
+            .filter((item) => typeof item.str === "string")
+            .map((item) => item.str)
+            .join(" ")
+          pages.push(pageText)
+        }
+        rawText = pages.join("\n")
       } catch {
         rawText = "[PDF content extraction pending]"
       }

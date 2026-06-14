@@ -41,7 +41,7 @@ CREATE TABLE module_chunks (
   chunk_index  INT NOT NULL,
   content      TEXT NOT NULL,
   token_count  INT NOT NULL DEFAULT 0,
-  embedding    VECTOR(1536),
+  embedding    VECTOR(768),
   created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE (module_id, chunk_index)
 );

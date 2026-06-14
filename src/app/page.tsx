@@ -64,7 +64,7 @@ function useParticles(count: number) {
     mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
-      const fill = darkRef.current ? "oklch(0.922 0 0 / 0.12)" : "oklch(0.205 0 0 / 0.12)"
+      const fill = darkRef.current ? "oklch(0.7 0.06 265 / 0.35)" : "oklch(0.35 0.08 265 / 0.35)"
       for (const p of particles) {
         p.x += p.vx; p.y += p.vy
         if (p.x < 0 || p.x > canvas.width) p.vx *= -1
@@ -83,8 +83,8 @@ function useParticles(count: number) {
             ctx.beginPath()
             ctx.moveTo(particles[i].x, particles[i].y)
             ctx.lineTo(particles[j].x, particles[j].y)
-            const a = 0.04 * (1 - dist / 120)
-            ctx.strokeStyle = darkRef.current ? `oklch(0.922 0 0 / ${a})` : `oklch(0.205 0 0 / ${a})`
+            const a = 0.12 * (1 - dist / 120)
+            ctx.strokeStyle = darkRef.current ? `oklch(0.7 0.06 265 / ${a})` : `oklch(0.35 0.08 265 / ${a})`
             ctx.stroke()
           }
         }

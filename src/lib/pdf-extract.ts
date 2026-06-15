@@ -1,8 +1,7 @@
 export async function extractPdfText(uint8: Uint8Array): Promise<string> {
-  const pdfjs = await import("pdfjs-dist")
+  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs")
 
-  // Register worker to run on main thread (no Web Worker needed in Node.js)
-  const worker = await import("pdfjs-dist/build/pdf.worker.mjs")
+  const worker = await import("pdfjs-dist/legacy/build/pdf.worker.mjs")
   ;(globalThis as any).pdfjsWorker = worker
 
   const loadingTask = pdfjs.getDocument({ data: uint8 })

@@ -14,16 +14,35 @@ interface FlashCard {
 function splitSentences(text: string): string[] {
   return text
     .split(/\n\s*\n/)
-    .flatMap((p) => p.trim().split(/(?<=[.!?])\s+/))
-    .map((s) => s.trim())
-    .filter((s) => s.length > 30 && s.length < 500)
+    .flatMap((p) => p.replace(/\n/g, " ").split(/(?<=[.!?])\s+/))
+    .map((s) => s.trim().replace(/\s+/g, " "))
+    .filter((s) => s.length > 30 && s.length < 600)
 }
 
-function extractTerm(phrase: string): string | null {
-  const words = phrase.split(/\s+/).filter((w) => /^[A-Z]/.test(w) && w.length > 2)
-  if (words.length > 0) return words[Math.floor(Math.random() * words.length)]
-  const longWords = phrase.split(/\s+/).filter((w) => w.length > 6 && /^[a-zA-Z]/.test(w))
-  if (longWords.length > 0) return longWords[Math.floor(Math.random() * longWords.length)]
+function extractTerm(sentence: string): { term: string; prefix: string } | null {
+  const multiWord = sentence.match(
+    /([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)+)\s+(is|are|was|were|refers to|means|defined as)/i
+  )
+  if (multiWord) {
+    return { term: multiWord[1].trim(), prefix: multiWord[2] }
+  }
+
+  const capitalized = sentence.match(/\b([A-Z][a-zA-Z]{3,})\b/)
+  if (capitalized) {
+    return { term: capitalized[1], prefix: "" }
+  }
+
+  const quoted = sentence.match(/[""]([^""]{3,})[""]/)
+  if (quoted) {
+    return { term: quoted[1], prefix: "" }
+  }
+
+  const longWords = sentence.match(/\b([a-zA-Z]{8,})\b/g)
+  if (longWords && longWords.length > 0) {
+    const best = longWords.sort((a, b) => b.length - a.length)[0]
+    return { term: best, prefix: "" }
+  }
+
   return null
 }
 
@@ -31,7 +50,18 @@ function generateFlashcards(text: string): FlashCard[] {
   const cards: FlashCard[] = []
   let id = 0
 
-  const definitionPatterns = /\b(is|are|was|were|refers to|means|defined as|involves|consists of|comprises|includes|describes|represents|occurs when|happens when|can be)\b/i
+  const factPatterns = [
+    /\b(is|are|was|were)\s+(a|an|the|one|any|not|also)?\s*/i,
+    /\b(refers to|means|defined as|known as|called|also called|also known as)\b/i,
+    /\b(involves|consists of|comprises|includes|contains|composed of)\b/i,
+    /\b(describes|represents|illustrates|demonstrates)\b/i,
+    /\b(occurs when|happens when|takes place when|results when)\b/i,
+    /\b(leads to|results in|causes|produces|creates|generates|triggers)\b/i,
+    /\b(requires|needs|uses|employs|utilizes|depends on|relies on)\b/i,
+    /\b(is used for|is used to|can be used to|serves as|acts as|functions as)\b/i,
+    /\b(is characterized by|is distinguished by|is defined by)\b/i,
+    /\b(consists? of|is made up of|is composed of)\b/i,
+  ]
 
   const paragraphs = text.split(/\n\s*\n/).filter((p) => p.trim().length > 50)
   const seen = new Set<string>()
@@ -40,56 +70,68 @@ function generateFlashcards(text: string): FlashCard[] {
     if (cards.length >= 30) break
 
     const clean = para.replace(/\n/g, " ").replace(/\s+/g, " ").trim()
-    const match = clean.match(
-      /([A-Z][a-zA-Z]*(?:\s+[A-Z][a-zA-Z]*)*)\s+(is|are|was|were|refers to|means|defined as|involves|consists of|comprises|includes|describes|represents)\s+(.+)/i
-    )
-
-    if (match) {
-      const term = match[1].trim()
-      const def = match[3].trim().replace(/[.!;]+$/, "")
-      const key = term.toLowerCase()
-      if (!seen.has(key) && term.length > 1) {
-        seen.add(key)
-        cards.push({
-          id: id++,
-          question: `What is ${term}?`,
-          answer: `${term} ${match[2]} ${def}.`,
-        })
-        continue
-      }
-    }
 
     const sentences = splitSentences(clean)
     for (const sentence of sentences) {
       if (cards.length >= 30) break
-      if (definitionPatterns.test(sentence)) {
-        const term = extractTerm(sentence)
-        if (term) {
-          const key = term.toLowerCase()
-          if (!seen.has(key)) {
-            seen.add(key)
-            cards.push({
-              id: id++,
-              question: `What is ${term}?`,
-              answer: sentence.replace(/[.!;]+$/, "") + ".",
-            })
-          }
-        }
-      }
+
+      const matchesFact = factPatterns.some((p) => p.test(sentence))
+      if (!matchesFact) continue
+
+      const extracted = extractTerm(sentence)
+      if (!extracted) continue
+
+      const key = extracted.term.toLowerCase()
+      if (seen.has(key)) continue
+      seen.add(key)
+
+      cards.push({
+        id: id++,
+        question: `What is ${extracted.term}?`,
+        answer: sentence.replace(/[.!;]+$/, "") + ".",
+      })
+    }
+  }
+
+  if (cards.length < 5) {
+    const sentences = splitSentences(text)
+    for (const sentence of sentences) {
+      if (cards.length >= 10) break
+      if (sentence.length < 40) continue
+
+      const extracted = extractTerm(sentence)
+      if (!extracted) continue
+
+      const key = extracted.term.toLowerCase()
+      if (seen.has(key)) continue
+      seen.add(key)
+
+      cards.push({
+        id: id++,
+        question: `Explain "${extracted.term}" in this context:`,
+        answer: sentence.replace(/[.!;]+$/, "") + ".",
+      })
     }
   }
 
   if (cards.length === 0) {
     const sentences = splitSentences(text)
-    for (const sentence of sentences) {
-      if (cards.length >= 10) break
-      const term = extractTerm(sentence)
+    const mid = Math.floor(sentences.length / 2)
+    const firstHalf = sentences.slice(0, mid).join(" ")
+    const secondHalf = sentences.slice(mid).join(" ")
+
+    if (firstHalf.length > 20) {
       cards.push({
         id: id++,
-        question: term
-          ? `Explain: ${sentence.replace(new RegExp(`\\b${term}\\b`, "i"), "______________")}`
-          : "What is this module about?",
-        answer: term ? `${term}: ${sentence}` : text.length > 200 ? text.slice(0, 200) + "..." : text,
+        question: "What is the main topic of this module?",
+        answer: firstHalf.length > 300 ? firstHalf.slice(0, 300) + "..." : firstHalf,
+      })
+    }
+    if (secondHalf.length > 20) {
+      cards.push({
+        id: id++,
+        question: "What else does this module cover?",
+        answer: secondHalf.length > 300 ? secondHalf.slice(0, 300) + "..." : secondHalf,
       })
     }
   }

@@ -72,22 +72,45 @@ export async function generateQuiz(input: GenerateQuizInput): Promise<GeneratedQ
 
       const parsed = JSON.parse(content)
 
-      if (!parsed.title || !Array.isArray(parsed.questions)) {
+      if (!parsed.title || !Array.isArray(parsed.questions) || parsed.questions.length === 0) {
         throw new Error("LLM returned malformed quiz structure")
+      }
+
+      const questions: GeneratedQuestion[] = []
+
+      for (const q of parsed.questions as Record<string, unknown>[]) {
+        const questionText = String(q.question_text ?? "").trim()
+        if (!questionText) continue
+
+        const questionType = q.question_type === "true_false" ? "true_false" : "mcq" as "mcq" | "true_false"
+        const options = Array.isArray(q.options) ? q.options as { label: string; text: string }[] : null
+        const correctAnswer = String(q.correct_answer ?? "").trim()
+
+        if (questionType === "mcq") {
+          if (!options || options.length < 2) continue
+          const validLabels = options.map((o) => o.label)
+          if (!validLabels.includes(correctAnswer)) continue
+        }
+
+        questions.push({
+          topic: String(q.topic ?? "general"),
+          question_text: questionText,
+          question_type: questionType,
+          options,
+          correct_answer: correctAnswer,
+          explanation: String(q.explanation ?? ""),
+          difficulty: (q.difficulty === "easy" || q.difficulty === "hard" ? q.difficulty : "medium") as "easy" | "medium" | "hard",
+        })
+      }
+
+      if (questions.length === 0) {
+        throw new Error("LLM returned no valid questions")
       }
 
       return {
         title: parsed.title,
         topic_focus: parsed.topic_focus ?? [],
-        questions: parsed.questions.map((q: Record<string, unknown>, i: number) => ({
-          topic: String(q.topic ?? "general"),
-          question_text: String(q.question_text ?? ""),
-          question_type: (q.question_type === "true_false" ? "true_false" : "mcq") as "mcq" | "true_false",
-          options: Array.isArray(q.options) ? q.options as { label: string; text: string }[] : null,
-          correct_answer: String(q.correct_answer ?? ""),
-          explanation: String(q.explanation ?? ""),
-          difficulty: (q.difficulty === "easy" || q.difficulty === "hard" ? q.difficulty : "medium") as "easy" | "medium" | "hard",
-        })),
+        questions,
       }
     } catch (err) {
       lastError = err

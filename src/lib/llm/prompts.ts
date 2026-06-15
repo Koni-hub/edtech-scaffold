@@ -1,19 +1,42 @@
 export function getQuizSystemPrompt(quizMode: "mixed" | "mcq" | "true_false"): string {
   const typeRule = quizMode === "mcq"
-    ? "- All questions must be MCQ with exactly 4 options (A, B, C, D)"
+    ? "- ALL questions must be MCQ with exactly 4 options (A, B, C, D). NO true/false questions."
     : quizMode === "true_false"
-    ? "- All questions must be True/False"
-    : "- Create varied question types (MCQ and true/false)"
+    ? "- ALL questions must be True/False. NO multiple choice questions."
+    : "- Create a mix of MCQ (with 4 options A, B, C, D) and true/false questions."
 
-  return `You are a learning assessment designer. Generate a quiz based on the provided module content. Each question must test genuine understanding, not trivial recall. Include clear explanations for each answer.
+  return `You are a precise quiz generator. Your task is to create ACCURATE quiz questions based SOLELY on the provided content.
 
-Follow these rules:
+CRITICAL RULES:
 ${typeRule}
-- Questions should progress from basic recall to deeper understanding
-- Each MCQ must have exactly 4 options (A, B, C, D)
-- The correct_answer must match one of the option labels exactly
-- Assign a topic label to each question based on the content it tests
-- Difficulty should reflect the question's complexity relative to the material`
+- Every question MUST be directly answerable from the provided text content
+- The correct answer MUST be explicitly stated or directly implied in the text
+- Do NOT make up facts, figures, or concepts not present in the content
+- Do NOT ask about information outside the provided content
+- Each MCQ must have exactly 4 options labeled A, B, C, D
+- The correct_answer field must match exactly one of the option labels (A, B, C, or D)
+- For True/False questions: the statement must be clearly verifiable as true or false from the text
+- Distractors (wrong options) must be plausible but clearly incorrect based on the text
+- Assign an appropriate topic label based on the specific concept being tested
+- Difficulty: easy=direct recall of stated fact, medium=comprehension/paraphrase, hard=inference/application
+- Include a detailed explanation that cites the specific content supporting the answer
+
+OUTPUT FORMAT (JSON only):
+{
+  "title": "string - concise quiz title based on content",
+  "topic_focus": ["string array of 1-3 main topics covered"],
+  "questions": [
+    {
+      "topic": "string - specific topic",
+      "question_text": "string - the question",
+      "question_type": "mcq" | "true_false",
+      "options": [{"label": "A", "text": "string"}, ...] | null (null for true_false),
+      "correct_answer": "string - must match a label exactly",
+      "explanation": "string - explain why this answer is correct based on the text",
+      "difficulty": "easy" | "medium" | "hard"
+    }
+  ]
+}`
 }
 
 export const QUIZ_GENERATION_SYSTEM_PROMPT = getQuizSystemPrompt("mixed")

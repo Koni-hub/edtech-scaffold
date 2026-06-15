@@ -19,7 +19,7 @@ interface Question {
   explanation: string
 }
 
-type QuizState = "config" | "loading" | "ready" | "submitting" | "finished"
+type QuizState = "config" | "loading" | "ready" | "submitting" | "finished" | "error"
 
 interface ModuleAiQuizProps {
   moduleId: string
@@ -39,6 +39,7 @@ export function ModuleAiQuiz({ moduleId }: ModuleAiQuizProps) {
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<number, string>>({})
   const [showResults, setShowResults] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
 
   const handleGenerate = useCallback(async () => {
     setQuizState("loading")
@@ -62,8 +63,9 @@ export function ModuleAiQuiz({ moduleId }: ModuleAiQuizProps) {
       setIndex(0)
       setAnswers({})
       setShowResults(false)
-    } catch {
-      setQuizState("config")
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : "Failed to generate quiz")
+      setQuizState("error")
     }
   }, [moduleId, mode, numQuestions, difficulty])
 
@@ -107,6 +109,19 @@ export function ModuleAiQuiz({ moduleId }: ModuleAiQuizProps) {
       <div className="flex items-center justify-center py-16 text-muted-foreground">
         <Loader2 size={24} className="animate-spin mr-2" />
         Generating AI quiz...
+      </div>
+    )
+  }
+
+  if (quizState === "error") {
+    return (
+      <div className="space-y-4">
+        <div className="rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950 p-4 text-sm text-red-800 dark:text-red-200">
+          {errorMessage}
+        </div>
+        <Button variant="outline" className="w-full" onClick={() => { setQuizState("config"); setErrorMessage("") }}>
+          Try Again
+        </Button>
       </div>
     )
   }

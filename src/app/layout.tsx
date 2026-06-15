@@ -13,7 +13,7 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
-const siteUrl = "https://edtech-scaffold.vercel.app"
+const siteUrl = "https://syntra.vercel.app"
 
 export const metadata: Metadata = {
   title: {

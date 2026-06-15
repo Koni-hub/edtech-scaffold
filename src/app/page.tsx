@@ -179,7 +179,7 @@ export default function LandingPage() {
     name: "Syntra",
     alternateName: "Study Your Notes with Tracking, Review, and Adaptation",
     description: "AI-powered learning platform. Upload materials, generate intelligent quizzes, and track understanding over time.",
-    url: "https://edtech-scaffold.vercel.app",
+    url: "https://syntra.vercel.app",
     applicationCategory: "EducationalApplication",
     operatingSystem: "Web",
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },

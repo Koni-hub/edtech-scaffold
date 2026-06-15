@@ -860,8 +860,8 @@ export default function DocsPage() {
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
                   <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
                   <Link href="/docs" className="hover:text-foreground transition-colors">Docs</Link>
-                  <span className="hover:text-foreground transition-colors cursor-pointer">Privacy</span>
-                  <span className="hover:text-foreground transition-colors cursor-pointer">Terms</span>
+                  <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+                  <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
                 </div>
               </div>
               <p className="mt-4 text-[11px] text-muted-foreground">&copy; {new Date().getFullYear()} Syntra. All rights reserved.</p>

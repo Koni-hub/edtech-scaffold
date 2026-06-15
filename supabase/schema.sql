@@ -23,6 +23,7 @@ CREATE TABLE modules (
   raw_pdf       TEXT,
   status        TEXT NOT NULL DEFAULT 'processing'
                 CHECK (status IN ('processing','ready','failed')),
+  category      TEXT,
   topic_labels  TEXT[] NOT NULL DEFAULT '{}',
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()

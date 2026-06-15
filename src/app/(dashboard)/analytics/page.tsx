@@ -54,7 +54,7 @@ export default async function AnalyticsPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border bg-card p-5">
+        <div className="rounded-xl border bg-card p-5 min-w-0">
           <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
             <ChartNoAxesCombined size={18} />
             Topic Mastery
@@ -66,7 +66,7 @@ export default async function AnalyticsPage() {
           )}
         </div>
 
-        <div className="rounded-xl border bg-card p-5">
+        <div className="rounded-xl border bg-card p-5 min-w-0">
           <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
             <Target size={18} />
             Topics

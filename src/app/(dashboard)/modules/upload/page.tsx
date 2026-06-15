@@ -21,6 +21,7 @@ export default function ModuleUploadPage() {
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [isDragOver, setIsDragOver] = useState(false)
   const [file, setFile] = useState<File | null>(null)
+  const [category, setCategory] = useState("")
   const [moduleId, setModuleId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -39,6 +40,7 @@ export default function ModuleUploadPage() {
     const formData = new FormData()
     formData.append("file", selectedFile)
     formData.append("title", selectedFile.name.replace(/\.[^/.]+$/, ""))
+    formData.append("category", category)
 
     setCurrentStepIndex(0)
 
@@ -79,7 +81,7 @@ export default function ModuleUploadPage() {
       setFailed(true)
       setUploading(false)
     }
-  }, [])
+  }, [category])
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -103,29 +105,41 @@ export default function ModuleUploadPage() {
       </div>
 
       {currentStepIndex < 0 && (
-        <div
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onClick={() => inputRef.current?.click()}
-          className={cn(
-            "flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-12 transition-colors",
-            isDragOver
-              ? "border-primary bg-primary/5"
-              : "border-muted-foreground/25 hover:border-muted-foreground/50"
-          )}
-        >
-          <Upload size={40} className="mb-4 text-muted-foreground" />
-          <p className="text-sm font-medium">Drop file here or click to browse</p>
-          <p className="mt-1 text-xs text-muted-foreground">PDF, TXT, MD up to 10MB</p>
-          <input
-            ref={inputRef}
-            type="file"
-            accept=".pdf,.txt,.md"
-            className="hidden"
-            onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
-          />
-        </div>
+        <>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">Subject / Category</label>
+            <input
+              type="text"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              placeholder="e.g. Mathematics, Science, History..."
+              className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            />
+          </div>
+          <div
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onClick={() => inputRef.current?.click()}
+            className={cn(
+              "flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-12 transition-colors",
+              isDragOver
+                ? "border-primary bg-primary/5"
+                : "border-muted-foreground/25 hover:border-muted-foreground/50"
+            )}
+          >
+            <Upload size={40} className="mb-4 text-muted-foreground" />
+            <p className="text-sm font-medium">Drop file here or click to browse</p>
+            <p className="mt-1 text-xs text-muted-foreground">PDF, TXT, MD up to 10MB</p>
+            <input
+              ref={inputRef}
+              type="file"
+              accept=".pdf,.txt,.md"
+              className="hidden"
+              onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+            />
+          </div>
+        </>
       )}
 
       {file && (

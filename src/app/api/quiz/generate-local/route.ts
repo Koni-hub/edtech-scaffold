@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { generateLocalQuiz } from "@/lib/llm/local-quiz-generator"
-import { PDFParse } from "pdf-parse"
+import { extractPdfText } from "@/lib/pdf-extract"
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,10 +27,7 @@ export async function POST(request: NextRequest) {
       try {
         const base64 = mod.raw_pdf.replace(/^data:application\/pdf;base64,/, "")
         const uint8 = new Uint8Array(Buffer.from(base64, "base64"))
-        const parser = new PDFParse({ data: uint8 })
-        const result = await parser.getText()
-        rawText = result.text
-        await parser.destroy()
+        rawText = await extractPdfText(uint8)
         await supabase.from("modules").update({ raw_text: rawText }).eq("id", moduleId)
       } catch (e) {
         console.error("PDF re-extraction failed:", e)

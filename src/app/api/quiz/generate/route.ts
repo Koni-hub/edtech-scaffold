@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json()
-  const { moduleId, questionCount = 5, difficulty = "medium" } = body
+  const { moduleId, questionCount = 5, difficulty = "medium", quizMode } = body
 
   if (!moduleId) {
     return NextResponse.json({ error: "moduleId is required" }, { status: 400 })
@@ -76,6 +76,7 @@ export async function POST(request: NextRequest) {
       chunks: chunkRows.map((c) => ({ content: c.content, tokenCount: c.token_count })),
       questionCount,
       difficulty,
+      quizMode: quizMode ?? "mixed",
     })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)

@@ -4,6 +4,8 @@ import { useState } from "react"
 import { PdfViewer } from "./pdf-viewer"
 import { ModuleChat } from "./module-chat"
 import { ModuleLocalQuiz } from "./module-local-quiz"
+import { ModuleAiQuiz } from "./module-ai-quiz"
+import { ModuleFlashcard } from "./module-flashcard"
 
 interface ModuleTabsProps {
   moduleId: string
@@ -11,28 +13,25 @@ interface ModuleTabsProps {
   title: string
 }
 
+type Tab = "handout" | "local-quiz" | "ai-quiz" | "flashcard"
+
 export function ModuleTabs({ moduleId, rawPdf, title }: ModuleTabsProps) {
-  const [tab, setTab] = useState<"handout" | "quiz">("handout")
+  const [tab, setTab] = useState<Tab>("handout")
 
   return (
     <div className="space-y-4">
       <div className="flex gap-1 rounded-lg border bg-muted p-1">
-        <button
-          onClick={() => setTab("handout")}
-          className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-            tab === "handout" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Handout & Chat
-        </button>
-        <button
-          onClick={() => setTab("quiz")}
-          className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-            tab === "quiz" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Local Quiz
-        </button>
+        {(["handout", "local-quiz", "ai-quiz", "flashcard"] as Tab[]).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+              tab === t ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {t === "handout" ? "Handout & Chat" : t === "local-quiz" ? "Local Quiz" : t === "ai-quiz" ? "AI Quiz" : "Flashcard"}
+          </button>
+        ))}
       </div>
 
       {tab === "handout" && (
@@ -48,9 +47,21 @@ export function ModuleTabs({ moduleId, rawPdf, title }: ModuleTabsProps) {
         </div>
       )}
 
-      {tab === "quiz" && (
+      {tab === "local-quiz" && (
         <div className="max-w-2xl mx-auto">
           <ModuleLocalQuiz moduleId={moduleId} />
+        </div>
+      )}
+
+      {tab === "ai-quiz" && (
+        <div className="max-w-2xl mx-auto">
+          <ModuleAiQuiz moduleId={moduleId} />
+        </div>
+      )}
+
+      {tab === "flashcard" && (
+        <div className="max-w-2xl mx-auto">
+          <ModuleFlashcard moduleId={moduleId} />
         </div>
       )}
     </div>

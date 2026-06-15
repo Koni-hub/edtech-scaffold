@@ -182,6 +182,7 @@ export default function LandingPage() {
               <BrainCircuit className="size-5 text-primary-foreground" />
             </motion.div>
             <span className="text-lg font-bold tracking-tight">Syntra</span>
+            <span className="hidden sm:inline text-[10px] leading-tight text-muted-foreground max-w-[140px] ml-2 border-l pl-2">Study Your Notes with Tracking, Review & Adaptation</span>
           </Link>
           <nav className="hidden md:flex items-center gap-8">
                 {["Features", "How It Works", "Testimonials"].map((item) => (
@@ -235,7 +236,7 @@ export default function LandingPage() {
             <div className="mx-auto max-w-3xl text-center">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="mb-8 inline-flex items-center gap-2 rounded-full border bg-muted/50 px-4 py-1.5 text-xs font-medium">
                 <Sparkles className="size-3.5 text-primary" />
-                AI-Powered Learning Analytics Platform
+                Study Your Notes with Tracking, Review & Adaptation
               </motion.div>
               <motion.h1
                 initial={{ opacity: 0, y: 30 }}
@@ -252,7 +253,7 @@ export default function LandingPage() {
                 transition={{ duration: 0.6, delay: 0.25 }}
                 className="mt-6 text-base leading-relaxed text-muted-foreground sm:text-lg max-w-xl mx-auto"
               >
-                Upload your materials, generate intelligent quizzes, and track your understanding over time. Syntra adapts to your pace.
+                Syntra — Study Your Notes with Tracking, Review, and Adaptation. Upload materials, generate intelligent quizzes, and track your understanding over time.
               </motion.p>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -594,7 +595,7 @@ export default function LandingPage() {
                 <span className="text-lg font-bold tracking-tight">Syntra</span>
               </Link>
               <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
-                AI-powered learning analytics platform that helps students and professionals master new subjects faster through intelligent practice and data-driven insights.
+                Syntra — Study Your Notes with Tracking, Review, and Adaptation. An AI-powered learning analytics platform that helps students and professionals master new subjects faster through intelligent practice and data-driven insights.
               </p>
             </div>
             <div>

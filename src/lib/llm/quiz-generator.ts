@@ -77,7 +77,7 @@ interface GenerateQuizInput {
   quizMode?: "mixed" | "mcq" | "true_false"
 }
 
-const MODELS = ["gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-1.5-flash"]
+const MODELS = ["gemini-2.0-flash", "gemini-2.0-flash-lite"]
 
 function isQuotaError(err: unknown): boolean {
   if (err && typeof err === "object" && "message" in err) {

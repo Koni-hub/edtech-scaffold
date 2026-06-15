@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/dashboard", "/analytics", "/modules", "/quizzes", "/settings", "/api/"],
       },
     ],
-    sitemap: "https://syntra.vercel.app/sitemap.xml",
+    sitemap: "https://syntra-learn.vercel.app/sitemap.xml",
   }
 }

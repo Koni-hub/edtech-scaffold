@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight, Shuffle, ThumbsUp, Sparkles } from "lucide-react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
@@ -48,11 +49,12 @@ export function ModuleFlashcard({ moduleId }: ModuleFlashcardProps) {
           setLoading(false)
           return
         }
-        setError(data.error ?? "")
+        if (data.error) toast.error(data.error, { id: "flashcard-ai" })
       } catch { /* fall through to local */ }
 
       const cards = generateFlashcards(mod.raw_text, 20)
       if (cards.length > 0) {
+        toast.info("Using local flashcards (AI unavailable)", { id: "flashcard-local", duration: 4000 })
         setCards(cards)
         setMode("local")
       }

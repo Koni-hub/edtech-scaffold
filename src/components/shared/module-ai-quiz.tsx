@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react"
 import { Sparkles, Loader2, ChevronLeft, ChevronRight, CheckCircle2, XCircle, RotateCcw } from "lucide-react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -64,7 +65,9 @@ export function ModuleAiQuiz({ moduleId }: ModuleAiQuizProps) {
       setAnswers({})
       setShowResults(false)
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Failed to generate quiz")
+      const msg = err instanceof Error ? err.message : "Failed to generate quiz"
+      toast.error(msg, { id: "quiz-ai" })
+      setErrorMessage(msg)
       setQuizState("error")
     }
   }, [moduleId, mode, numQuestions, difficulty])

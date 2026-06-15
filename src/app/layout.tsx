@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { Toaster } from "sonner"
 import "./globals.css";
 
 const inter = Inter({
@@ -83,6 +84,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <Toaster richColors closeButton position="top-right" />
         </ThemeProvider>
       </body>
     </html>

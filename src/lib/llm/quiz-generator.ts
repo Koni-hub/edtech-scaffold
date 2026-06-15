@@ -41,7 +41,7 @@ export async function generateQuiz(input: GenerateQuizInput): Promise<GeneratedQ
   let lastError: unknown
 
   for (const [i, modelName] of GEMINI_MODELS.entries()) {
-    if (i > 0) await new Promise((r) => setTimeout(r, 2000))
+    if (i > 0 && !isQuotaError(lastError)) await new Promise((r) => setTimeout(r, 2000))
 
     try {
       const raw = await geminiFetch(modelName, [

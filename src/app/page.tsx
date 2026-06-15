@@ -173,8 +173,22 @@ export default function LandingPage() {
   useEffect(() => { setWinSize({ w: window.innerWidth, h: window.innerHeight }) }, [])
   const heroRef = useRef<HTMLDivElement>(null)
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "Syntra",
+    alternateName: "Study Your Notes with Tracking, Review, and Adaptation",
+    description: "AI-powered learning platform. Upload materials, generate intelligent quizzes, and track understanding over time.",
+    url: "https://edtech-scaffold.vercel.app",
+    applicationCategory: "EducationalApplication",
+    operatingSystem: "Web",
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    author: { "@type": "Organization", name: "Syntra" },
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2.5">

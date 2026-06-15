@@ -644,17 +644,17 @@ export default function LandingPage() {
             <div>
               <h4 className="mb-4 text-sm font-semibold">Company</h4>
               <ul className="space-y-3 text-sm text-muted-foreground">
-                <li><span className="hover:text-foreground transition-colors cursor-pointer">About</span></li>
-                <li><span className="hover:text-foreground transition-colors cursor-pointer">Privacy Policy</span></li>
-                <li><span className="hover:text-foreground transition-colors cursor-pointer">Terms of Service</span></li>
+                <li><Link href="/about" className="hover:text-foreground transition-colors">About</Link></li>
+                <li><Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
               </ul>
             </div>
           </div>
           <div className="mt-12 border-t pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
             <p>&copy; {new Date().getFullYear()} Syntra. All rights reserved.</p>
             <div className="flex items-center gap-6">
-              <span className="hover:text-foreground transition-colors cursor-pointer">Privacy</span>
-              <span className="hover:text-foreground transition-colors cursor-pointer">Terms</span>
+              <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+              <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
             </div>
           </div>
         </div>

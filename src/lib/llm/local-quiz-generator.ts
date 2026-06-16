@@ -29,15 +29,38 @@ const STOP_WORDS = new Set([
   "also", "just", "only", "even", "still", "already", "yet", "ever",
 ])
 
+const BAD_TERMS = new Set([
+  "some", "many", "several", "these", "those", "different", "various", "other",
+  "each", "every", "both", "few", "all", "more", "most", "such", "any",
+  "first", "second", "third", "last", "next", "new", "old", "good", "bad",
+  "big", "small", "long", "short", "high", "low", "great", "large", "important",
+  "number", "part", "case", "time", "way", "day", "year", "world", "life",
+  "hand", "point", "system", "company", "fact", "group", "problem", "result",
+  "change", "month", "lot", "right", "study", "book", "eye", "job", "word",
+  "business", "issue", "side", "kind", "head", "house", "service", "friend",
+  "father", "power", "hour", "game", "line", "end", "members", "city",
+  "community", "name", "president", "team", "minute", "idea", "body", "back",
+  "parent", "face", "others", "level", "office", "door", "person", "art",
+  "car", "course", "side", "kind", "days", " meantime", " addition",
+  "some of", "one of", "each of", "both of",
+])
+
+const CITATION_PATTERNS = /\b(retrieved|http[s]?:\/\/|www\.|website|figure|source:|reference|citation|doi:|journal|volume|issue|page|pp\.|eds?\.\s|vol\.\s|accessed|published|available at|retrieved from)\b/i
+
 function splitSentences(text: string): string[] {
   return text
     .split(/\n\s*\n/)
     .flatMap((p) => p.replace(/\n/g, " ").split(/(?<=[.!?])\s+/))
     .map((s) => s.trim().replace(/\s+/g, " "))
-    .filter((s) => s.length > 40 && s.length < 500)
+    .filter((s) => s.length > 50 && s.length < 400)
     .filter((s) => {
       const firstWord = s.split(/\s+/)[0]?.toLowerCase()
-      return firstWord && !PRONOUNS.has(firstWord)
+      return firstWord && !PRONOUNS.has(firstWord) && !BAD_TERMS.has(firstWord)
+    })
+    .filter((s) => !CITATION_PATTERNS.test(s))
+    .filter((s) => {
+      const words = s.split(/\s+/)
+      return words.length >= 8
     })
 }
 
@@ -73,16 +96,18 @@ function classifyDifficulty(sentence: string): "easy" | "medium" | "hard" {
 
 function isValidTerm(term: string): boolean {
   const lower = term.toLowerCase().trim()
-  if (lower.length < 3) return false
+  if (lower.length < 4) return false
   if (PRONOUNS.has(lower)) return false
   if (STOP_WORDS.has(lower)) return false
+  if (BAD_TERMS.has(lower)) return false
   if (/^\d+$/.test(lower)) return false
+  if (lower.startsWith("some of") || lower.startsWith("one of")) return false
   if (/[^\w\s-]/.test(lower) && !/[A-Z]/.test(term)) return false
   return true
 }
 
 function extractKeyTerms(sentence: string): string[] {
-  const words = sentence.match(/\b[A-Z][a-zA-Z]{3,}(?:\s+[A-Z][a-zA-Z]{3,})?\b/g) ?? []
+  const words = sentence.match(/\b[A-Z][a-zA-Z]{4,}(?:\s+[A-Z][a-zA-Z]{4,})?\b/g) ?? []
   return words.filter((w) => isValidTerm(w))
 }
 
@@ -94,7 +119,7 @@ function findRelatedTerms(sentence: string, allText: string, topicSentences: str
   const topicWords = topicText.split(/\s+/).filter((w) => w.length > 4 && !STOP_WORDS.has(w))
 
   const scored: { term: string; score: number }[] = []
-  const allMatches = allText.matchAll(/\b([A-Z][a-zA-Z]{3,}(?:\s+[A-Z][a-zA-Z]{3,})?)\b/g)
+  const allMatches = allText.matchAll(/\b([A-Z][a-zA-Z]{4,}(?:\s+[A-Z][a-zA-Z]{4,})?)\b/g)
   const seen = new Set<string>()
 
   for (const m of allMatches) {
@@ -170,13 +195,26 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 function pickOptions(correct: string, distractors: string[]): { label: string; text: string }[] {
-  const unique = [...new Set(distractors.filter((d) => d.toLowerCase() !== correct.toLowerCase()))]
-  const pool = [correct, ...unique.slice(0, 3)]
-  const shuffled = shuffle(pool).slice(0, 4)
-  while (shuffled.length < 4) {
-    shuffled.push("None of the above")
+  const normalized = correct.toLowerCase()
+  const unique = [...new Set(
+    distractors.filter((d) => d.toLowerCase() !== normalized && d.trim().length > 0)
+  )]
+  const pool = [correct, ...unique.slice(0, 5)]
+  const shuffled = shuffle(pool)
+  const result: string[] = []
+  const seen = new Set<string>()
+  for (const opt of shuffled) {
+    const key = opt.toLowerCase()
+    if (!seen.has(key)) {
+      seen.add(key)
+      result.push(opt)
+    }
+    if (result.length >= 4) break
   }
-  return shuffled.map((opt, i) => ({ label: LABELS[i], text: opt }))
+  while (result.length < 4) {
+    result.push("None of the above")
+  }
+  return result.map((opt, i) => ({ label: LABELS[i], text: opt }))
 }
 
 export function generateLocalQuiz(params: {
@@ -298,9 +336,9 @@ export function generateLocalQuiz(params: {
           if (definitionSubject && distractorsAll.length >= 3) {
             usedPhrases.add(sentenceKey)
             const correct = definitionSubject
-            const distractors = distractorsAll.slice(0, 3)
+            const distractors = distractorsAll.slice(0, 5)
             const options = pickOptions(correct, distractors)
-            const correctLabel = options.find((o) => o.text === correct)?.label ?? "A"
+            const correctLabel = options.find((o) => o.text.toLowerCase() === correct.toLowerCase())?.label ?? "A"
             questions.push({
               topic,
               question_text: `What is ${definitionSubject}?`,
@@ -315,17 +353,17 @@ export function generateLocalQuiz(params: {
             const validTerms = keyTerms.filter(
               (w) => !usedPhrases.has(w.toLowerCase()) && w.length >= 5
             )
-            if (validTerms.length > 0 && distractorsAll.length >= 2) {
+            if (validTerms.length > 0 && distractorsAll.length >= 3) {
               const chosen = validTerms[0]
               usedPhrases.add(chosen.toLowerCase())
               usedPhrases.add(sentenceKey)
               const correct = chosen
               const distractors = distractorsAll.filter(
                 (d) => d.toLowerCase() !== chosen.toLowerCase()
-              ).slice(0, 3)
-              if (distractors.length >= 2) {
+              ).slice(0, 5)
+              if (distractors.length >= 3) {
                 const options = pickOptions(correct, distractors)
-                const correctLabel = options.find((o) => o.text === correct)?.label ?? "A"
+                const correctLabel = options.find((o) => o.text.toLowerCase() === correct.toLowerCase())?.label ?? "A"
                 questions.push({
                   topic,
                   question_text: `Which term best fits this description: "${sentence}"`,

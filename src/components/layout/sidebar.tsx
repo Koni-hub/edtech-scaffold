@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BrainCircuit, LayoutDashboard, BookOpen, ChartNoAxesCombined, Settings, X, ChevronLeft, PanelLeft } from "lucide-react"
+import { BrainCircuit, LayoutDashboard, BookOpen, ChartNoAxesCombined, Settings, X, ChevronLeft, PanelLeft, ClipboardCheck } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
@@ -38,7 +38,7 @@ export function useSidebar() {
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/modules", label: "Modules", icon: BookOpen },
-  { href: "/quizzes", label: "Quizzes", icon: BrainCircuit },
+  { href: "/quizzes", label: "Quizzes", icon: ClipboardCheck },
   { href: "/analytics", label: "Analytics", icon: ChartNoAxesCombined },
   { href: "/settings", label: "Settings", icon: Settings },
 ]

@@ -1,21 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
   <defs>
-    <linearGradient id="logobg" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+    <linearGradient id="grad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
       <stop stop-color="hsl(221 83% 53%)"/>
-      <stop offset="1" stop-color="hsl(221 83% 38%)"/>
+      <stop offset="1" stop-color="hsl(240 60% 50%)"/>
     </linearGradient>
-    <linearGradient id="logobrain" x1="20" y1="20" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-      <stop stop-color="hsl(221 83% 53%)"/>
-      <stop offset="1" stop-color="hsl(221 83% 35%)"/>
-    </linearGradient>
-    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
-      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="hsl(221 83% 53%)" flood-opacity="0.3"/>
-    </filter>
   </defs>
-  <rect width="120" height="120" rx="28" fill="url(#logobg)" filter="url(#shadow)"/>
-  <path d="M60 18C46 18 34 28 30 44c-2 10.5 0 22 9 32l21 28 21-28c9-10 11-21.5 9-32-4-16-16-26-30-26z" fill="white" opacity="0.95"/>
-  <path d="M52 38c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10-10-4.48-10-10z" fill="url(#logobrain)"/>
-  <path d="M40 52c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10-10-4.48-10-10z" fill="url(#logobrain)" opacity="0.7"/>
-  <path d="M70 52c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10-10-4.48-10-10z" fill="url(#logobrain)" opacity="0.8"/>
-  <path d="M49 74c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10-10-4.48-10-10z" fill="url(#logobrain)" opacity="0.6"/>
+  <g stroke="url(#grad)">
+    <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/>
+    <path d="M9 13a4.5 4.5 0 0 0 3-4"/>
+    <path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/>
+    <path d="M3.477 10.896a4 4 0 0 1 .585-.396"/>
+    <path d="M6 18a4 4 0 0 1-1.967-.516"/>
+    <path d="M12 13h4"/>
+    <path d="M12 18h6a2 2 0 0 1 2 2v1"/>
+    <path d="M12 8h8"/>
+    <path d="M16 8V5a2 2 0 0 1 2-2"/>
+    <circle cx="16" cy="13" r=".5" fill="url(#grad)" stroke="none"/>
+    <circle cx="18" cy="3" r=".5" fill="url(#grad)" stroke="none"/>
+    <circle cx="20" cy="21" r=".5" fill="url(#grad)" stroke="none"/>
+    <circle cx="20" cy="8" r=".5" fill="url(#grad)" stroke="none"/>
+  </g>
 </svg>

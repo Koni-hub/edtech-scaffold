@@ -266,7 +266,7 @@ export default function LandingPage() {
                 transition={{ duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
                 className="mb-8 flex justify-center"
               >
-                <img src="/logo.svg" alt="Syntra" className="size-24 sm:size-28 drop-shadow-lg" />
+                <img src="/logo.svg" alt="Syntra" className="size-28 sm:size-32 drop-shadow-lg" />
               </motion.div>
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="mb-8 inline-flex items-center gap-2 rounded-full border bg-muted/50 px-4 py-1.5 text-xs font-medium">
                 <Sparkles className="size-3.5 text-primary" />

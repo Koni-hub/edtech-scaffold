@@ -1,18 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-      <stop stop-color="hsl(221 83% 53%)"/>
-      <stop offset="1" stop-color="hsl(221 83% 43%)"/>
-    </linearGradient>
-    <linearGradient id="brain" x1="6" y1="6" x2="26" y2="26" gradientUnits="userSpaceOnUse">
-      <stop stop-color="hsl(221 83% 53%)"/>
-      <stop offset="1" stop-color="hsl(221 83% 40%)"/>
-    </linearGradient>
-  </defs>
-  <rect width="32" height="32" rx="8" fill="url(#bg)"/>
-  <path d="M16 6C12 6 9 8.5 8.5 12.5c-.3 2.8.7 5.2 2.5 7l5 6.5 5-6.5c1.8-1.8 2.8-4.2 2.5-7C23 8.5 20 6 16 6z" fill="white" opacity="0.95"/>
-  <path d="M14.5 11.5C14.5 10.12 15.67 9 17 9s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5a2.5 2.5 0 0 1-2.5-2.5z" fill="url(#brain)"/>
-  <path d="M11.5 15C11.5 13.62 12.67 12.5 14 12.5s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5a2.5 2.5 0 0 1-2.5-2.5z" fill="url(#brain)" opacity="0.7"/>
-  <path d="M18.5 14.5C18.5 13.12 19.67 12 21 12s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5a2.5 2.5 0 0 1-2.5-2.5z" fill="url(#brain)" opacity="0.8"/>
-  <path d="M13.5 18.5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5a2.5 2.5 0 0 1-2.5-2.5z" fill="url(#brain)" opacity="0.6"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/>
+  <path d="M9 13a4.5 4.5 0 0 0 3-4"/>
+  <path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/>
+  <path d="M3.477 10.896a4 4 0 0 1 .585-.396"/>
+  <path d="M6 18a4 4 0 0 1-1.967-.516"/>
+  <path d="M12 13h4"/>
+  <path d="M12 18h6a2 2 0 0 1 2 2v1"/>
+  <path d="M12 8h8"/>
+  <path d="M16 8V5a2 2 0 0 1 2-2"/>
+  <circle cx="16" cy="13" r=".5" fill="currentColor"/>
+  <circle cx="18" cy="3" r=".5" fill="currentColor"/>
+  <circle cx="20" cy="21" r=".5" fill="currentColor"/>
+  <circle cx="20" cy="8" r=".5" fill="currentColor"/>
 </svg>

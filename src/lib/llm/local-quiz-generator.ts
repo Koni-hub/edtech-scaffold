@@ -16,12 +16,29 @@ interface LocalQuiz {
 
 const LABELS = ["A", "B", "C", "D"]
 
+const PRONOUNS = new Set([
+  "it", "this", "that", "these", "those", "he", "she", "they", "we", "you", "i",
+  "its", "his", "her", "their", "our", "my", "your", "who", "which", "what",
+])
+
+const STOP_WORDS = new Set([
+  "the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for", "of",
+  "with", "by", "from", "as", "is", "are", "was", "were", "be", "been", "being",
+  "have", "has", "had", "do", "does", "did", "will", "would", "could", "should",
+  "may", "might", "shall", "can", "not", "no", "nor", "if", "then", "than",
+  "also", "just", "only", "even", "still", "already", "yet", "ever",
+])
+
 function splitSentences(text: string): string[] {
   return text
     .split(/\n\s*\n/)
     .flatMap((p) => p.replace(/\n/g, " ").split(/(?<=[.!?])\s+/))
     .map((s) => s.trim().replace(/\s+/g, " "))
-    .filter((s) => s.length > 25 && s.length < 600)
+    .filter((s) => s.length > 40 && s.length < 500)
+    .filter((s) => {
+      const firstWord = s.split(/\s+/)[0]?.toLowerCase()
+      return firstWord && !PRONOUNS.has(firstWord)
+    })
 }
 
 function extractTopics(text: string, labels: string[]): string[] {
@@ -54,19 +71,52 @@ function classifyDifficulty(sentence: string): "easy" | "medium" | "hard" {
   return "medium"
 }
 
-function coOccurringTerms(sentence: string, allText: string): string[] {
+function isValidTerm(term: string): boolean {
+  const lower = term.toLowerCase().trim()
+  if (lower.length < 3) return false
+  if (PRONOUNS.has(lower)) return false
+  if (STOP_WORDS.has(lower)) return false
+  if (/^\d+$/.test(lower)) return false
+  if (/[^\w\s-]/.test(lower) && !/[A-Z]/.test(term)) return false
+  return true
+}
+
+function extractKeyTerms(sentence: string): string[] {
   const words = sentence.match(/\b[A-Z][a-zA-Z]{3,}(?:\s+[A-Z][a-zA-Z]{3,})?\b/g) ?? []
-  const terms = new Set(words.map((w) => w.toLowerCase()))
-  const candidates: string[] = []
+  return words.filter((w) => isValidTerm(w))
+}
+
+function findRelatedTerms(sentence: string, allText: string, topicSentences: string[]): string[] {
+  const sentenceWords = new Set(
+    sentence.toLowerCase().split(/\s+/).filter((w) => w.length > 3)
+  )
+  const topicText = topicSentences.join(" ").toLowerCase()
+  const topicWords = topicText.split(/\s+/).filter((w) => w.length > 4 && !STOP_WORDS.has(w))
+
+  const scored: { term: string; score: number }[] = []
   const allMatches = allText.matchAll(/\b([A-Z][a-zA-Z]{3,}(?:\s+[A-Z][a-zA-Z]{3,})?)\b/g)
+  const seen = new Set<string>()
+
   for (const m of allMatches) {
     const t = m[1]
     const lower = t.toLowerCase()
-    if (!terms.has(lower) && !candidates.includes(t) && t.length >= 4) {
-      candidates.push(t)
+    if (seen.has(lower) || !isValidTerm(t)) continue
+    if (sentenceWords.has(lower)) continue
+    seen.add(lower)
+
+    let score = 0
+    for (const tw of topicWords) {
+      if (lower.includes(tw) || tw.includes(lower)) score += 3
     }
+    const tWords = lower.split(/\s+/)
+    for (const tw of tWords) {
+      if (topicWords.includes(tw)) score += 1
+    }
+    if (score > 0) scored.push({ term: t, score })
   }
-  return candidates
+
+  scored.sort((a, b) => b.score - a.score)
+  return scored.map((s) => s.term)
 }
 
 function extractDefinitionSubject(sentence: string): string | null {
@@ -74,11 +124,14 @@ function extractDefinitionSubject(sentence: string): string | null {
     /^(.*?)\s+(is|are|was|were|refers to|means|defined as|known as|called)\s+/i
   )
   if (!match) return null
-  return match[1].trim()
+  const subject = match[1].trim()
+  if (!isValidTerm(subject)) return null
+  if (subject.split(/\s+/).length > 4) return null
+  return subject
 }
 
 function buildTrueFalse(sentence: string, allText: string): { statement: string; isTrue: boolean } | null {
-  const negationWords = /\b(not|never|no|none|without|except|unless|cannot|cannot)\b/i
+  const negationWords = /\b(not|never|no|none|without|except|unless|cannot)\b/i
   const hasNegation = negationWords.test(sentence)
   if (hasNegation) {
     const flipped = sentence.replace(negationWords, "___")
@@ -92,24 +145,17 @@ function buildTrueFalse(sentence: string, allText: string): { statement: string;
   if (!match) return null
   const core = match[2].trim()
   if (core.length < 5) return null
-  const altTerms = coOccurringTerms(sentence, allText).filter(
+  const altTerms = findRelatedTerms(sentence, allText, [sentence]).filter(
     (t) => !sentence.toLowerCase().includes(t.toLowerCase())
   )
   if (altTerms.length > 0) {
-    const alt = altTerms[Math.floor(Math.random() * altTerms.length)]
+    const alt = altTerms[0]
     const falseStatement = sentence.replace(core, alt)
     if (falseStatement !== sentence) {
       return Math.random() > 0.5
         ? { statement: sentence, isTrue: true }
         : { statement: falseStatement, isTrue: false }
     }
-  }
-  const falseStatement = sentence.replace(
-    match[0],
-    `${match[1]} not ${core}`
-  )
-  if (falseStatement !== sentence) {
-    return { statement: falseStatement, isTrue: false }
   }
   return { statement: sentence, isTrue: true }
 }
@@ -124,7 +170,8 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 function pickOptions(correct: string, distractors: string[]): { label: string; text: string }[] {
-  const pool = [correct, ...distractors.filter((d) => d !== correct)]
+  const unique = [...new Set(distractors.filter((d) => d.toLowerCase() !== correct.toLowerCase()))]
+  const pool = [correct, ...unique.slice(0, 3)]
   const shuffled = shuffle(pool).slice(0, 4)
   while (shuffled.length < 4) {
     shuffled.push("None of the above")
@@ -225,7 +272,7 @@ export function generateLocalQuiz(params: {
         if (params.difficulty === "hard" && difficulty === "easy") continue
 
         const qType = questionTypes[questions.length % questionTypes.length]
-        const distractorsAll = coOccurringTerms(sentence, allText)
+        const distractorsAll = findRelatedTerms(sentence, allText, topicSentences)
 
         if (qType === "true_false") {
           const tf = buildTrueFalse(sentence, allText)
@@ -251,7 +298,7 @@ export function generateLocalQuiz(params: {
           if (definitionSubject && distractorsAll.length >= 3) {
             usedPhrases.add(sentenceKey)
             const correct = definitionSubject
-            const distractors = shuffle(distractorsAll).slice(0, 3)
+            const distractors = distractorsAll.slice(0, 3)
             const options = pickOptions(correct, distractors)
             const correctLabel = options.find((o) => o.text === correct)?.label ?? "A"
             questions.push({
@@ -264,29 +311,31 @@ export function generateLocalQuiz(params: {
               difficulty,
             })
           } else {
-            const words = sentence.match(/\b[A-Z][a-zA-Z]{4,}\b/g) ?? []
-            const validWords = words.filter(
+            const keyTerms = extractKeyTerms(sentence)
+            const validTerms = keyTerms.filter(
               (w) => !usedPhrases.has(w.toLowerCase()) && w.length >= 5
             )
-            if (validWords.length > 0 && distractorsAll.length >= 2) {
-              const chosen = validWords[0]
+            if (validTerms.length > 0 && distractorsAll.length >= 2) {
+              const chosen = validTerms[0]
               usedPhrases.add(chosen.toLowerCase())
               usedPhrases.add(sentenceKey)
               const correct = chosen
-              const distractors = shuffle(distractorsAll).filter(
+              const distractors = distractorsAll.filter(
                 (d) => d.toLowerCase() !== chosen.toLowerCase()
               ).slice(0, 3)
-              const options = pickOptions(correct, distractors)
-              const correctLabel = options.find((o) => o.text === correct)?.label ?? "A"
-              questions.push({
-                topic,
-                question_text: `Which term best fits this description: "${sentence}"`,
-                question_type: "mcq",
-                options,
-                correct_answer: correctLabel,
-                explanation: `The correct term is "${chosen}". Context: "${sentence}"`,
-                difficulty,
-              })
+              if (distractors.length >= 2) {
+                const options = pickOptions(correct, distractors)
+                const correctLabel = options.find((o) => o.text === correct)?.label ?? "A"
+                questions.push({
+                  topic,
+                  question_text: `Which term best fits this description: "${sentence}"`,
+                  question_type: "mcq",
+                  options,
+                  correct_answer: correctLabel,
+                  explanation: `The correct term is "${chosen}". Context: "${sentence}"`,
+                  difficulty,
+                })
+              }
             }
           }
         }

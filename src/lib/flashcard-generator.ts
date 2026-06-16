@@ -23,6 +23,11 @@ const STOP_WORDS = new Set([
   "year", "years",
 ])
 
+const PRONOUNS = new Set([
+  "it", "its", "he", "she", "his", "her", "him", "them", "they", "their",
+  "we", "our", "you", "your", "i", "my", "me", "us",
+])
+
 const SENTENCE_END = /(?<=[.!?])\s+/
 const PARAGRAPH_BREAK = /\n\s*\n/
 
@@ -35,7 +40,10 @@ function splitSentences(text: string): string[] {
 }
 
 function getContentWords(text: string): string[] {
-  return text.match(/\b[a-zA-Z]{4,}\b/g)?.filter((w) => !STOP_WORDS.has(w.toLowerCase())) ?? []
+  return text.match(/\b[a-zA-Z]{4,}\b/g)?.filter((w) => {
+    const lower = w.toLowerCase()
+    return !STOP_WORDS.has(lower) && !PRONOUNS.has(lower)
+  }) ?? []
 }
 
 function buildCoOccurrence(sentences: string[]): Map<string, Map<string, number>> {
@@ -62,6 +70,7 @@ function scoreSentences(sentences: string[], cooc: Map<string, Map<string, numbe
     let termScore = 0
     const topTerms: string[] = []
     for (const w of uniqueWords) {
+      if (PRONOUNS.has(w) || STOP_WORDS.has(w)) continue
       const connections = cooc.get(w)
       if (connections) {
         const connCount = connections.size
@@ -132,6 +141,7 @@ export function generateFlashcards(text: string, maxCards = 30): FlashCard[] {
       if (cards.length >= maxCards) break
       const lower = term.toLowerCase()
       if (usedTerms.has(lower) || term.length < 3) continue
+      if (PRONOUNS.has(lower) || STOP_WORDS.has(lower)) continue
       usedTerms.add(lower)
 
       const qa = extractQAPair(sentence, term)
@@ -149,9 +159,10 @@ export function generateFlashcards(text: string, maxCards = 30): FlashCard[] {
   if (cards.length < 3) {
     for (const { sentence, terms } of scored) {
       if (cards.length >= maxCards) break
-      const fallbackTerm = terms[0] ?? `topic ${id}`
+      const fallbackTerm = terms[0]
+      if (!fallbackTerm) continue
       const lower = fallbackTerm.toLowerCase()
-      if (usedTerms.has(lower)) continue
+      if (usedTerms.has(lower) || PRONOUNS.has(lower) || STOP_WORDS.has(lower)) continue
       usedTerms.add(lower)
       cards.push({
         id: id++,

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { generateAIFlashcards } from "@/lib/llm/ai-flashcard-generator"
-import { generateFlashcards } from "@/lib/flashcard-generator"
 import { generateEmbedding } from "@/lib/llm/embedder"
 import type { Module } from "@/lib/types/database"
 
@@ -95,8 +94,11 @@ export async function POST(request: NextRequest) {
       count,
     })
     return NextResponse.json({ flashcards })
-  } catch {
-    const flashcards = generateFlashcards(rawText, count)
-    return NextResponse.json({ flashcards })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    return NextResponse.json(
+      { error: `AI flashcard generation failed: ${msg}. Please try again later.` },
+      { status: 503 }
+    )
   }
 }

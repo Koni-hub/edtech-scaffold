@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server"
 import { chunkText } from "@/lib/llm/chunker"
 import { generateQuiz, type GeneratedQuiz } from "@/lib/llm/quiz-generator"
 import { generateEmbedding } from "@/lib/llm/embedder"
-import { generateLocalQuiz } from "@/lib/llm/local-quiz-generator"
 import type { Module, ModuleChunk } from "@/lib/types/database"
 
 function cosineSimilarity(a: number[], b: number[]): number {
@@ -124,17 +123,10 @@ export async function POST(request: NextRequest) {
     })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
-    try {
-      generated = generateLocalQuiz({
-        title: (module as Module).title,
-        chunks: selectedChunks,
-        questionCount,
-        difficulty,
-        topicLabels: (module as Module).topic_labels,
-      })
-    } catch {
-      return NextResponse.json({ error: `Quiz generation failed: ${msg}` }, { status: 503 })
-    }
+    return NextResponse.json(
+      { error: `AI quiz generation failed: ${msg}. Please try again later.` },
+      { status: 503 }
+    )
   }
 
   const { data: quiz, error: quizError } = await supabase

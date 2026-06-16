@@ -238,9 +238,11 @@ export function generateLocalQuiz(params: {
     })
   }
 
-  // Phase 3: True/False from remaining sentences
+  // Phase 3: True/False from remaining sentences (cap at 40% of total)
+  const maxTF = Math.max(1, Math.floor(questionCount * 0.4))
+  let tfCount = 0
   for (const s of shuffle(sentences)) {
-    if (questions.length >= questionCount) break
+    if (questions.length >= questionCount || tfCount >= maxTF) break
     if (usedSentences.has(s)) continue
     const words = s.split(/\s+/)
     if (words.length < 10) continue
@@ -264,6 +266,7 @@ export function generateLocalQuiz(params: {
       explanation: `Based on the content: "${s}"`,
       difficulty: "medium",
     })
+    tfCount++
   }
 
   // Phase 4: Fill remaining with "Which term" questions

@@ -62,12 +62,9 @@ function validateAgainstSource(question: Record<string, unknown>, sourceText: st
 }
 
 export async function generateQuiz(input: GenerateQuizInput): Promise<GeneratedQuiz> {
-  const MAX_INPUT_TOKENS = 8000
-
   let contextText = ""
   for (const chunk of input.chunks) {
     const candidate = contextText ? contextText + "\n\n" + chunk.content : chunk.content
-    if (candidate.length / 4 > MAX_INPUT_TOKENS) break
     contextText = candidate
   }
 
@@ -82,8 +79,7 @@ export async function generateQuiz(input: GenerateQuizInput): Promise<GeneratedQ
 
     try {
       const raw = await geminiFetch(modelName, [
-        { role: "user", parts: [{ text: systemPrompt }] },
-        { role: "user", parts: [{ text: userPrompt }] },
+        { role: "user", parts: [{ text: systemPrompt + "\n\n" + userPrompt }] },
       ])
 
       const { content } = parseGeminiResponse(raw)

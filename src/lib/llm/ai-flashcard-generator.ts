@@ -34,15 +34,7 @@ function validateCard(card: { term?: unknown; question?: unknown; answer?: unkno
 }
 
 export async function generateAIFlashcards(input: GenerateFlashcardsInput): Promise<AIFlashCard[]> {
-  const MAX_INPUT_TOKENS = 8000
-
-  let contextText = ""
-  const words = input.content.split(/\s+/)
-  for (const word of words) {
-    const candidate = contextText ? contextText + " " + word : word
-    if (candidate.length / 4 > MAX_INPUT_TOKENS) break
-    contextText = candidate
-  }
+  let contextText = input.content
 
   const userPrompt = `Module: "${input.moduleTitle}"\n\nContent:\n${contextText}\n\nGenerate exactly ${input.count ?? 10} flashcards covering the most important concepts and terms. Each flashcard must have a unique term, a clear question, and a precise answer derived from the content.`
 
@@ -53,8 +45,7 @@ export async function generateAIFlashcards(input: GenerateFlashcardsInput): Prom
 
     try {
       const raw = await geminiFetch(modelName, [
-        { role: "user", parts: [{ text: FLASHCARD_SYSTEM_PROMPT }] },
-        { role: "user", parts: [{ text: userPrompt }] },
+        { role: "user", parts: [{ text: FLASHCARD_SYSTEM_PROMPT + "\n\n" + userPrompt }] },
       ])
 
       const { content } = parseGeminiResponse(raw)

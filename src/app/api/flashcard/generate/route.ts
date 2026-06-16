@@ -2,17 +2,10 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { generateAIFlashcards } from "@/lib/llm/ai-flashcard-generator"
 import { generateEmbedding } from "@/lib/llm/embedder"
+import { cosineSimilarity } from "@/lib/llm/similarity"
 import type { Module } from "@/lib/types/database"
 
-function cosineSimilarity(a: number[], b: number[]): number {
-  let dot = 0, normA = 0, normB = 0
-  for (let i = 0; i < a.length; i++) {
-    dot += a[i] * b[i]
-    normA += a[i] * a[i]
-    normB += b[i] * b[i]
-  }
-  return dot / (Math.sqrt(normA) * Math.sqrt(normB))
-}
+const MAX_COUNT = 30
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -22,8 +15,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const body = await request.json()
-  const { moduleId, count = 10 } = body
+  let body: Record<string, unknown>
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 })
+  }
+
+  const moduleId = body.moduleId as string | undefined
+  const count = Math.min(Number(body.count) || 10, MAX_COUNT)
 
   if (!moduleId) {
     return NextResponse.json({ error: "moduleId is required" }, { status: 400 })
@@ -60,7 +60,8 @@ export async function POST(request: NextRequest) {
     const hasEmbeddings = chunkRows.some((c) => c.embedding && Array.isArray(c.embedding) && c.embedding.length > 0)
     if (hasEmbeddings) {
       try {
-        const queryEmbedding = await generateEmbedding((mod as Module).title)
+        const queryText = `${(mod as Module).title} ${(mod as Module).raw_text?.slice(0, 500) ?? ""}`
+        const queryEmbedding = await generateEmbedding(queryText)
         const scored = chunkRows
           .filter((c) => c.embedding && Array.isArray(c.embedding) && c.embedding.length > 0)
           .map((c) => ({
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
           selectedTexts.push(sc.content)
           totalTokens += sc.tokenCount
         }
-        if (selectedTexts.length >= 2) {
+        if (selectedTexts.length >= 1) {
           contextText = selectedTexts.join("\n\n")
         }
       } catch {

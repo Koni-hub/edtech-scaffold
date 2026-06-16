@@ -71,10 +71,7 @@ export function ModuleSpacedReview({ moduleId }: ModuleSpacedReviewProps) {
                   term: nc.term,
                   question: nc.question,
                   answer: nc.answer,
-                  easiness: nc.easiness,
-                  interval: nc.interval,
-                  repetitions: nc.repetitions,
-                  dueAt: nc.dueAt.toISOString(),
+                  correct: false,
                 }),
               })
             }
@@ -123,10 +120,7 @@ export function ModuleSpacedReview({ moduleId }: ModuleSpacedReviewProps) {
         term: current.term,
         question: current.question,
         answer: current.answer,
-        easiness: next.easiness,
-        interval: next.interval,
-        repetitions: next.repetitions,
-        dueAt: next.dueAt.toISOString(),
+        correct: quality >= 4,
       }),
     })
 

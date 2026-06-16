@@ -168,10 +168,7 @@ export default function FlashcardsPage() {
           term: current.term ?? current.question,
           question: current.question,
           answer: current.answer,
-          easiness: next.easiness,
-          interval: next.interval,
-          repetitions: next.repetitions,
-          dueAt: next.dueAt.toISOString(),
+          correct: quality >= 4,
         }),
       })
     } catch { /* best-effort persistence */ }

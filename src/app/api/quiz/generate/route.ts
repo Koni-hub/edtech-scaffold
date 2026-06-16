@@ -3,17 +3,11 @@ import { createClient } from "@/lib/supabase/server"
 import { chunkText } from "@/lib/llm/chunker"
 import { generateQuiz, type GeneratedQuiz } from "@/lib/llm/quiz-generator"
 import { generateEmbedding } from "@/lib/llm/embedder"
+import { cosineSimilarity } from "@/lib/llm/similarity"
+import type { QuizMode } from "@/lib/llm/prompts"
 import type { Module, ModuleChunk } from "@/lib/types/database"
 
-function cosineSimilarity(a: number[], b: number[]): number {
-  let dot = 0, normA = 0, normB = 0
-  for (let i = 0; i < a.length; i++) {
-    dot += a[i] * b[i]
-    normA += a[i] * a[i]
-    normB += b[i] * b[i]
-  }
-  return dot / (Math.sqrt(normA) * Math.sqrt(normB))
-}
+const MAX_QUESTIONS = 30
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -23,8 +17,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const body = await request.json()
-  const { moduleId, questionCount = 5, difficulty = "medium", quizMode = "mixed" } = body
+  let body: Record<string, unknown>
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 })
+  }
+
+  const moduleId = body.moduleId as string | undefined
+  const questionCount = Math.min(Number(body.questionCount) || 5, MAX_QUESTIONS)
+  const difficulty = (body.difficulty as string) || "medium"
+  const quizMode = (body.quizMode as string) || "mixed"
 
   if (!moduleId) {
     return NextResponse.json({ error: "moduleId is required" }, { status: 400 })
@@ -85,7 +88,8 @@ export async function POST(request: NextRequest) {
   const hasEmbeddings = chunkRows.some((c) => c.embedding && Array.isArray(c.embedding) && c.embedding.length > 0)
   if (hasEmbeddings && chunkRows.length > 3) {
     try {
-      const queryEmbedding = await generateEmbedding((module as Module).title)
+      const queryText = `${(module as Module).title} ${(module as Module).raw_text?.slice(0, 500) ?? ""}`
+      const queryEmbedding = await generateEmbedding(queryText)
       const scored = chunkRows
         .filter((c) => c.embedding && Array.isArray(c.embedding) && c.embedding.length > 0)
         .map((c) => ({
@@ -103,7 +107,7 @@ export async function POST(request: NextRequest) {
         ragChunks.push({ content: sc.content, tokenCount: sc.tokenCount })
         totalTokens += sc.tokenCount
       }
-      if (ragChunks.length >= 2) {
+      if (ragChunks.length >= 1) {
         selectedChunks = ragChunks
       }
     } catch {
@@ -118,7 +122,7 @@ export async function POST(request: NextRequest) {
       chunks: selectedChunks,
       questionCount,
       difficulty,
-      quizMode,
+      quizMode: quizMode as QuizMode,
       topicLabels: (module as Module).topic_labels,
     })
   } catch (err) {

@@ -54,11 +54,19 @@ export async function POST(request: NextRequest) {
 
   const attemptInserts: Omit<QuizAttempt, "id" | "attempted_at">[] = []
 
+  function normalizeAnswer(a: string): string {
+    const trimmed = a.trim()
+    const upper = trimmed.toUpperCase()
+    if (upper === "TRUE" || upper === "T" || trimmed === "A") return "A"
+    if (upper === "FALSE" || upper === "F" || trimmed === "B") return "B"
+    return upper
+  }
+
   for (const answer of answers) {
     const question = questionMap.get(answer.questionId)
     if (!question) continue
 
-    const isCorrect = question.correct_answer === answer.givenAnswer
+    const isCorrect = normalizeAnswer(question.correct_answer) === normalizeAnswer(answer.givenAnswer)
 
     attemptInserts.push({
       quiz_id: quizId,

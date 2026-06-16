@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" fill="none">
+  <defs>
+    <linearGradient id="logobg" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="hsl(221 83% 53%)"/>
+      <stop offset="1" stop-color="hsl(221 83% 38%)"/>
+    </linearGradient>
+    <linearGradient id="logobrain" x1="20" y1="20" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+      <stop stop-color="hsl(221 83% 53%)"/>
+      <stop offset="1" stop-color="hsl(221 83% 35%)"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="hsl(221 83% 53%)" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <rect width="120" height="120" rx="28" fill="url(#logobg)" filter="url(#shadow)"/>
+  <path d="M60 18C46 18 34 28 30 44c-2 10.5 0 22 9 32l21 28 21-28c9-10 11-21.5 9-32-4-16-16-26-30-26z" fill="white" opacity="0.95"/>
+  <path d="M52 38c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10-10-4.48-10-10z" fill="url(#logobrain)"/>
+  <path d="M40 52c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10-10-4.48-10-10z" fill="url(#logobrain)" opacity="0.7"/>
+  <path d="M70 52c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10-10-4.48-10-10z" fill="url(#logobrain)" opacity="0.8"/>
+  <path d="M49 74c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10-10-4.48-10-10z" fill="url(#logobrain)" opacity="0.6"/>
+</svg>

@@ -258,8 +258,16 @@ export default function LandingPage() {
           <div
             className="absolute -top-32 -right-32 size-96 rounded-full bg-primary/5 blur-3xl pointer-events-none"
           />
-          <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative w-full mx-auto max-w-7xl px-4 pb-16 pt-24 sm:px-6 sm:pt-32 lg:px-8">
+            <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative w-full mx-auto max-w-7xl px-4 pb-16 pt-24 sm:px-6 sm:pt-32 lg:px-8">
             <div className="mx-auto max-w-3xl text-center">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
+                className="mb-8 flex justify-center"
+              >
+                <img src="/logo.svg" alt="Syntra" className="size-24 sm:size-28 drop-shadow-lg" />
+              </motion.div>
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="mb-8 inline-flex items-center gap-2 rounded-full border bg-muted/50 px-4 py-1.5 text-xs font-medium">
                 <Sparkles className="size-3.5 text-primary" />
                 Study Your Notes with Tracking, Review & Adaptation

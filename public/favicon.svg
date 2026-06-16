@@ -1,5 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" rx="8" fill="hsl(221 83% 53%)"/>
-  <path d="M16 7C13 7 10.5 9 10 12.5c-.3 2.3.5 4.5 2 6l4 5.5 4-5.5c1.5-1.5 2.3-3.7 2-6C21.5 9 19 7 16 7z" fill="white" opacity="0.9"/>
-  <circle cx="16" cy="13" r="2.5" fill="hsl(221 83% 53%)"/>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop stop-color="hsl(221 83% 53%)"/>
+      <stop offset="1" stop-color="hsl(221 83% 43%)"/>
+    </linearGradient>
+    <linearGradient id="brain" x1="6" y1="6" x2="26" y2="26" gradientUnits="userSpaceOnUse">
+      <stop stop-color="hsl(221 83% 53%)"/>
+      <stop offset="1" stop-color="hsl(221 83% 40%)"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="url(#bg)"/>
+  <path d="M16 6C12 6 9 8.5 8.5 12.5c-.3 2.8.7 5.2 2.5 7l5 6.5 5-6.5c1.8-1.8 2.8-4.2 2.5-7C23 8.5 20 6 16 6z" fill="white" opacity="0.95"/>
+  <path d="M14.5 11.5C14.5 10.12 15.67 9 17 9s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5a2.5 2.5 0 0 1-2.5-2.5z" fill="url(#brain)"/>
+  <path d="M11.5 15C11.5 13.62 12.67 12.5 14 12.5s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5a2.5 2.5 0 0 1-2.5-2.5z" fill="url(#brain)" opacity="0.7"/>
+  <path d="M18.5 14.5C18.5 13.12 19.67 12 21 12s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5a2.5 2.5 0 0 1-2.5-2.5z" fill="url(#brain)" opacity="0.8"/>
+  <path d="M13.5 18.5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5a2.5 2.5 0 0 1-2.5-2.5z" fill="url(#brain)" opacity="0.6"/>
 </svg>

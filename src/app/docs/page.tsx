@@ -6,7 +6,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import {
   BrainCircuit, BookOpen, BarChart3, Sparkles, Upload, Target,
   ArrowRight, Search, ChevronRight, Menu, X, GraduationCap, Bot,
-  Copy, Check, ThumbsUp, ThumbsDown, ArrowUp,
+  Copy, Check, ThumbsUp, ThumbsDown, ArrowUp, Link2, Flame,
+  ClipboardCheck, Globe, FileText, Youtube,
 } from "lucide-react"
 
 const sidebarNav = [
@@ -23,15 +24,18 @@ const sidebarNav = [
     items: [
       { href: "/docs#modules", label: "Modules" },
       { href: "/docs#quizzes", label: "Quizzes" },
-      { href: "/docs#analytics", label: "Analytics" },
       { href: "/docs#flashcards", label: "Flashcards" },
+      { href: "/docs#analytics", label: "Analytics" },
+      { href: "/docs#spaced-repetition", label: "Spaced Repetition" },
     ],
   },
   {
     category: "Guides",
     items: [
       { href: "/docs#upload", label: "Uploading materials" },
+      { href: "/docs#import-url", label: "Importing from URLs" },
       { href: "/docs#generate", label: "Generating quizzes" },
+      { href: "/docs#generate-flashcards", label: "Generating flashcards" },
       { href: "/docs#review", label: "Reviewing results" },
       { href: "/docs#track", label: "Tracking progress" },
     ],
@@ -45,52 +49,63 @@ const sidebarNav = [
   },
 ]
 
-const quickstartCode = `import { createClient } from "@/lib/supabase/client"
+const quickstartCode = `// 1. Sign up or log in
+// Visit /register to create an account
+// or /login if you already have one`
 
-const supabase = createClient()
-
-// Sign in to your account
-const { data, error } = await supabase.auth.signInWithPassword({
-  email: "student@example.com",
-  password: "your-password",
-})`
-
-const quickstartCode2 = `// Upload a module
+const quickstartCode2 = `// 2. Upload a module (PDF, text, or URL)
 const formData = new FormData()
-formData.append("file", pdfFile)
+formData.append("file", pdfFile)      // for PDF uploads
 formData.append("title", "Cell Biology")
+formData.append("category", "Science")
 
-const { data: module } = await fetch("/api/modules/upload", {
+const res = await fetch("/api/modules/upload", {
   method: "POST",
   body: formData,
-}).then(r => r.json())`
+})
+const { moduleId } = await res.json()`
 
-const quickstartQuiz = `// Generate a quiz from module content
-const response = await fetch("/api/quiz/generate", {
+const quickstartCode3 = `// 3. Generate a quiz from your module
+const res = await fetch("/api/quiz/generate", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
     moduleId: "module_123",
     topic: "Cell Biology",
-    questionCount: 5,
+    questionCount: 10,
   }),
 })
 
-const quiz = await response.json()
-console.log(quiz.questions)`
+const { quizId, questions } = await res.json()
+// Questions are AI-generated from your content
+// Multiple-choice, true/false, and short-answer`
+
+const quickstartCode4 = `// 4. Generate flashcards with spaced repetition
+const res = await fetch("/api/flashcard/generate", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    moduleId: "module_123",
+    count: 20,
+  }),
+})
+
+const { flashcards } = await res.json()
+// Each card has: front, back, difficulty
+// Review schedule computed server-side via SM-2`
 
 const buildPaths = [
   {
     icon: BrainCircuit,
     title: "Syntra Dashboard",
-    description: "Use the interactive dashboard to manage modules, take quizzes, and track your analytics in real time.",
+    description: "Interactive dashboard with progress rings, sparklines, streak tracking, and analytics at a glance.",
     href: "/dashboard",
     cta: "Go to Dashboard",
   },
   {
     icon: Bot,
     title: "AI Quiz Engine",
-    description: "Generate intelligent quizzes from your uploaded materials with adaptive difficulty and instant feedback.",
+    description: "Gemini 2.5 Flash generates diverse, accurate quizzes with adaptive difficulty and instant feedback.",
     href: "/quizzes/generate",
     cta: "Generate a Quiz",
   },
@@ -99,53 +114,58 @@ const buildPaths = [
 const startBuilding = [
   {
     icon: Upload,
-    title: "Upload modules",
-    description: "Upload PDFs and documents. AI automatically processes them into structured learning modules.",
+    title: "Upload PDFs",
+    description: "Upload PDFs with tiered extraction: spatial text analysis, table detection, and OCR fallback for scanned documents.",
     href: "/modules/upload",
   },
   {
-    icon: Sparkles,
+    icon: Link2,
+    title: "Import from URL",
+    description: "Paste a YouTube video URL or any website link. AI extracts transcript or readable content automatically.",
+    href: "/modules/upload",
+  },
+  {
+    icon: ClipboardCheck,
     title: "Generate quizzes",
-    description: "Create custom quizzes from your materials with multiple question formats.",
+    description: "AI creates diverse questions with few-shot examples, retry logic, and answer normalization.",
     href: "/quizzes/generate",
+  },
+  {
+    icon: GraduationCap,
+    title: "Study flashcards",
+    description: "AI-generated flashcards with SM-2 spaced repetition. Review schedule adapts to your confidence.",
+    href: "/modules",
   },
   {
     icon: BarChart3,
     title: "Track analytics",
-    description: "Monitor understanding scores, retention rates, and topic mastery over time.",
+    description: "EWMA-based understanding scores, retention trends, topic mastery, and daily streaks.",
     href: "/analytics",
   },
   {
     icon: Target,
     title: "Review weak areas",
-    description: "Identify topics that need more attention with data-driven insights.",
+    description: "Data-driven insights highlight topics needing more practice. Focus your study time effectively.",
     href: "/dashboard",
-  },
-  {
-    icon: GraduationCap,
-    title: "Study flashcards",
-    description: "Reinforce knowledge with AI-generated flashcards using spaced repetition.",
-    href: "/modules",
-  },
-  {
-    icon: BookOpen,
-    title: "Browse modules",
-    description: "Organize and explore all your learning modules by subject and topic.",
-    href: "/modules",
   },
 ]
 
 const faqItems = [
-  { q: "What file formats are supported?", a: "Currently we support PDF files for module uploads. Support for DOCX, TXT, and Markdown is coming soon." },
-  { q: "Is my data secure?", a: "Yes. All data is encrypted in transit and at rest. We use Supabase for secure authentication and data storage." },
-  { q: "How accurate is AI quiz generation?", a: "The AI generates questions based on your content. Quality depends on the clarity of your source materials." },
-  { q: "Is there a limit on modules or quizzes?", a: "Free accounts have a reasonable usage limit. Check your account settings for specific limits." },
+  { q: "What file formats are supported?", a: "PDF (with OCR fallback for scanned documents), plain text, and pasted content. You can also import from YouTube video URLs and any website URL." },
+  { q: "How does PDF extraction work?", a: "Syntra uses a tiered approach: first, spatial-aware text extraction with pdfjs-dist (detects tables, headings, multi-column layouts). If extraction is poor, it falls back to Tesseract.js OCR for scanned/image-heavy PDFs. Files up to 10MB are supported." },
+  { q: "Is my data secure?", a: "Yes. All data is encrypted in transit and at rest via Supabase. API keys are passed via secure headers, not URL parameters. Row Level Security (RLS) ensures users can only access their own data." },
+  { q: "How accurate is AI quiz generation?", a: "Syntra uses Gemini 2.5 Flash with enhanced prompts including few-shot examples, question diversity rules, and distractor quality guidelines. Questions are validated against source content, and the system retries with adjusted instructions if quality is low." },
+  { q: "What is spaced repetition?", a: "Spaced repetition (SM-2 algorithm) schedules flashcard reviews at optimal intervals. Cards you find easy are shown less frequently, while difficult cards appear more often. The schedule is computed server-side based on your responses." },
+  { q: "How does the streak work?", a: "Your daily streak tracks consecutive days of learning activity. Generate a quiz, review flashcards, or upload a module to maintain your streak. The dashboard shows your current streak with a flame icon." },
+  { q: "Can I import from YouTube?", a: "Yes. Paste a YouTube video URL and Syntra will extract the English transcript (if available) and create a module from the video content. Great for lecture videos and educational content." },
+  { q: "Is there a limit on modules or quizzes?", a: "Free accounts have a reasonable usage limit. Check your account settings for specific limits. Pro users get unlimited modules, quizzes, and advanced analytics." },
 ]
 
 const codeBlocks = [
-  { label: "Authentication", code: quickstartCode },
-  { label: "Upload Module", code: quickstartCode2 },
-  { label: "Quiz Generation", code: quickstartQuiz },
+  { label: "Step 1: Account", code: quickstartCode },
+  { label: "Step 2: Upload", code: quickstartCode2 },
+  { label: "Step 3: Quiz", code: quickstartCode3 },
+  { label: "Step 4: Flashcards", code: quickstartCode4 },
 ]
 
 interface SearchIndexEntry {
@@ -157,19 +177,22 @@ interface SearchIndexEntry {
 function buildSearchIndex(): SearchIndexEntry[] {
   return [
     { id: "overview", title: "Overview", text: "Everything you need to get started with Syntra from uploading your first module to tracking your learning analytics documentation" },
-    { id: "quickstart", title: "Quickstart", text: "Get started with Syntra in minutes authentication upload module quiz generation import createClient signInWithPassword fetch api" },
-    { id: "pricing", title: "Pricing", text: "Free to start affordable to scale Free plan includes modules quizzes basic analytics flashcard review Pro plan unlimited modules quizzes advanced analytics priority support per month" },
-    { id: "build-paths", title: "Build paths", text: "Choose your path to start learning effectively Syntra Dashboard AI Quiz Engine interactive dashboard manage modules take quizzes track analytics adaptive difficulty instant feedback" },
-    { id: "start-building", title: "Start building", text: "Explore what you can do with Syntra upload modules generate quizzes track analytics review weak areas study flashcards browse modules PDF AI processes" },
-    { id: "modules", title: "Modules", text: "Upload your learning materials Syntra turns them into structured interactive modules AI automatically parses PDFs and documents into topics extracts key concepts creates navigable learning modules foundation for quizzes flashcards and analytics" },
-    { id: "quizzes", title: "Quizzes", text: "Generate AI powered quizzes from your module content multiple choice true false fill in the blank control question count difficulty and topics instant feedback with correct answers and explanations" },
-    { id: "analytics", title: "Analytics", text: "Track your learning performance with data driven insights understanding score retention trends topic mastery breakdown recent quiz performance focus study time on weak areas" },
-    { id: "flashcards", title: "Flashcards", text: "Reinforce knowledge with AI generated flashcards and spaced repetition review cards shuffled mark confidence levels track which cards need more practice optimal intervals" },
-    { id: "upload", title: "Uploading materials", text: "Supported formats PDF DOCX TXT Markdown best practices for uploading learning materials files up to 50 MB supported on all plans use clear headings for best AI processing" },
-    { id: "generate", title: "Generating quizzes", text: "Create custom quizzes from your uploaded modules in seconds select module choose question count pick topics click generate quiz ready in seconds" },
-    { id: "review", title: "Reviewing results", text: "Understand your quiz performance breakdown of correct and incorrect answers explanations for every question track scores over time highlights topics needing more practice" },
-    { id: "track", title: "Tracking progress", text: "Monitor your learning journey over time dashboard aggregates modules created quizzes taken average scores retention trends analytics page for topic radar charts and score trends" },
-    { id: "faq", title: "Frequently asked questions", text: "Common questions about using Syntra file formats supported PDF DOCX TXT Markdown data secure encrypted Supabase authentication AI quiz generation accuracy content limits free accounts" },
+    { id: "quickstart", title: "Quickstart", text: "Get started with Syntra in minutes authentication upload module quiz generation flashcard generation import createClient" },
+    { id: "pricing", title: "Pricing", text: "Free plan includes modules quizzes basic analytics flashcard review Pro plan unlimited modules quizzes advanced analytics priority support per month" },
+    { id: "build-paths", title: "Build paths", text: "Choose your path to start learning effectively Syntra Dashboard AI Quiz Engine progress rings sparklines streak tracking adaptive difficulty" },
+    { id: "start-building", title: "Start building", text: "Explore what you can do with Syntra upload PDFs import URL generate quizzes study flashcards track analytics review weak areas" },
+    { id: "modules", title: "Modules", text: "Upload your learning materials PDF text YouTube URL website content Syntra turns them into structured interactive modules AI automatically parses extracts key concepts creates navigable learning modules" },
+    { id: "quizzes", title: "Quizzes", text: "Generate AI powered quizzes from your module content using Gemini 2.5 Flash multiple choice true false short answer control question count difficulty and topics instant feedback with correct answers and explanations retry logic deduplication" },
+    { id: "flashcards", title: "Flashcards", text: "Reinforce knowledge with AI generated flashcards term validation source text verification spaced repetition SM-2 algorithm review schedule adapts to confidence level" },
+    { id: "analytics", title: "Analytics", text: "Track your learning performance EWMA based understanding scores retention trends topic mastery breakdown daily streaks recent quiz performance focus study time on weak areas" },
+    { id: "spaced-repetition", title: "Spaced Repetition", text: "SM-2 algorithm schedules flashcard reviews at optimal intervals cards you find easy shown less frequently difficult cards appear more often server side computation" },
+    { id: "upload", title: "Uploading materials", text: "Supported formats PDF with OCR fallback plain text pasted content files up to 10MB table detection heading detection spatial awareness scanned documents" },
+    { id: "import-url", title: "Importing from URLs", text: "YouTube video URL website URL paste link AI extracts transcript or readable content automatically creates module from web content" },
+    { id: "generate", title: "Generating quizzes", text: "Create custom quizzes from your uploaded modules in seconds select module choose question count pick topics Gemini 2.5 Flash generates questions with few shot examples diversity rules distractor quality" },
+    { id: "generate-flashcards", title: "Generating flashcards", text: "Create AI flashcards from module content term validation source text verification count control difficulty assessment" },
+    { id: "review", title: "Reviewing results", text: "Understand your quiz performance breakdown of correct and incorrect answers explanations for every question answer normalization track scores over time highlights topics needing more practice" },
+    { id: "track", title: "Tracking progress", text: "Monitor your learning journey over time dashboard aggregates modules created quizzes taken average scores retention trends daily streaks analytics page for topic radar charts and score trends" },
+    { id: "faq", title: "Frequently asked questions", text: "Common questions about using Syntra file formats supported PDF text URL data secure encrypted Supabase authentication AI quiz generation accuracy spaced repetition streak tracking" },
     { id: "support", title: "Support", text: "Still have questions get started today explore all features hands on free" },
   ]
 }
@@ -407,7 +430,7 @@ export default function DocsPage() {
               </div>
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Syntra Docs</h1>
               <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                Everything you need to get started with Syntra — from uploading your first module to tracking your learning analytics.
+                Everything you need to get started with Syntra — from uploading your first module to mastering spaced repetition. Powered by Gemini 2.5 Flash.
               </p>
 
               <div className="relative mt-6 max-w-md">
@@ -480,12 +503,9 @@ export default function DocsPage() {
             </section>
 
             <SectionFadeIn>
-              <section
-                id="quickstart"
-                className="mt-12 scroll-mt-20"
-              >
+              <section id="quickstart" className="mt-12 scroll-mt-20">
                 <h2 className="mb-1 text-lg font-semibold">Quickstart</h2>
-                <p className="mb-5 text-xs text-muted-foreground">Get started with Syntra in minutes.</p>
+                <p className="mb-5 text-xs text-muted-foreground">Get started with Syntra in 4 steps.</p>
 
                 {codeBlocks.map((block, idx) => (
                   <div key={idx} className={`rounded-lg border group/code ${idx > 0 ? "mt-4" : ""}`}>
@@ -537,6 +557,7 @@ export default function DocsPage() {
                       <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> 10 quizzes per month</li>
                       <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Basic analytics</li>
                       <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Flashcard review</li>
+                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> YouTube URL import</li>
                     </ul>
                   </div>
                   <div className="rounded-lg border border-primary/30 bg-card p-5">
@@ -549,6 +570,7 @@ export default function DocsPage() {
                       <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Unlimited quizzes</li>
                       <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Advanced analytics & insights</li>
                       <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Priority support</li>
+                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> All import sources</li>
                     </ul>
                   </div>
                 </div>
@@ -621,9 +643,23 @@ export default function DocsPage() {
                     <div>
                       <h3 className="text-sm font-semibold">How modules work</h3>
                       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                        Upload PDFs or documents in the Modules section. Syntra&rsquo;s AI automatically parses the content into structured topics, extracts key concepts, and creates a navigable learning module. Each module becomes the foundation for quizzes, flashcards, and analytics.
+                        Upload PDFs, paste text, or import from YouTube/website URLs. Syntra&rsquo;s AI automatically parses the content into structured topics, extracts key concepts, and creates a navigable learning module. PDFs use tiered extraction: spatial-aware text analysis with table detection, falling back to OCR for scanned documents.
                       </p>
-                      <Link href="/modules/upload" className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <span className="inline-flex items-center gap-1 rounded-full border bg-muted/50 px-2 py-0.5 text-[10px] font-medium">
+                          <FileText className="size-2.5" /> PDF with OCR
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full border bg-muted/50 px-2 py-0.5 text-[10px] font-medium">
+                          <FileText className="size-2.5" /> Plain text
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full border bg-muted/50 px-2 py-0.5 text-[10px] font-medium">
+                          <Youtube className="size-2.5" /> YouTube
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full border bg-muted/50 px-2 py-0.5 text-[10px] font-medium">
+                          <Globe className="size-2.5" /> Website URLs
+                        </span>
+                      </div>
+                      <Link href="/modules/upload" className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
                         Upload a module <ArrowRight className="size-3" />
                       </Link>
                     </div>
@@ -642,12 +678,47 @@ export default function DocsPage() {
                       <BrainCircuit className="size-4 text-primary" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-semibold">Quiz formats</h3>
+                      <h3 className="text-sm font-semibold">AI-powered quiz generation</h3>
                       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                        Quizzes include multiple-choice, true-or-false, and fill-in-the-blank questions. You control the number of questions, difficulty level, and specific topics. After submission, receive instant feedback with correct answers and explanations.
+                        Powered by <strong>Gemini 2.5 Flash</strong> with enhanced prompts including few-shot examples, question diversity rules, and distractor quality guidelines. Quizzes include multiple-choice, true/false, and short-answer questions. Questions are validated against source content, deduplicated across retries, and scored with answer normalization (A/a/True/true all work).
                       </p>
-                      <Link href="/quizzes/generate" className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+                      <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+                        <li className="flex items-center gap-1.5"><span className="size-1 rounded-full bg-primary" /> Adaptive difficulty (upgrades after 3 correct, downgrades after 2 wrong)</li>
+                        <li className="flex items-center gap-1.5"><span className="size-1 rounded-full bg-primary" /> Auto-retry with adjusted instructions on low quality</li>
+                        <li className="flex items-center gap-1.5"><span className="size-1 rounded-full bg-primary" /> Question deduplication across retries</li>
+                        <li className="flex items-center gap-1.5"><span className="size-1 rounded-full bg-primary" /> Input caps: max 30 questions per request</li>
+                      </ul>
+                      <Link href="/quizzes/generate" className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
                         Try a quiz <ArrowRight className="size-3" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </SectionFadeIn>
+
+            <SectionFadeIn>
+              <section id="flashcards" className="mt-12 scroll-mt-20">
+                <h2 className="mb-1 text-lg font-semibold">Flashcards</h2>
+                <p className="mb-4 text-xs text-muted-foreground">Reinforce knowledge with AI-generated flashcards and spaced repetition.</p>
+                <div className="rounded-lg border bg-card p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-md border bg-background">
+                      <GraduationCap className="size-4 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold">AI flashcards with SM-2 scheduling</h3>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        AI generates flashcards with term validation and source-text verification. Each card includes a difficulty rating. The <strong>SM-2 spaced repetition algorithm</strong> computes optimal review intervals server-side — cards you find easy are shown less frequently, while difficult cards appear more often.
+                      </p>
+                      <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+                        <li className="flex items-center gap-1.5"><span className="size-1 rounded-full bg-primary" /> AI validates terms against source content</li>
+                        <li className="flex items-center gap-1.5"><span className="size-1 rounded-full bg-primary" /> Server-side SM-2 scheduling (not client-computed)</li>
+                        <li className="flex items-center gap-1.5"><span className="size-1 rounded-full bg-primary" /> Easiness factor, interval, and repetition tracking</li>
+                        <li className="flex items-center gap-1.5"><span className="size-1 rounded-full bg-primary" /> Input caps: max 30 flashcards per request</li>
+                      </ul>
+                      <Link href="/modules" className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+                        Start reviewing <ArrowRight className="size-3" />
                       </Link>
                     </div>
                   </div>
@@ -667,9 +738,16 @@ export default function DocsPage() {
                     <div>
                       <h3 className="text-sm font-semibold">Understanding at a glance</h3>
                       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                        The Analytics dashboard shows your overall understanding score, retention trends over time, topic-by-topic mastery breakdown, and recent quiz performance. Use these insights to focus your study time on weak areas.
+                        The Analytics dashboard uses <strong>EWMA (Exponentially Weighted Moving Average)</strong> for understanding scores and tracks retention ratios over time. View topic-by-topic mastery breakdown, recent quiz performance, and daily streaks. Use these insights to focus your study time on weak areas.
                       </p>
-                      <Link href="/analytics" className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+                      <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+                        <li className="flex items-center gap-1.5"><span className="size-1 rounded-full bg-primary" /> EWMA-based understanding scores (not simple averages)</li>
+                        <li className="flex items-center gap-1.5"><span className="size-1 rounded-full bg-primary" /> Retention ratio tracking over time</li>
+                        <li className="flex items-center gap-1.5"><span className="size-1 rounded-full bg-primary" /> Topic mastery radar charts</li>
+                        <li className="flex items-center gap-1.5"><span className="size-1 rounded-full bg-primary" /> Progress rings and sparklines on dashboard</li>
+                        <li className="flex items-center gap-1.5"><span className="size-1 rounded-full bg-primary" /> Daily streak tracking with flame icon</li>
+                      </ul>
+                      <Link href="/analytics" className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
                         View analytics <ArrowRight className="size-3" />
                       </Link>
                     </div>
@@ -679,22 +757,27 @@ export default function DocsPage() {
             </SectionFadeIn>
 
             <SectionFadeIn>
-              <section id="flashcards" className="mt-12 scroll-mt-20">
-                <h2 className="mb-1 text-lg font-semibold">Flashcards</h2>
-                <p className="mb-4 text-xs text-muted-foreground">Reinforce knowledge with AI-generated flashcards and spaced repetition.</p>
+              <section id="spaced-repetition" className="mt-12 scroll-mt-20">
+                <h2 className="mb-1 text-lg font-semibold">Spaced Repetition</h2>
+                <p className="mb-4 text-xs text-muted-foreground">How Syntra schedules your flashcard reviews for optimal retention.</p>
                 <div className="rounded-lg border bg-card p-4">
                   <div className="flex items-start gap-3">
                     <div className="flex size-8 shrink-0 items-center justify-center rounded-md border bg-background">
-                      <GraduationCap className="size-4 text-primary" />
+                      <Flame className="size-4 text-primary" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-semibold">Built-in review system</h3>
+                      <h3 className="text-sm font-semibold">SM-2 Algorithm</h3>
                       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                        Every module generates a flashcard deck. Review cards in order or shuffled, mark confidence levels, and track which cards need more practice. Spaced repetition scheduling ensures you review concepts at optimal intervals.
+                        Syntra implements the classic <strong>SM-2 spaced repetition algorithm</strong>. When you review a flashcard, you indicate your confidence (0-5). The algorithm computes the next review interval based on your response, easiness factor, and repetition count. All scheduling is computed server-side for accuracy.
                       </p>
-                      <Link href="/modules" className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
-                        Start reviewing <ArrowRight className="size-3" />
-                      </Link>
+                      <div className="mt-3 rounded-md bg-muted/50 p-3 text-xs font-mono text-muted-foreground">
+                        <div>EF&rsquo; = EF + (0.1 - (5-q) * (0.08 + (5-q) * 0.02))</div>
+                        <div className="mt-1">If q &lt; 3: reset repetition, interval = 1</div>
+                        <div>Else: interval = prev * EF</div>
+                      </div>
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Where <strong>q</strong> = your quality rating (0-5), <strong>EF</strong> = easiness factor (min 1.3), and <strong>interval</strong> = days until next review.
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -704,20 +787,61 @@ export default function DocsPage() {
             <SectionFadeIn>
               <section id="upload" className="mt-12 scroll-mt-20">
                 <h2 className="mb-1 text-lg font-semibold">Uploading materials</h2>
-                <p className="mb-4 text-xs text-muted-foreground">Supported formats and best practices for uploading learning materials.</p>
+                <p className="mb-4 text-xs text-muted-foreground">Supported formats and how PDF extraction works.</p>
                 <div className="rounded-lg border bg-card p-4">
-                  <h3 className="text-sm font-semibold">Supported formats</h3>
-                  <ul className="mt-2 space-y-1.5 text-xs text-muted-foreground">
-                    <li className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-primary shrink-0" /> <strong>PDF</strong> &mdash; Best for lecture notes, textbooks, and articles</li>
-                    <li className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-primary shrink-0" /> <strong>DOCX</strong> &mdash; Word documents</li>
-                    <li className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-primary shrink-0" /> <strong>TXT</strong> &mdash; Plain text files</li>
-                    <li className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-primary shrink-0" /> <strong>Markdown</strong> &mdash; Structured text with headings</li>
-                  </ul>
-                  <p className="mt-3 text-xs text-muted-foreground">
-                    For best results, use clear headings and structured content. Files up to 50 MB are supported on all plans.
+                  <h3 className="text-sm font-semibold">Tiered PDF extraction</h3>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Syntra uses a multi-stage approach to extract content from PDFs:
                   </p>
+                  <ol className="mt-2 space-y-2 text-xs text-muted-foreground list-decimal list-inside">
+                    <li><strong>Spatial text extraction</strong> — pdfjs-dist with positional analysis detects tables (column gaps), headings (font size/bold), and multi-column layouts</li>
+                    <li><strong>OCR fallback</strong> — If extraction is poor (scanned/image-heavy PDFs), Tesseract.js runs OCR entirely in the browser (WASM, no server needed)</li>
+                    <li><strong>Table detection</strong> — Tables are detected via coordinate analysis and preserved as structured content</li>
+                    <li><strong>Section-aware chunking</strong> — Text is split at section boundaries, preserving table blocks as whole units</li>
+                  </ol>
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                    <div className="rounded-md bg-muted/50 p-2 text-xs">
+                      <span className="font-medium">Max file size:</span> 10 MB
+                    </div>
+                    <div className="rounded-md bg-muted/50 p-2 text-xs">
+                      <span className="font-medium">Chunk size:</span> 2000 tokens
+                    </div>
+                  </div>
                   <Link href="/modules/upload" className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
                     Upload now <ArrowRight className="size-3" />
+                  </Link>
+                </div>
+              </section>
+            </SectionFadeIn>
+
+            <SectionFadeIn>
+              <section id="import-url" className="mt-12 scroll-mt-20">
+                <h2 className="mb-1 text-lg font-semibold">Importing from URLs</h2>
+                <p className="mb-4 text-xs text-muted-foreground">Import content from YouTube videos and websites.</p>
+                <div className="rounded-lg border bg-card p-4">
+                  <h3 className="text-sm font-semibold">Supported URL sources</h3>
+                  <div className="mt-3 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-red-500/10">
+                        <Youtube className="size-3.5 text-red-500" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-medium">YouTube Videos</h4>
+                        <p className="text-xs text-muted-foreground">Paste any YouTube video URL. Syntra extracts the English transcript (if available) and creates a module from the video content. Supports standard YouTube URLs, youtu.be links, and embed URLs.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-blue-500/10">
+                        <Globe className="size-3.5 text-blue-500" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-medium">Website URLs</h4>
+                        <p className="text-xs text-muted-foreground">Paste any website URL. Syntra fetches the page, strips navigation/ads/scripts, and extracts readable content using sentence quality filtering. Great for articles, blog posts, and documentation.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <Link href="/modules/upload" className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+                    Try URL import <ArrowRight className="size-3" />
                   </Link>
                 </div>
               </section>
@@ -732,12 +856,37 @@ export default function DocsPage() {
                   <ol className="mt-2 space-y-2 text-xs text-muted-foreground list-decimal list-inside">
                     <li>Navigate to the <strong>Generate</strong> page from the sidebar</li>
                     <li>Select a module you&rsquo;ve uploaded</li>
-                    <li>Choose the number of questions (5&ndash;20)</li>
+                    <li>Choose the number of questions (5&ndash;30)</li>
                     <li>Pick specific topics or let AI cover the full module</li>
                     <li>Click <strong>Generate</strong> &mdash; your quiz is ready in seconds</li>
                   </ol>
+                  <div className="mt-3 rounded-md bg-muted/50 p-3 text-xs text-muted-foreground">
+                    <strong>How it works:</strong> Gemini 2.5 Flash generates questions using few-shot examples and diversity rules. Each question is validated against the source content. If too many questions are filtered out, the system retries with adjusted instructions. Duplicate questions are removed across retries.
+                  </div>
                   <Link href="/quizzes/generate" className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
                     Generate a quiz <ArrowRight className="size-3" />
+                  </Link>
+                </div>
+              </section>
+            </SectionFadeIn>
+
+            <SectionFadeIn>
+              <section id="generate-flashcards" className="mt-12 scroll-mt-20">
+                <h2 className="mb-1 text-lg font-semibold">Generating flashcards</h2>
+                <p className="mb-4 text-xs text-muted-foreground">Create AI flashcards from your module content.</p>
+                <div className="rounded-lg border bg-card p-4">
+                  <h3 className="text-sm font-semibold">How to generate flashcards</h3>
+                  <ol className="mt-2 space-y-2 text-xs text-muted-foreground list-decimal list-inside">
+                    <li>Open a module from the <strong>Modules</strong> page</li>
+                    <li>Click the <strong>Flashcards</strong> tab</li>
+                    <li>Choose how many flashcards to generate (5&ndash;30)</li>
+                    <li>Click <strong>Generate</strong> &mdash; AI creates term/definition pairs</li>
+                  </ol>
+                  <div className="mt-3 rounded-md bg-muted/50 p-3 text-xs text-muted-foreground">
+                    <strong>Quality checks:</strong> Each flashcard term is validated against the source content. Terms that are too short (&lt;3 chars), too long (&gt;100 chars), or not found in the source text are filtered out. Difficulty is rated 1-5 based on content complexity.
+                  </div>
+                  <Link href="/modules" className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+                    Start generating <ArrowRight className="size-3" />
                   </Link>
                 </div>
               </section>
@@ -755,7 +904,7 @@ export default function DocsPage() {
                     <div>
                       <h3 className="text-sm font-semibold">Detailed feedback</h3>
                       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                        After each quiz, view a breakdown of correct and incorrect answers, see explanations for every question, and track how your score compares to previous attempts. The system highlights topics where you need more practice.
+                        After each quiz, view a breakdown of correct and incorrect answers, see explanations for every question, and track how your score compares to previous attempts. Answer normalization means A, a, True, true all work interchangeably. The system highlights topics where you need more practice.
                       </p>
                       <Link href="/quizzes" className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
                         View past results <ArrowRight className="size-3" />
@@ -778,7 +927,7 @@ export default function DocsPage() {
                     <div>
                       <h3 className="text-sm font-semibold">Your learning dashboard</h3>
                       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                        The dashboard aggregates all your activity: modules created, quizzes taken, average scores, and retention trends. Use the analytics page for deeper insights including topic-radar charts and score trends over days and weeks.
+                        The dashboard aggregates all your activity: modules created, quizzes taken, average scores, retention trends, and daily streaks. Visual progress rings show understanding and retention at a glance. Sparkline charts display score trends over time. Use the analytics page for deeper insights including topic-radar charts.
                       </p>
                       <Link href="/dashboard" className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
                         Go to dashboard <ArrowRight className="size-3" />

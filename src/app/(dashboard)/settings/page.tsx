@@ -223,7 +223,7 @@ export default function SettingsPage() {
           <CardDescription>Choose your preferred theme</CardDescription>
         </CardHeader>
         <CardContent>
-          <Select value={theme} onValueChange={setTheme}>
+          <Select value={theme ?? "system"} onValueChange={(v) => setTheme(v ?? "system")}>
             <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>

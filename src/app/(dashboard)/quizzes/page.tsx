@@ -49,12 +49,6 @@ export default async function QuizzesPage() {
               AI Quiz
             </Button>
           </Link>
-          <Link href="/quizzes/generate-local">
-            <Button variant="secondary">
-              <ClipboardCheck size={16} />
-              Local Quiz
-            </Button>
-          </Link>
         </div>
       </div>
 

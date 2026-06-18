@@ -71,11 +71,7 @@ export function ModuleAiQuiz({ moduleId }: ModuleAiQuizProps) {
       toast.success(`Generated ${numQuestions}-question ${modeLabel} quiz`, { id: "quiz-ai" })
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to generate quiz"
-      if (msg.includes("quota") || msg.includes("Quota")) {
-        toast.info("AI quota reached. Falling back to local quiz generation.", { id: "quiz-ai-fallback", duration: 5000 })
-      } else {
-        toast.error(msg, { id: "quiz-ai" })
-      }
+      toast.error(msg, { id: "quiz-ai" })
       setErrorMessage(msg)
       setQuizState("error")
     }

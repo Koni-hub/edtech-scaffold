@@ -1,6 +1,5 @@
 import { geminiFetch, isQuotaError, parseGeminiResponse, GEMINI_MODELS } from "./gemini-client"
 import { getQuizSystemPrompt, type QuizMode } from "./prompts"
-import { generateLocalQuiz } from "./local-quiz-generator"
 
 export interface GeneratedQuestion {
   topic: string
@@ -70,87 +69,100 @@ export async function generateQuiz(input: GenerateQuizInput): Promise<GeneratedQ
 
   const quizMode = input.quizMode ?? "mixed"
   const systemPrompt = getQuizSystemPrompt(quizMode)
-  const userPrompt = `Module: "${input.moduleTitle}"\n\nContent:\n${contextText}\n\nGenerate exactly ${input.questionCount} questions at ${input.difficulty} difficulty. Use diverse question types as specified.`
+  const basePrompt = `Module: "${input.moduleTitle}"\n\nContent:\n${contextText}\n\nGenerate exactly ${input.questionCount} questions at ${input.difficulty} difficulty. Use diverse question types as specified.`
+  const retryPrompt = (current: number, needed: number) =>
+    `Module: "${input.moduleTitle}"\n\nContent:\n${contextText}\n\nYou previously generated ${current} valid questions, but I need ${needed} total. Generate ${needed - current} MORE questions covering DIFFERENT topics and sections than the ones already generated. Do NOT repeat the same concepts.`
 
   let lastError: unknown
+  const allQuestions: GeneratedQuestion[] = []
+  let quizTitle = ""
+  let quizTopics: string[] = []
 
   for (const [i, modelName] of GEMINI_MODELS.entries()) {
     if (i > 0 && !isQuotaError(lastError)) await new Promise((r) => setTimeout(r, 2000))
 
-    try {
-      const raw = await geminiFetch(modelName, [
-        { role: "user", parts: [{ text: systemPrompt + "\n\n" + userPrompt }] },
-      ])
+    const maxAttempts = 2
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        const prompt = attempt === 0
+          ? basePrompt
+          : retryPrompt(allQuestions.length, input.questionCount)
 
-      const { content } = parseGeminiResponse(raw)
-      const parsed = JSON.parse(content) as Record<string, unknown>
+        const raw = await geminiFetch(modelName, [
+          { role: "user", parts: [{ text: prompt }] },
+        ], { temperature: 0.7, systemInstruction: systemPrompt })
 
-      if (!parsed.title || !Array.isArray(parsed.questions) || parsed.questions.length === 0) {
-        throw new Error("LLM returned malformed quiz structure")
-      }
+        const { content } = parseGeminiResponse(raw)
+        const parsed = JSON.parse(content) as Record<string, unknown>
 
-      const questions: GeneratedQuestion[] = []
-
-      for (const q of parsed.questions as Record<string, unknown>[]) {
-        const questionText = String(q.question_text ?? "").trim()
-        if (!questionText) continue
-
-        if (!validateAgainstSource(q, contextText)) continue
-
-        const questionType = (() => {
-          if (quizMode === "short_answer") return "mcq" as const
-          const t = String(q.question_type ?? "")
-          if (t === "true_false") return "true_false" as const
-          return "mcq" as const
-        })()
-
-        const options = Array.isArray(q.options) ? q.options as { label: string; text: string }[] : null
-        const correctAnswer = String(q.correct_answer ?? "").trim()
-
-        if (questionType === "mcq") {
-          if (!options || options.length < 2) continue
-          const validLabels = options.map((o) => o.label)
-          if (!validLabels.includes(correctAnswer)) continue
+        if (!parsed.title || !Array.isArray(parsed.questions) || parsed.questions.length === 0) {
+          throw new Error("LLM returned malformed quiz structure")
         }
 
-        if (questionType === "true_false") {
-          if (correctAnswer !== "A" && correctAnswer !== "B" && correctAnswer !== "True" && correctAnswer !== "False") continue
+        if (attempt === 0) {
+          quizTitle = String(parsed.title ?? "")
+          quizTopics = Array.isArray(parsed.topic_focus) ? parsed.topic_focus.map(String) : []
         }
 
-        questions.push({
-          topic: String(q.topic ?? "general"),
-          question_text: questionText,
-          question_type: questionType,
-          options,
-          correct_answer: correctAnswer === "True" ? "A" : correctAnswer === "False" ? "B" : correctAnswer,
-          explanation: String(q.explanation ?? ""),
-          difficulty: (q.difficulty === "easy" || q.difficulty === "hard" ? q.difficulty : "medium") as "easy" | "medium" | "hard",
-        })
-      }
+        for (const q of parsed.questions as Record<string, unknown>[]) {
+          if (allQuestions.length >= input.questionCount) break
 
-      if (questions.length === 0) {
-        throw new Error("LLM returned no valid questions after validation")
-      }
+          const questionText = String(q.question_text ?? "").trim()
+          if (!questionText) continue
 
-      return {
-        title: String(parsed.title ?? ""),
-        topic_focus: Array.isArray(parsed.topic_focus) ? parsed.topic_focus.map(String) : [],
-        questions,
+          const exists = allQuestions.some((eq) => eq.question_text === questionText)
+          if (exists) continue
+
+          if (!validateAgainstSource(q, contextText)) continue
+
+          const questionType = (() => {
+            if (quizMode === "short_answer") return "mcq" as const
+            const t = String(q.question_type ?? "")
+            if (t === "true_false") return "true_false" as const
+            return "mcq" as const
+          })()
+
+          const options = Array.isArray(q.options) ? q.options as { label: string; text: string }[] : null
+          const correctAnswer = String(q.correct_answer ?? "").trim()
+
+          if (questionType === "mcq") {
+            if (!options || options.length < 2) continue
+            const validLabels = options.map((o) => o.label)
+            if (!validLabels.includes(correctAnswer)) continue
+          }
+
+          if (questionType === "true_false") {
+            if (correctAnswer !== "A" && correctAnswer !== "B" && correctAnswer !== "True" && correctAnswer !== "False") continue
+          }
+
+          allQuestions.push({
+            topic: String(q.topic ?? "general"),
+            question_text: questionText,
+            question_type: questionType,
+            options,
+            correct_answer: correctAnswer === "True" ? "A" : correctAnswer === "False" ? "B" : correctAnswer,
+            explanation: String(q.explanation ?? ""),
+            difficulty: (q.difficulty === "easy" || q.difficulty === "hard" ? q.difficulty : "medium") as "easy" | "medium" | "hard",
+          })
+        }
+
+        if (allQuestions.length >= input.questionCount) break
+      } catch (err) {
+        lastError = err
+        if (isQuotaError(err)) break
       }
-    } catch (err) {
-      lastError = err
     }
+
+    if (allQuestions.length > 0 || isQuotaError(lastError)) break
   }
 
-  if (isQuotaError(lastError)) {
-    const local = generateLocalQuiz({
-      title: input.moduleTitle,
-      chunks: input.chunks,
-      questionCount: input.questionCount,
-      difficulty: input.difficulty,
-      topicLabels: input.topicLabels,
-    })
-    return local
+  if (allQuestions.length === 0) {
+    throw lastError instanceof Error ? lastError : new Error(String(lastError))
   }
-  throw lastError instanceof Error ? lastError : new Error(String(lastError))
+
+  return {
+    title: quizTitle,
+    topic_focus: quizTopics,
+    questions: allQuestions,
+  }
 }

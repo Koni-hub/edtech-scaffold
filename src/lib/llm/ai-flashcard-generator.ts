@@ -1,6 +1,5 @@
 import { geminiFetch, isQuotaError, parseGeminiResponse, GEMINI_MODELS } from "./gemini-client"
 import { FLASHCARD_SYSTEM_PROMPT } from "./prompts"
-import { generateFlashcards } from "../flashcard-generator"
 
 export interface AIFlashCard {
   term: string
@@ -45,8 +44,8 @@ export async function generateAIFlashcards(input: GenerateFlashcardsInput): Prom
 
     try {
       const raw = await geminiFetch(modelName, [
-        { role: "user", parts: [{ text: FLASHCARD_SYSTEM_PROMPT + "\n\n" + userPrompt }] },
-      ])
+        { role: "user", parts: [{ text: userPrompt }] },
+      ], { temperature: 0.5, systemInstruction: FLASHCARD_SYSTEM_PROMPT })
 
       const { content } = parseGeminiResponse(raw)
       const parsed = JSON.parse(content) as Record<string, unknown>
@@ -80,13 +79,5 @@ export async function generateAIFlashcards(input: GenerateFlashcardsInput): Prom
     }
   }
 
-  if (isQuotaError(lastError)) {
-    const localCards = generateFlashcards(input.content, input.count ?? 10)
-    return localCards.map((c) => ({
-      term: c.term ?? `Card ${c.id}`,
-      question: c.question,
-      answer: c.answer,
-    }))
-  }
   throw lastError instanceof Error ? lastError : new Error(String(lastError))
 }

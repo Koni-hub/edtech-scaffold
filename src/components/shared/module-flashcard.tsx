@@ -1,14 +1,20 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ChevronLeft, ChevronRight, Shuffle, Sparkles, ThumbsUp, Meh, Frown } from "lucide-react"
+import { ChevronLeft, ChevronRight, Shuffle, ThumbsUp, Meh, Frown } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
-import { generateFlashcards, type FlashCard } from "@/lib/flashcard-generator"
 import { calculateSM2 } from "@/lib/spaced-repetition/sm2"
 import type { ReviewQuality } from "@/lib/spaced-repetition/types"
+
+interface FlashCard {
+  id: number
+  question: string
+  answer: string
+  term?: string
+}
 
 interface ModuleFlashcardProps {
   moduleId: string
@@ -32,7 +38,6 @@ export function ModuleFlashcard({ moduleId }: ModuleFlashcardProps) {
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [mode, setMode] = useState<"ai" | "local">("ai")
 
   useEffect(() => {
     async function load() {
@@ -61,17 +66,13 @@ export function ModuleFlashcard({ moduleId }: ModuleFlashcardProps) {
             answer: c.answer,
             term: c.term,
           }))
-          setMode("ai")
         }
         if (data.error) toast.error(data.error, { id: "flashcard-ai" })
       } catch { /* fall through */ }
 
       if (newCards.length === 0) {
-        newCards = generateFlashcards(mod.raw_text, 20)
-        if (newCards.length > 0) {
-          toast.info("Using local flashcards (AI unavailable)", { id: "flashcard-local", duration: 4000 })
-          setMode("local")
-        }
+        setLoading(false)
+        return
       }
 
       try {
@@ -181,13 +182,6 @@ export function ModuleFlashcard({ moduleId }: ModuleFlashcardProps) {
           Shuffle
         </Button>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span className={cn(
-            "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium",
-            mode === "ai" ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300" : "bg-muted text-muted-foreground"
-          )}>
-            {mode === "ai" ? <Sparkles size={10} /> : null}
-            {mode === "ai" ? "AI" : "Local"}
-          </span>
           <span>{index + 1} / {total}</span>
         </div>
       </div>

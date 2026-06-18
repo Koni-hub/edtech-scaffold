@@ -8,22 +8,26 @@ function getApiKey(): string {
   return key
 }
 
-export const GEMINI_MODELS = ["gemini-2.0-flash", "gemini-2.0-flash-lite"]
+export const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash"]
 
 export function geminiFetch(
   model: string,
   contents: { role: string; parts: { text: string }[] }[],
-  opts?: { temperature?: number; maxOutputTokens?: number }
+  opts?: { temperature?: number; maxOutputTokens?: number; systemInstruction?: string }
 ): Promise<string> {
   const apiKey = getApiKey()
-  const body = JSON.stringify({
+  const bodyObj: Record<string, unknown> = {
     contents,
     generationConfig: {
-      temperature: opts?.temperature ?? 0.3,
-      maxOutputTokens: opts?.maxOutputTokens ?? 8192,
+      temperature: opts?.temperature ?? 0.7,
+      maxOutputTokens: opts?.maxOutputTokens ?? 16384,
       responseMimeType: "application/json",
     },
-  })
+  }
+  if (opts?.systemInstruction) {
+    bodyObj.systemInstruction = { parts: [{ text: opts.systemInstruction }] }
+  }
+  const body = JSON.stringify(bodyObj)
 
   return new Promise((resolve, reject) => {
     const url = new URL(`${API_BASE}/models/${model}:generateContent`)
@@ -37,7 +41,7 @@ export function geminiFetch(
           "Content-Length": Buffer.byteLength(body),
           "x-goog-api-key": apiKey,
         },
-        timeout: 45000,
+        timeout: 60000,
       },
       (res) => {
         const chunks: Buffer[] = []

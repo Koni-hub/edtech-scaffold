@@ -2,14 +2,20 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, ChevronLeft, ChevronRight, RotateCw, Shuffle, Sparkles, ThumbsDown, ThumbsUp, Meh, Frown } from "lucide-react"
+import { ArrowLeft, ChevronLeft, ChevronRight, RotateCw, Shuffle, ThumbsDown, ThumbsUp, Meh, Frown } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
-import { generateFlashcards, type FlashCard } from "@/lib/flashcard-generator"
 import { calculateSM2 } from "@/lib/spaced-repetition/sm2"
 import type { ReviewQuality } from "@/lib/spaced-repetition/types"
+
+interface FlashCard {
+  id: number
+  question: string
+  answer: string
+  term?: string
+}
 
 interface ScheduledCard extends FlashCard {
   easiness: number
@@ -32,7 +38,6 @@ export default function FlashcardsPage() {
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [mode, setMode] = useState<"ai" | "local">("ai")
   const [showReview, setShowReview] = useState(false)
 
   const loadSchedules = useCallback(async (newCards: FlashCard[]) => {
@@ -94,20 +99,13 @@ export default function FlashcardsPage() {
           }))
           const scheduled = await loadSchedules(mapped)
           setCards(scheduled)
-          setMode("ai")
           setLoading(false)
           return
         }
-      } catch { /* fall through to local */ }
+        if (data.error) toast.error(data.error, { id: "flashcard-load" })
+      } catch { /* fall through */ }
 
-      const localCards = generateFlashcards(mod.raw_text, 30)
-      const scheduled = await loadSchedules(localCards)
-      setCards(scheduled)
-      setMode("local")
       setLoading(false)
-      if (localCards.length > 0) {
-        toast.info(`Using ${localCards.length} locally-generated flashcards`, { id: "flashcard-load", duration: 3000 })
-      }
     }
     load()
   }, [params.moduleId, loadSchedules])
@@ -202,13 +200,6 @@ export default function FlashcardsPage() {
           Back
         </Button>
         <div className="flex items-center gap-2">
-          <span className={cn(
-            "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium",
-            mode === "ai" ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300" : "bg-muted text-muted-foreground"
-          )}>
-            {mode === "ai" ? <Sparkles size={10} /> : null}
-            {mode === "ai" ? "AI" : "Local"}
-          </span>
           <Button variant="outline" size="sm" onClick={shuffleCards}>
             <Shuffle size={14} />
             Shuffle

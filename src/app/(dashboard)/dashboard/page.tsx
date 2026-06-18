@@ -1,10 +1,11 @@
 import Link from "next/link"
-import { BrainCircuit, TrendingUp, BookOpen, Target, ClipboardCheck, Upload, ArrowRight, Flame } from "lucide-react"
+import { BrainCircuit, BookOpen, Target, ClipboardCheck, Upload, ArrowRight, Flame } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { ProgressRing } from "@/components/ui/progress-ring"
 import { Sparkline } from "@/components/ui/sparkline"
 import { Button } from "@/components/ui/button"
-import { EmptyState } from "@/components/shared/empty-state"
+import { OnboardingFlow } from "@/components/shared/onboarding-flow"
+import { DailyGoalCard } from "@/components/shared/daily-goal-card"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -45,8 +46,8 @@ export default async function DashboardPage() {
   const topicsCovered = latestSnapshot?.topics_covered ?? 0
   const streak = latestSnapshot?.streak_days ?? 0
 
-  const understandingHistory = snapshots.map((s) => Number(s.overstanding_understanding) || 0).reverse()
-  const retentionHistory = snapshots.map((s) => Number(s.overstanding_retention) || 0).reverse()
+  const understandingHistory = snapshots.map((s) => Number(s.overall_understanding) || 0).reverse()
+  const retentionHistory = snapshots.map((s) => Number(s.overall_retention) || 0).reverse()
 
   const lowScoreTopics = topics
     .filter((t) => t.understanding_score < 60)
@@ -57,28 +58,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      {isNewUser && (
-        <div className="rounded-xl border border-primary/20 bg-primary/5 p-6">
-          <h2 className="text-lg font-semibold">Welcome to Syntra!</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Start by uploading a module, then generate quizzes and flashcards to track your progress.
-          </p>
-          <div className="mt-4 flex gap-3">
-            <Link href="/modules/upload">
-              <Button size="sm">
-                <Upload size={14} className="mr-1.5" />
-                Upload Module
-              </Button>
-            </Link>
-            <Link href="/quizzes/generate">
-              <Button size="sm" variant="outline">
-                <ClipboardCheck size={14} className="mr-1.5" />
-                Generate Quiz
-              </Button>
-            </Link>
-          </div>
-        </div>
-      )}
+      {isNewUser && <OnboardingFlow />}
 
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
@@ -169,6 +149,8 @@ export default async function DashboardPage() {
         </div>
 
         <div className="space-y-6">
+          <DailyGoalCard />
+
           <div className="rounded-xl border bg-card p-5">
             <h2 className="mb-4 text-lg font-semibold">Topics to Review</h2>
             {lowScoreTopics.length === 0 ? (

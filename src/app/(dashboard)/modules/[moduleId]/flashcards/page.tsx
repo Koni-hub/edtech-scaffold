@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { calculateSM2 } from "@/lib/spaced-repetition/sm2"
+import { SwipeableCard } from "@/components/shared/swipeable-card"
+import { Breadcrumbs } from "@/components/shared/breadcrumbs"
 import type { ReviewQuality } from "@/lib/spaced-repetition/types"
 
 interface FlashCard {
@@ -194,6 +196,11 @@ export default function FlashcardsPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6 py-8">
+      <Breadcrumbs items={[
+        { label: "Modules", href: "/modules" },
+        { label: "Flashcards" },
+      ]} />
+
       <div className="flex items-center justify-between">
         <Button variant="ghost" size="sm" onClick={() => router.push(`/modules/${params.moduleId}`)}>
           <ArrowLeft size={16} />
@@ -217,72 +224,44 @@ export default function FlashcardsPage() {
         </div>
       )}
 
-      <div
-        className="cursor-pointer select-none"
-        onClick={() => !flipped && setFlipped(true)}
-        style={{ perspective: "1000px", minHeight: "300px" }}
+      <SwipeableCard
+        question={current.question}
+        answer={current.answer}
+        flipped={flipped}
+        onFlip={() => setFlipped((f) => !f)}
+        onSwipeRight={flipped ? () => handleReview(4) : undefined}
+        onSwipeLeft={flipped ? () => handleReview(1) : undefined}
       >
-        <div
-          className={cn(
-            "relative h-full min-h-[300px] transition-transform duration-500 rounded-xl border bg-card",
-            flipped && "[transform:rotateX(180deg)]"
+        <div className="flex items-center justify-center gap-4">
+          <Button variant="outline" onClick={goPrev} disabled={index === 0}>
+            <ChevronLeft size={16} />
+          </Button>
+          <Button variant="outline" onClick={() => setFlipped((f) => !f)}>
+            <RotateCw size={16} />
+            Flip
+          </Button>
+          {flipped && showReview && (
+            <div className="flex gap-2">
+              {QUALITY_OPTIONS.map((opt) => (
+                <Button
+                  key={opt.quality}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleReview(opt.quality)}
+                  className={cn("border-2", opt.color)}
+                  title={opt.label}
+                >
+                  {opt.icon}
+                  {opt.label}
+                </Button>
+              ))}
+            </div>
           )}
-          style={{ transformStyle: "preserve-3d" }}
-        >
-          <div
-            className="absolute inset-0 flex flex-col items-center justify-center p-8"
-            style={{ backfaceVisibility: "hidden" }}
-          >
-            <p className="mb-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">Question</p>
-            <p className="text-base leading-relaxed text-center whitespace-pre-wrap">{current.question}</p>
-            <p className="mt-6 text-xs text-muted-foreground">Click to reveal answer</p>
-          </div>
-          <div
-            className="absolute inset-0 flex flex-col items-center justify-center p-8"
-            style={{ backfaceVisibility: "hidden", transform: "rotateX(180deg)" }}
-          >
-            <p className="mb-4 text-xs font-medium text-green-600 uppercase tracking-wider">Answer</p>
-            <p className="text-base leading-relaxed text-center whitespace-pre-wrap">{current.answer}</p>
-            {showReview && (
-              <p className="mt-4 text-xs text-muted-foreground">
-                Next review: {current.dueAt <= new Date() ? "due now" : current.dueAt.toLocaleDateString()}
-              </p>
-            )}
-          </div>
+          <Button variant="outline" onClick={goNext} disabled={index === total - 1}>
+            <ChevronRight size={16} />
+          </Button>
         </div>
-      </div>
-
-      <div className="flex items-center justify-center gap-4">
-        <Button variant="outline" onClick={goPrev} disabled={index === 0}>
-          <ChevronLeft size={16} />
-          Previous
-        </Button>
-        <Button variant="outline" onClick={() => setFlipped((f) => !f)}>
-          <RotateCw size={16} />
-          Flip
-        </Button>
-        {flipped && showReview && (
-          <div className="flex gap-2">
-            {QUALITY_OPTIONS.map((opt) => (
-              <Button
-                key={opt.quality}
-                variant="outline"
-                size="sm"
-                onClick={() => handleReview(opt.quality)}
-                className={cn("border-2", opt.color)}
-                title={opt.label}
-              >
-                {opt.icon}
-                {opt.label}
-              </Button>
-            ))}
-          </div>
-        )}
-        <Button variant="outline" onClick={goNext} disabled={index === total - 1}>
-          Next
-          <ChevronRight size={16} />
-        </Button>
-      </div>
+      </SwipeableCard>
 
       <div className="text-center text-xs text-muted-foreground">
         Card {index + 1} of {total}

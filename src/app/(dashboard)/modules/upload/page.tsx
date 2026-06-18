@@ -2,9 +2,10 @@
 
 import { useState, useCallback, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Upload, FileText, CheckCircle2, Loader2, XCircle, ArrowRight } from "lucide-react"
+import { Upload, FileText, CheckCircle2, Loader2, XCircle, ArrowRight, Link2, Video, Globe } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
 type UploadStep = "idle" | "uploading" | "extracting" | "chunking" | "ready" | "failed"
@@ -107,7 +108,32 @@ export default function ModuleUploadPage() {
     <div className="mx-auto max-w-lg space-y-8 py-8">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Upload Module</h1>
-        <p className="text-muted-foreground">Upload a PDF, TXT, or Markdown file.</p>
+        <p className="text-muted-foreground">Upload a file or import from a URL.</p>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <button
+          onClick={() => inputRef.current?.click()}
+          className={`rounded-xl border-2 border-dashed p-6 text-center transition-colors ${
+            isDragOver ? "border-primary bg-primary/5" : "border-muted-foreground/25 hover:border-muted-foreground/50"
+          }`}
+        >
+          <Upload size={24} className="mx-auto mb-2 text-muted-foreground" />
+          <p className="text-sm font-medium">Upload File</p>
+          <p className="text-xs text-muted-foreground">PDF, TXT, MD</p>
+        </button>
+        <a
+          href="/modules/upload#import"
+          onClick={(e) => {
+            e.preventDefault()
+            document.getElementById("url-import")?.scrollIntoView({ behavior: "smooth" })
+          }}
+          className="rounded-xl border-2 border-dashed p-6 text-center transition-colors border-muted-foreground/25 hover:border-muted-foreground/50"
+        >
+          <Link2 size={24} className="mx-auto mb-2 text-muted-foreground" />
+          <p className="text-sm font-medium">Import from URL</p>
+          <p className="text-xs text-muted-foreground">YouTube or website</p>
+        </a>
       </div>
 
       {currentStepIndex < 0 && (
@@ -214,6 +240,82 @@ export default function ModuleUploadPage() {
             Try Again
           </Button>
         </div>
+      )}
+
+      <div id="url-import" className="space-y-4">
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">or import from URL</span>
+          </div>
+        </div>
+        <UrlImportSection />
+      </div>
+    </div>
+  )
+}
+
+function UrlImportSection() {
+  const router = useRouter()
+  const [url, setUrl] = useState("")
+  const [category, setCategory] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
+
+  const isYouTube = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)/.test(url)
+
+  async function handleImport() {
+    if (!url.trim()) return
+    setLoading(true)
+    try {
+      const res = await fetch("/api/modules/import-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: url.trim(), category: category || null }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Import failed")
+      setSuccess(true)
+      toast.success("Content imported! Processing...", { id: "url-import" })
+      setTimeout(() => router.push(`/modules/${data.moduleId}`), 1500)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Import failed", { id: "url-import" })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="rounded-xl border bg-card p-4 space-y-3">
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          {isYouTube ? <Video size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-red-500" />
+            : url ? <Globe size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-500" />
+            : <Link2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />}
+          <Input
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="YouTube URL or website link..."
+            className="pl-10"
+            disabled={loading || success}
+            onKeyDown={(e) => e.key === "Enter" && handleImport()}
+          />
+        </div>
+        <Button onClick={handleImport} disabled={!url.trim() || loading || success} size="sm">
+          {loading ? <Loader2 size={14} className="animate-spin" /> : "Import"}
+        </Button>
+      </div>
+      <Input
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        placeholder="Category (optional)"
+        className="h-8 text-xs"
+        disabled={loading || success}
+      />
+      {isYouTube && !success && (
+        <p className="text-[11px] text-red-600 dark:text-red-400">YouTube import requires English captions on the video.</p>
       )}
     </div>
   )

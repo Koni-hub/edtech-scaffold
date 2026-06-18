@@ -369,6 +369,169 @@ export default function LandingPage() {
           </div>
         </Section>
 
+        <Section id="product" className="border-t py-20 sm:py-28 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/3 via-transparent to-transparent pointer-events-none" />
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
+            <FadeIn>
+              <div className="mx-auto max-w-2xl text-center">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border bg-muted/50 px-3 py-1 text-xs font-medium">
+                  <Layers className="size-3 text-primary" />
+                  Product Preview
+                </div>
+                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">See Syntra in Action</h2>
+                <p className="mt-4 text-base text-muted-foreground">
+                  A clean, intuitive interface designed for focused learning.
+                </p>
+              </div>
+            </FadeIn>
+
+            <div className="mt-14 grid gap-6 lg:grid-cols-2">
+              <FadeIn>
+                <div className="rounded-xl border bg-card p-1 shadow-lg overflow-hidden">
+                  <div className="rounded-t-lg bg-muted/50 px-4 py-2 flex items-center gap-2">
+                    <div className="flex gap-1.5">
+                      <div className="size-2.5 rounded-full bg-red-400" />
+                      <div className="size-2.5 rounded-full bg-yellow-400" />
+                      <div className="size-2.5 rounded-full bg-green-400" />
+                    </div>
+                    <span className="text-[10px] text-muted-foreground ml-2">Dashboard</span>
+                  </div>
+                  <div className="bg-background p-6 space-y-4">
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="rounded-lg border p-3 text-center">
+                        <div className="mx-auto size-12 rounded-full border-4 border-primary/30 border-t-primary flex items-center justify-center text-sm font-bold">72%</div>
+                        <div className="mt-1 text-[10px] text-muted-foreground">Understanding</div>
+                      </div>
+                      <div className="rounded-lg border p-3 text-center">
+                        <div className="mx-auto size-12 rounded-full border-4 border-green-500/30 border-t-green-500 flex items-center justify-center text-sm font-bold">85%</div>
+                        <div className="mt-1 text-[10px] text-muted-foreground">Retention</div>
+                      </div>
+                      <div className="rounded-lg border p-3 text-center">
+                        <div className="text-2xl font-bold text-amber-500">7</div>
+                        <div className="text-[10px] text-muted-foreground">Day Streak</div>
+                      </div>
+                    </div>
+                    <div className="rounded-lg border p-3">
+                      <div className="text-xs font-medium mb-2">Recent Activity</div>
+                      <div className="space-y-1.5">
+                        {["Cell Biology Quiz — 90%", "History Review — 75%", "CSA Practice — 85%"].map((item) => (
+                          <div key={item} className="flex items-center justify-between text-[11px]">
+                            <span className="text-muted-foreground">{item.split(" — ")[0]}</span>
+                            <span className="font-medium">{item.split(" — ")[1]}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </FadeIn>
+
+              <FadeIn>
+                <div className="rounded-xl border bg-card p-1 shadow-lg overflow-hidden">
+                  <div className="rounded-t-lg bg-muted/50 px-4 py-2 flex items-center gap-2">
+                    <div className="flex gap-1.5">
+                      <div className="size-2.5 rounded-full bg-red-400" />
+                      <div className="size-2.5 rounded-full bg-yellow-400" />
+                      <div className="size-2.5 rounded-full bg-green-400" />
+                    </div>
+                    <span className="text-[10px] text-muted-foreground ml-2">Quiz Interface</span>
+                  </div>
+                  <div className="bg-background p-6 space-y-4">
+                    <div className="rounded-lg border p-4">
+                      <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Question 3 of 10</div>
+                      <div className="text-sm font-medium">What is the primary function of mitochondria in cells?</div>
+                    </div>
+                    <div className="space-y-2">
+                      {["A. Protein synthesis", "B. Energy production (ATP)", "C. Cell division", "D. DNA replication"].map((opt, i) => (
+                        <div key={opt} className={`rounded-lg border p-2.5 text-xs flex items-center gap-2 ${i === 1 ? "border-green-500 bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400" : "text-muted-foreground"}`}>
+                          <div className={`size-5 shrink-0 rounded-full border-2 flex items-center justify-center text-[10px] font-medium ${i === 1 ? "border-green-500 bg-green-500 text-white" : ""}`}>
+                            {String.fromCharCode(65 + i)}
+                          </div>
+                          {opt.substring(3)}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="rounded-lg bg-green-50 dark:bg-green-950/30 p-3 text-[11px] text-green-700 dark:text-green-400">
+                      <strong>Correct!</strong> Mitochondria are known as the powerhouse of the cell, generating most of the cell&apos;s supply of ATP.
+                    </div>
+                  </div>
+                </div>
+              </FadeIn>
+            </div>
+
+            <div className="mt-6 grid gap-6 lg:grid-cols-2">
+              <FadeIn>
+                <div className="rounded-xl border bg-card p-1 shadow-lg overflow-hidden">
+                  <div className="rounded-t-lg bg-muted/50 px-4 py-2 flex items-center gap-2">
+                    <div className="flex gap-1.5">
+                      <div className="size-2.5 rounded-full bg-red-400" />
+                      <div className="size-2.5 rounded-full bg-yellow-400" />
+                      <div className="size-2.5 rounded-full bg-green-400" />
+                    </div>
+                    <span className="text-[10px] text-muted-foreground ml-2">Flashcards</span>
+                  </div>
+                  <div className="bg-background p-6">
+                    <div className="rounded-xl border bg-card p-8 text-center min-h-[180px] flex flex-col items-center justify-center">
+                      <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-3">Question</div>
+                      <div className="text-sm font-medium">What is the powerhouse of the cell?</div>
+                      <div className="mt-4 text-[10px] text-muted-foreground">Tap to reveal answer</div>
+                    </div>
+                    <div className="mt-3 flex items-center justify-center gap-2 text-[10px] text-muted-foreground">
+                      <span>Swipe left = Forgot</span>
+                      <span className="mx-1">|</span>
+                      <span>Swipe right = Good</span>
+                    </div>
+                  </div>
+                </div>
+              </FadeIn>
+
+              <FadeIn>
+                <div className="rounded-xl border bg-card p-1 shadow-lg overflow-hidden">
+                  <div className="rounded-t-lg bg-muted/50 px-4 py-2 flex items-center gap-2">
+                    <div className="flex gap-1.5">
+                      <div className="size-2.5 rounded-full bg-red-400" />
+                      <div className="size-2.5 rounded-full bg-yellow-400" />
+                      <div className="size-2.5 rounded-full bg-green-400" />
+                    </div>
+                    <span className="text-[10px] text-muted-foreground ml-2">Analytics</span>
+                  </div>
+                  <div className="bg-background p-6 space-y-3">
+                    <div className="rounded-lg border p-3">
+                      <div className="flex items-center justify-between text-xs mb-2">
+                        <span className="font-medium">Topic Mastery</span>
+                        <span className="text-muted-foreground">Last 30 days</span>
+                      </div>
+                      <div className="space-y-2">
+                        {[{ topic: "Cell Biology", score: 92 }, { topic: "Genetics", score: 78 }, { topic: "Ecology", score: 65 }].map((t) => (
+                          <div key={t.topic}>
+                            <div className="flex items-center justify-between text-[11px] mb-0.5">
+                              <span className="text-muted-foreground">{t.topic}</span>
+                              <span className="font-medium">{t.score}%</span>
+                            </div>
+                            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${t.score}%` }} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="rounded-lg border p-2 text-center">
+                        <div className="text-lg font-bold">24</div>
+                        <div className="text-[10px] text-muted-foreground">Quizzes Taken</div>
+                      </div>
+                      <div className="rounded-lg border p-2 text-center">
+                        <div className="text-lg font-bold">156</div>
+                        <div className="text-[10px] text-muted-foreground">Questions Answered</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </FadeIn>
+            </div>
+          </div>
+        </Section>
+
         <Section id="how-it-works" className="border-t py-20 sm:py-28">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <FadeIn>

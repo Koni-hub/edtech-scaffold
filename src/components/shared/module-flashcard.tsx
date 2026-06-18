@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { calculateSM2 } from "@/lib/spaced-repetition/sm2"
+import { SwipeableCard } from "@/components/shared/swipeable-card"
 import type { ReviewQuality } from "@/lib/spaced-repetition/types"
 
 interface FlashCard {
@@ -186,88 +187,60 @@ export function ModuleFlashcard({ moduleId }: ModuleFlashcardProps) {
         </div>
       </div>
 
-      <div className="relative" style={{ minHeight: 300 }}>
-        <div
-          className="absolute inset-0 cursor-pointer select-none"
-          onClick={() => !flipped && setFlipped(true)}
-          style={{ perspective: "1000px" }}
-        >
-          <div
-            className="h-full w-full rounded-xl border bg-card p-6 sm:p-10 transition-transform duration-500"
-            style={{
-              transformStyle: "preserve-3d",
-              transform: flipped ? "rotateX(180deg)" : "rotateX(0deg)",
-            }}
-          >
-            <div
-              className="absolute inset-0 flex flex-col items-center justify-center p-6 sm:p-10"
-              style={{ backfaceVisibility: "hidden" }}
-            >
-              <p className="mb-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">Question</p>
-              <p className="text-center text-base leading-relaxed whitespace-pre-wrap">{current.question}</p>
-              <p className="mt-8 text-xs text-muted-foreground">Click to reveal answer</p>
-            </div>
-            <div
-              className="absolute inset-0 flex flex-col items-center justify-center p-6 sm:p-10"
-              style={{ backfaceVisibility: "hidden", transform: "rotateX(180deg)" }}
-            >
-              <p className="mb-4 text-xs font-medium text-green-600 uppercase tracking-wider">Answer</p>
-              <p className="text-center text-base leading-relaxed whitespace-pre-wrap">{current.answer}</p>
-              <p className="mt-4 text-xs text-muted-foreground">
-                Next review: {current.dueAt <= new Date() ? "due now" : current.dueAt.toLocaleDateString()}
-              </p>
-            </div>
+      <SwipeableCard
+        question={current.question}
+        answer={current.answer}
+        flipped={flipped}
+        onFlip={() => setFlipped(true)}
+        onSwipeRight={flipped ? () => handleReview(4) : undefined}
+        onSwipeLeft={flipped ? () => handleReview(1) : undefined}
+      >
+        <div className="flex flex-col items-center gap-3">
+          <div className="flex h-2 w-full max-w-xs gap-1">
+            {cards.slice(0, Math.min(total, 20)).map((_, i) => (
+              <div
+                key={i}
+                className="h-full flex-1 rounded-full transition-colors"
+                style={{
+                  backgroundColor: i <= index && cards[i]
+                    ? i === index
+                      ? "hsl(var(--primary))"
+                      : "hsl(var(--primary) / 0.4)"
+                    : "hsl(var(--muted))",
+                }}
+              />
+            ))}
+          </div>
+          <div className="flex items-center justify-center gap-2">
+            <Button variant="outline" size="sm" onClick={goPrev} disabled={index === 0}>
+              <ChevronLeft size={16} />
+            </Button>
+            {!flipped ? (
+              <Button variant="outline" size="sm" onClick={() => setFlipped(true)}>
+                Flip
+              </Button>
+            ) : (
+              <div className="flex gap-1">
+                {QUALITY_OPTIONS.map((opt) => (
+                  <Button
+                    key={opt.quality}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleReview(opt.quality)}
+                    className={cn("border-2 px-2", opt.color)}
+                    title={opt.label}
+                  >
+                    {opt.icon}
+                  </Button>
+                ))}
+              </div>
+            )}
+            <Button variant="outline" size="sm" onClick={goNext} disabled={index === total - 1}>
+              <ChevronRight size={16} />
+            </Button>
           </div>
         </div>
-      </div>
-
-      <div className="flex flex-col items-center gap-3">
-        <div className="flex h-2 w-full max-w-xs gap-1">
-          {cards.slice(0, Math.min(total, 20)).map((_, i) => (
-            <div
-              key={i}
-              className="h-full flex-1 rounded-full transition-colors"
-              style={{
-                backgroundColor: i <= index && cards[i]
-                  ? i === index
-                    ? "hsl(var(--primary))"
-                    : "hsl(var(--primary) / 0.4)"
-                  : "hsl(var(--muted))",
-              }}
-            />
-          ))}
-        </div>
-        <div className="flex items-center justify-center gap-2">
-          <Button variant="outline" size="sm" onClick={goPrev} disabled={index === 0}>
-            <ChevronLeft size={16} />
-            Previous
-          </Button>
-          {!flipped ? (
-            <Button variant="outline" size="sm" onClick={() => setFlipped(true)}>
-              Flip
-            </Button>
-          ) : (
-            <div className="flex gap-1">
-              {QUALITY_OPTIONS.map((opt) => (
-                <Button
-                  key={opt.quality}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleReview(opt.quality)}
-                  className={cn("border-2 px-2", opt.color)}
-                  title={opt.label}
-                >
-                  {opt.icon}
-                </Button>
-              ))}
-            </div>
-          )}
-          <Button variant="outline" size="sm" onClick={goNext} disabled={index === total - 1}>
-            Next
-            <ChevronRight size={16} />
-          </Button>
-        </div>
-      </div>
+      </SwipeableCard>
     </div>
   )
 }

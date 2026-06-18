@@ -4,6 +4,7 @@ import Link from "next/link"
 import { DeleteButton } from "@/components/shared/delete-button"
 import { createClient } from "@/lib/supabase/server"
 import { ModuleTabs } from "@/components/shared/module-tabs"
+import { Breadcrumbs } from "@/components/shared/breadcrumbs"
 
 const statusIcon: Record<string, React.ReactNode> = {
   processing: <Loader2 size={14} className="animate-spin text-amber-500" />,
@@ -53,10 +54,10 @@ export default async function ModuleDetailPage({ params }: {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <Link href="/modules" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft size={16} />
-          Back
-        </Link>
+        <Breadcrumbs items={[
+          { label: "Modules", href: "/modules" },
+          { label: mod.title },
+        ]} />
         <DeleteButton action={deleteModule.bind(null, moduleId)} label="Module" />
       </div>
 

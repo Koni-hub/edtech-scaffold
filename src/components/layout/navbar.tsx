@@ -6,6 +6,7 @@ import { PanelLeft, User, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/layout/theme-toggle"
 import { useSidebar } from "@/components/layout/sidebar"
+import { SearchPalette } from "@/components/shared/search-palette"
 import { createClient } from "@/lib/supabase/client"
 
 export function Navbar() {
@@ -63,6 +64,7 @@ export function Navbar() {
 
       <div className="flex-1" />
 
+      <SearchPalette />
       <ThemeToggle />
 
       <div className="relative" ref={dropdownRef}>

@@ -16,7 +16,7 @@ export function ProgressRing({ value, size = 80, strokeWidth = 6, className }: P
     "stroke-red-500"
 
   return (
-    <div className={className} style={{ width: size, height: size }}>
+    <div className={`relative ${className ?? ""}`} style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
         <circle
           cx={size / 2}

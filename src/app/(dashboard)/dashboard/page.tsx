@@ -53,7 +53,7 @@ export default async function DashboardPage() {
     .sort((a, b) => a.understanding_score - b.understanding_score)
     .slice(0, 5)
 
-  const isNewUser = snapshots.length === 0 && recentAttempts.length === 0
+  const isNewUser = snapshots.length === 0 && recentAttempts.length === 0 && recentModules.length === 0
 
   return (
     <div className="space-y-8">
@@ -172,7 +172,11 @@ export default async function DashboardPage() {
           <div className="rounded-xl border bg-card p-5">
             <h2 className="mb-4 text-lg font-semibold">Topics to Review</h2>
             {lowScoreTopics.length === 0 ? (
-              <p className="text-sm text-muted-foreground">All topics are looking good!</p>
+              <p className="text-sm text-muted-foreground">
+                {topics.length === 0
+                  ? "No topics yet — take a quiz to start tracking."
+                  : "All topics are looking good!"}
+              </p>
             ) : (
               <ul className="space-y-2">
                 {lowScoreTopics.map((topic) => (

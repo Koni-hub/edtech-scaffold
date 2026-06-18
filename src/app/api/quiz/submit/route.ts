@@ -219,6 +219,71 @@ export async function POST(request: NextRequest) {
     ? Math.round((allScores.reduce((a, b) => a + b, 0) / allScores.length) * 100) / 100
     : 0
 
+  const { count: quizzesTaken } = await supabase
+    .from("quizzes")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id)
+
+  const { count: totalQuestionsAnswered } = await supabase
+    .from("quiz_attempts")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id)
+
+  const retentionScore = masteries && masteries.length > 0
+    ? Math.round((masteries.reduce((a: number, m: TopicMastery) => a + (m.retention_score ?? 0), 0) / masteries.length) * 100) / 100
+    : 0
+
+  const today = new Date().toISOString().split("T")[0]
+
+  let streakDays = 0
+  const { data: lastSnapshot } = await supabase
+    .from("analytics_snapshots")
+    .select("streak_days, snapshot_date")
+    .eq("user_id", user.id)
+    .order("snapshot_date", { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (lastSnapshot) {
+    const lastDate = new Date(lastSnapshot.snapshot_date)
+    const todayDate = new Date(today)
+    const diffDays = Math.floor((todayDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24))
+    if (diffDays === 1) streakDays = (lastSnapshot.streak_days ?? 0) + 1
+    else if (diffDays === 0) streakDays = lastSnapshot.streak_days ?? 1
+    else streakDays = 1
+  } else {
+    streakDays = 1
+  }
+
+  const { data: existingSnapshot } = await supabase
+    .from("analytics_snapshots")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("snapshot_date", today)
+    .single()
+
+  const snapshotData = {
+    user_id: user.id,
+    snapshot_date: today,
+    overall_understanding: overallUnderstanding,
+    overall_retention: retentionScore,
+    topics_covered: masteries?.length ?? 0,
+    quizzes_taken: quizzesTaken ?? 0,
+    total_questions_answered: totalQuestionsAnswered ?? 0,
+    streak_days: streakDays,
+  }
+
+  if (existingSnapshot) {
+    await supabase
+      .from("analytics_snapshots")
+      .update(snapshotData)
+      .eq("id", existingSnapshot.id)
+  } else {
+    await supabase
+      .from("analytics_snapshots")
+      .insert(snapshotData)
+  }
+
   return NextResponse.json({
     score,
     totalCorrect: correctTotal,

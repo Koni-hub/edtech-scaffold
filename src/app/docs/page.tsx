@@ -7,7 +7,7 @@ import {
   BrainCircuit, BookOpen, BarChart3, Sparkles, Upload, Target,
   ArrowRight, Search, ChevronRight, Menu, X, GraduationCap, Bot,
   Copy, Check, ThumbsUp, ThumbsDown, ArrowUp, Link2, Flame,
-  ClipboardCheck, Globe, FileText, Youtube,
+  ClipboardCheck, Globe, FileText, Video,
 } from "lucide-react"
 
 const sidebarNav = [
@@ -653,7 +653,7 @@ export default function DocsPage() {
                           <FileText className="size-2.5" /> Plain text
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-full border bg-muted/50 px-2 py-0.5 text-[10px] font-medium">
-                          <Youtube className="size-2.5" /> YouTube
+                          <Video className="size-2.5" /> YouTube
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-full border bg-muted/50 px-2 py-0.5 text-[10px] font-medium">
                           <Globe className="size-2.5" /> Website URLs
@@ -823,7 +823,7 @@ export default function DocsPage() {
                   <div className="mt-3 space-y-3">
                     <div className="flex items-start gap-3">
                       <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-red-500/10">
-                        <Youtube className="size-3.5 text-red-500" />
+                        <Video className="size-3.5 text-red-500" />
                       </div>
                       <div>
                         <h4 className="text-xs font-medium">YouTube Videos</h4>

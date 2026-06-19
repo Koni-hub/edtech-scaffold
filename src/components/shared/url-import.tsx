@@ -115,8 +115,8 @@ export function UrlImport() {
         </div>
 
         {isYouTube && !success && (
-          <div className="rounded-lg bg-red-50 dark:bg-red-950/30 p-3 text-xs text-red-700 dark:text-red-400">
-            YouTube import extracts the English transcript. Make sure the video has captions enabled.
+          <div className="rounded-lg bg-yellow-50 dark:bg-yellow-950/30 p-3 text-xs text-yellow-700 dark:text-yellow-400">
+            Imports the video transcript. Make sure the video has captions enabled.
           </div>
         )}
       </CardContent>

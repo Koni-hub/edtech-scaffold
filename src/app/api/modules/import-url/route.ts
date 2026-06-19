@@ -1,36 +1,41 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { chunkText } from "@/lib/llm/chunker"
+import {
+  fetchTranscript,
+  YoutubeTranscriptNotAvailableError,
+  YoutubeTranscriptNotAvailableLanguageError,
+  YoutubeTranscriptDisabledError,
+  YoutubeTranscriptVideoUnavailableError,
+  YoutubeTranscriptTooManyRequestError,
+} from "youtube-transcript"
 
 async function extractYouTubeTranscript(videoId: string): Promise<string> {
-  const captionsUrl = `https://www.youtube.com/api/timedtext?v=${videoId}&lang=en&fmt=srv3`
-
-  const res = await fetch(captionsUrl, {
-    headers: { "User-Agent": "Mozilla/5.0 (compatible; SyntraBot/1.0)" },
-  })
-
-  if (!res.ok) {
-    throw new Error("Could not fetch YouTube captions. The video may not have English subtitles.")
+  const tryLang = async (lang?: string): Promise<string> => {
+    const segments = await fetchTranscript(videoId, lang ? { lang } : undefined)
+    return segments.map((s) => s.text).join(" ")
   }
 
-  const xml = await res.text()
-  const texts: string[] = []
-  const regex = /<text[^>]*>(.*?)<\/text>/g
-  let match
-  while ((match = regex.exec(xml)) !== null) {
-    const text = match[1]
-      .replace(/&amp;/g, "&")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/<[^>]+>/g, "")
-      .trim()
-    if (text) texts.push(text)
+  try {
+    return await tryLang("en")
+  } catch (err) {
+    if (err instanceof YoutubeTranscriptNotAvailableLanguageError) {
+      return await tryLang()
+    }
+    if (err instanceof YoutubeTranscriptNotAvailableError) {
+      throw new Error("This video does not have any captions available")
+    }
+    if (err instanceof YoutubeTranscriptDisabledError) {
+      throw new Error("Captions are disabled for this video")
+    }
+    if (err instanceof YoutubeTranscriptVideoUnavailableError) {
+      throw new Error("This video is unavailable or private")
+    }
+    if (err instanceof YoutubeTranscriptTooManyRequestError) {
+      throw new Error("YouTube rate limit exceeded. Try again later.")
+    }
+    throw err
   }
-
-  if (texts.length === 0) throw new Error("No caption text found in the video")
-  return texts.join(" ")
 }
 
 async function extractWebPageContent(url: string): Promise<{ title: string; text: string }> {

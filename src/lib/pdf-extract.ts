@@ -147,16 +147,15 @@ function detectHeadings(line: TextItem[]): { text: string; level: number } | nul
 }
 
 async function extractWithPdfJs(uint8: Uint8Array): Promise<ExtractedContent> {
-  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs")
+  const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs")
+  const pdfjsWorker = await import("pdfjs-dist/legacy/build/pdf.worker.mjs")
+  pdfjsLib.GlobalWorkerOptions.workerPort = pdfjsWorker as unknown as Worker
 
-  const loadingTask = pdfjs.getDocument({
+  const loadingTask = pdfjsLib.getDocument({
     data: uint8,
     useSystemFonts: true,
     disableFontFace: true,
     isEvalSupported: false,
-    useWorkerFetch: false,
-    rangeChunkSize: 65536,
-    maxImageSize: 1024 * 1024,
   })
   const pdf = await loadingTask.promise
   const allTexts: string[] = []

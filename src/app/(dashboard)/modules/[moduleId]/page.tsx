@@ -100,6 +100,7 @@ export default async function ModuleDetailPage({ params }: {
       <ModuleTabs
         moduleId={moduleId}
         rawPdf={mod.raw_pdf}
+        rawText={mod.raw_text}
         title={mod.title}
       />
     </div>

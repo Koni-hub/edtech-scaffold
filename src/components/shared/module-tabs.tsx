@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { PdfViewer } from "./pdf-viewer"
+import { ContentViewer } from "./content-viewer"
 import { ModuleChat } from "./module-chat"
 import { ModuleAiQuiz } from "./module-ai-quiz"
 import { ModuleFlashcard } from "./module-flashcard"
@@ -10,12 +11,13 @@ import { ModuleSpacedReview } from "./module-spaced-review"
 interface ModuleTabsProps {
   moduleId: string
   rawPdf: string | null
+  rawText: string | null
   title: string
 }
 
 type Tab = "handout" | "ai-quiz" | "flashcard" | "spaced-review"
 
-export function ModuleTabs({ moduleId, rawPdf, title }: ModuleTabsProps) {
+export function ModuleTabs({ moduleId, rawPdf, rawText, title }: ModuleTabsProps) {
   const [tab, setTab] = useState<Tab>("handout")
 
   return (
@@ -38,9 +40,11 @@ export function ModuleTabs({ moduleId, rawPdf, title }: ModuleTabsProps) {
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-4 h-[calc(100vh-300px)]">
           {rawPdf ? (
             <PdfViewer dataUrl={rawPdf} title={title} />
+          ) : rawText ? (
+            <ContentViewer content={rawText} title={title} />
           ) : (
             <div className="rounded-xl border bg-card p-6 text-center text-muted-foreground">
-              No PDF preview available for this module.
+              No content available for this module.
             </div>
           )}
           <ModuleChat moduleId={moduleId} />

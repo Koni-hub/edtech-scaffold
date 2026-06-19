@@ -13,7 +13,7 @@ export const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash"]
 export function geminiFetch(
   model: string,
   contents: { role: string; parts: { text: string }[] }[],
-  opts?: { temperature?: number; maxOutputTokens?: number; systemInstruction?: string }
+  opts?: { temperature?: number; maxOutputTokens?: number; systemInstruction?: string; responseMimeType?: string }
 ): Promise<string> {
   const apiKey = getApiKey()
   const bodyObj: Record<string, unknown> = {
@@ -21,7 +21,7 @@ export function geminiFetch(
     generationConfig: {
       temperature: opts?.temperature ?? 0.7,
       maxOutputTokens: opts?.maxOutputTokens ?? 16384,
-      responseMimeType: "application/json",
+      responseMimeType: opts?.responseMimeType ?? "application/json",
     },
   }
   if (opts?.systemInstruction) {

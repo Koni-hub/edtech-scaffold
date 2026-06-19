@@ -1,7 +1,4 @@
-import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs"
-
-// Disable worker for serverless environments — no fake worker, no eval()
-;(pdfjsLib.GlobalWorkerOptions as unknown as { workerPort: Worker | null }).workerPort = null
+import pdf from "pdf-parse/lib/pdf-parse.js"
 
 interface ExtractedTable {
   rows: string[][]
@@ -21,7 +18,7 @@ export interface ExtractedContent {
   sections: ExtractedSection[]
   pageCount: number
   hasImages: boolean
-  source: "pdfjs" | "ocr"
+  source: "pdf-parse" | "ocr"
 }
 
 function detectTables(text: string): ExtractedTable[] {
@@ -92,25 +89,11 @@ function detectSections(text: string): ExtractedSection[] {
   return sections
 }
 
-async function extractWithPdfJs(uint8: Uint8Array): Promise<ExtractedContent> {
-  const loadingTask = pdfjsLib.getDocument({
-    data: uint8,
-    isEvalSupported: false,
-    useWorkerFetch: false,
-  })
+async function extractWithPdfParse(uint8: Uint8Array): Promise<ExtractedContent> {
+  const buffer = Buffer.from(uint8)
+  const data = await pdf(buffer)
 
-  const doc = await loadingTask.promise
-  let fullText = ""
-
-  for (let i = 1; i <= doc.numPages; i++) {
-    const page = await doc.getPage(i)
-    const content = await page.getTextContent()
-    const pageText = content.items
-      .map((item) => ("str" in item ? item.str : ""))
-      .join(" ")
-    fullText += pageText + "\n\n"
-    page.cleanup()
-  }
+  let fullText = data.text
 
   const sections = detectSections(fullText)
   for (const s of sections) {
@@ -127,9 +110,9 @@ async function extractWithPdfJs(uint8: Uint8Array): Promise<ExtractedContent> {
     text: fullText,
     tables,
     sections,
-    pageCount: doc.numPages,
+    pageCount: data.numpages,
     hasImages: false,
-    source: "pdfjs",
+    source: "pdf-parse",
   }
 }
 
@@ -163,7 +146,7 @@ export async function extractPdfText(uint8: Uint8Array): Promise<string> {
 }
 
 export async function extractPdfContent(uint8: Uint8Array): Promise<ExtractedContent> {
-  let result = await extractWithPdfJs(uint8)
+  let result = await extractWithPdfParse(uint8)
 
   const cleanText = result.text
     .replace(/\[Table\][\s\S]*?\[\/Table\]/g, "")
@@ -183,7 +166,7 @@ export async function extractPdfContent(uint8: Uint8Array): Promise<ExtractedCon
         return ocrResult
       }
     } catch (e) {
-      console.warn("OCR failed, using pdfjs result:", e)
+      console.warn("OCR failed, using pdf-parse result:", e)
     }
   }
 

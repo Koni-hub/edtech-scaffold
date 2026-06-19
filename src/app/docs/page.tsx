@@ -115,7 +115,7 @@ const startBuilding = [
   {
     icon: Upload,
     title: "Upload PDFs",
-    description: "Upload PDFs with tiered extraction: spatial text analysis, table detection, and OCR fallback for scanned documents.",
+    description: "Upload PDFs or paste URLs — reliable text extraction with OCR fallback for scanned documents, plus video/website import.",
     href: "/modules/upload",
   },
   {
@@ -152,12 +152,12 @@ const startBuilding = [
 
 const faqItems = [
   { q: "What file formats are supported?", a: "PDF (with OCR fallback for scanned documents), plain text, and pasted content. You can also import from YouTube video URLs and any website URL." },
-  { q: "How does PDF extraction work?", a: "Syntra uses a tiered approach: first, spatial-aware text extraction with pdfjs-dist (detects tables, headings, multi-column layouts). If extraction is poor, it falls back to Tesseract.js OCR for scanned/image-heavy PDFs. Files up to 10MB are supported." },
+  { q: "How does PDF extraction work?", a: "Syntra extracts PDF text using pdf-parse v1 (based on pdfjs-dist v2) — reliable in serverless environments with no worker bundling issues. Tables are detected via pipe/tab heuristics. Scanned documents fall back to Tesseract.js OCR with a 25-second timeout. Files up to 10MB are supported." },
   { q: "Is my data secure?", a: "Yes. All data is encrypted in transit and at rest via Supabase. API keys are passed via secure headers, not URL parameters. Row Level Security (RLS) ensures users can only access their own data." },
   { q: "How accurate is AI quiz generation?", a: "Syntra uses Gemini 2.5 Flash with enhanced prompts including few-shot examples, question diversity rules, and distractor quality guidelines. Questions are validated against source content, and the system retries with adjusted instructions if quality is low." },
   { q: "What is spaced repetition?", a: "Spaced repetition (SM-2 algorithm) schedules flashcard reviews at optimal intervals. Cards you find easy are shown less frequently, while difficult cards appear more often. The schedule is computed server-side based on your responses." },
   { q: "How does the streak work?", a: "Your daily streak tracks consecutive days of learning activity. Generate a quiz, review flashcards, or upload a module to maintain your streak. The dashboard shows your current streak with a flame icon." },
-  { q: "Can I import from YouTube?", a: "Yes. Paste a YouTube video URL and Syntra will extract the English transcript (if available) and create a module from the video content. Great for lecture videos and educational content." },
+  { q: "Can I import from YouTube?", a: "Yes. Paste a YouTube video URL and Syntra will extract the transcript (auto-detects available caption languages, falls back to the first available language if English is not found) and create a module from the video content. Great for lecture videos and educational content." },
   { q: "Is there a limit on modules or quizzes?", a: "Free accounts have a reasonable usage limit. Check your account settings for specific limits. Pro users get unlimited modules, quizzes, and advanced analytics." },
 ]
 
@@ -181,18 +181,18 @@ function buildSearchIndex(): SearchIndexEntry[] {
     { id: "pricing", title: "Pricing", text: "Free plan includes modules quizzes basic analytics flashcard review Pro plan unlimited modules quizzes advanced analytics priority support per month" },
     { id: "build-paths", title: "Build paths", text: "Choose your path to start learning effectively Syntra Dashboard AI Quiz Engine progress rings sparklines streak tracking adaptive difficulty" },
     { id: "start-building", title: "Start building", text: "Explore what you can do with Syntra upload PDFs import URL generate quizzes study flashcards track analytics review weak areas" },
-    { id: "modules", title: "Modules", text: "Upload your learning materials PDF text YouTube URL website content Syntra turns them into structured interactive modules AI automatically parses extracts key concepts creates navigable learning modules" },
+    { id: "modules", title: "Modules", text: "Upload your learning materials PDF text YouTube URL website content Syntra turns them into structured interactive modules AI automatically parses extracts key concepts creates navigable learning modules Handout tab shows raw text with Enhance button Gemini formatting" },
     { id: "quizzes", title: "Quizzes", text: "Generate AI powered quizzes from your module content using Gemini 2.5 Flash multiple choice true false short answer control question count difficulty and topics instant feedback with correct answers and explanations retry logic deduplication" },
     { id: "flashcards", title: "Flashcards", text: "Reinforce knowledge with AI generated flashcards term validation source text verification spaced repetition SM-2 algorithm review schedule adapts to confidence level" },
     { id: "analytics", title: "Analytics", text: "Track your learning performance EWMA based understanding scores retention trends topic mastery breakdown daily streaks recent quiz performance focus study time on weak areas" },
     { id: "spaced-repetition", title: "Spaced Repetition", text: "SM-2 algorithm schedules flashcard reviews at optimal intervals cards you find easy shown less frequently difficult cards appear more often server side computation" },
-    { id: "upload", title: "Uploading materials", text: "Supported formats PDF with OCR fallback plain text pasted content files up to 10MB table detection heading detection spatial awareness scanned documents" },
-    { id: "import-url", title: "Importing from URLs", text: "YouTube video URL website URL paste link AI extracts transcript or readable content automatically creates module from web content" },
+    { id: "upload", title: "Uploading materials", text: "Supported formats PDF with OCR fallback plain text pasted content files up to 10MB table detection pdf-parse v1 no worker issues scanned documents URL import YouTube transcript auto language detect" },
+    { id: "import-url", title: "Importing from URLs", text: "YouTube video URL website URL paste link AI extracts transcript auto detect caption language falls back to first available InnerTube API creates module from web content" },
     { id: "generate", title: "Generating quizzes", text: "Create custom quizzes from your uploaded modules in seconds select module choose question count pick topics Gemini 2.5 Flash generates questions with few shot examples diversity rules distractor quality" },
     { id: "generate-flashcards", title: "Generating flashcards", text: "Create AI flashcards from module content term validation source text verification count control difficulty assessment" },
     { id: "review", title: "Reviewing results", text: "Understand your quiz performance breakdown of correct and incorrect answers explanations for every question answer normalization track scores over time highlights topics needing more practice" },
     { id: "track", title: "Tracking progress", text: "Monitor your learning journey over time dashboard aggregates modules created quizzes taken average scores retention trends daily streaks analytics page for topic radar charts and score trends" },
-    { id: "faq", title: "Frequently asked questions", text: "Common questions about using Syntra file formats supported PDF text URL data secure encrypted Supabase authentication AI quiz generation accuracy spaced repetition streak tracking" },
+    { id: "faq", title: "Frequently asked questions", text: "Common questions about using Syntra file formats supported PDF text URL YouTube transcript auto language detect data secure encrypted Supabase authentication AI quiz generation accuracy spaced repetition streak tracking" },
     { id: "support", title: "Support", text: "Still have questions get started today explore all features hands on free" },
   ]
 }
@@ -643,8 +643,11 @@ export default function DocsPage() {
                     <div>
                       <h3 className="text-sm font-semibold">How modules work</h3>
                       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                        Upload PDFs, paste text, or import from YouTube/website URLs. Syntra&rsquo;s AI automatically parses the content into structured topics, extracts key concepts, and creates a navigable learning module. PDFs use tiered extraction: spatial-aware text analysis with table detection, falling back to OCR for scanned documents.
+                        Upload PDFs, paste text, or import from YouTube/website URLs. Syntra&rsquo;s AI automatically parses the content into structured topics, extracts key concepts, and creates a navigable learning module. PDFs use pdf-parse v1 for reliable text extraction with OCR fallback for scanned documents. YouTube imports auto-detect the available caption language.
                       </p>
+                      <div className="mt-3 space-y-2 text-xs leading-relaxed text-muted-foreground">
+                        <p>For text and YouTube imports, the <strong>Handout & Chat</strong> tab displays the raw transcript in a scrollable reader with word/char count and copy support. Click <strong>Enhance</strong> to have Gemini 2.5 Flash restructure the content into a well-organized study document with sections, bold terms, and lists — toggle between Raw and Enhanced views.</p>
+                      </div>
                       <div className="mt-3 flex flex-wrap gap-2">
                         <span className="inline-flex items-center gap-1 rounded-full border bg-muted/50 px-2 py-0.5 text-[10px] font-medium">
                           <FileText className="size-2.5" /> PDF with OCR
@@ -794,9 +797,9 @@ export default function DocsPage() {
                     Syntra uses a multi-stage approach to extract content from PDFs:
                   </p>
                   <ol className="mt-2 space-y-2 text-xs text-muted-foreground list-decimal list-inside">
-                    <li><strong>Spatial text extraction</strong> — pdfjs-dist with positional analysis detects tables (column gaps), headings (font size/bold), and multi-column layouts</li>
-                    <li><strong>OCR fallback</strong> — If extraction is poor (scanned/image-heavy PDFs), Tesseract.js runs OCR entirely in the browser (WASM, no server needed)</li>
-                    <li><strong>Table detection</strong> — Tables are detected via coordinate analysis and preserved as structured content</li>
+                     <li><strong>Text extraction</strong> — pdf-parse v1 (based on pdfjs-dist v2) extracts text reliably without worker dependencies — no bundling issues on serverless</li>
+                                    <li><strong>OCR fallback</strong> — If extraction is poor (scanned/image-heavy PDFs), Tesseract.js runs OCR with a 25-second timeout</li>
+                                    <li><strong>Table detection</strong> — Pipe/tab-delimited tables are detected via heuristics and stored as structured content</li>
                     <li><strong>Section-aware chunking</strong> — Text is split at section boundaries, preserving table blocks as whole units</li>
                   </ol>
                   <div className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -827,7 +830,7 @@ export default function DocsPage() {
                       </div>
                       <div>
                         <h4 className="text-xs font-medium">YouTube Videos</h4>
-                        <p className="text-xs text-muted-foreground">Paste any YouTube video URL. Syntra extracts the English transcript (if available) and creates a module from the video content. Supports standard YouTube URLs, youtu.be links, and embed URLs.</p>
+                        <p className="text-xs text-muted-foreground">Paste any YouTube video URL. Syntra extracts the transcript (auto-detects available caption languages — English preferred, falls back to any available language) and creates a module from the video content. Uses the InnerTube API for reliable caption fetching.</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">

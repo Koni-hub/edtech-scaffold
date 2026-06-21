@@ -52,7 +52,7 @@ export function Navbar() {
   }
 
   return (
-    <header className="flex h-14 items-center gap-4 border-b bg-background px-6">
+    <header className="flex h-14 items-center gap-2 sm:gap-4 border-b bg-background px-3 sm:px-6">
       <Button
         variant="ghost"
         size="icon"

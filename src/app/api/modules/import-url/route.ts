@@ -2,19 +2,19 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { chunkText } from "@/lib/llm/chunker"
 
-async function fetchTranscriptFromInnerTube(videoId: string, clientName: string, clientVersion: string, userAgent: string): Promise<string> {
+async function fetchTranscriptFromInnerTube(videoId: string, clientName: string, clientVersion: string, userAgent: string, extraContext?: Record<string, unknown>): Promise<string> {
+  const context: Record<string, unknown> = {
+    client: { clientName, clientVersion, hl: "en" },
+  }
+  if (extraContext) Object.assign(context, extraContext)
+
   const res = await fetch("https://www.youtube.com/youtubei/v1/player?prettyPrint=false", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "User-Agent": userAgent,
     },
-    body: JSON.stringify({
-      context: {
-        client: { clientName, clientVersion, hl: "en" },
-      },
-      videoId,
-    }),
+    body: JSON.stringify({ context, videoId }),
     signal: AbortSignal.timeout(10000),
   })
   if (!res.ok) throw new Error(`InnerTube ${clientName} returned ${res.status}`)
@@ -23,7 +23,8 @@ async function fetchTranscriptFromInnerTube(videoId: string, clientName: string,
   const captionTracks = data?.captions?.playerCaptionsTracklistRenderer?.captionTracks
   if (!captionTracks || captionTracks.length === 0) throw new Error("No caption tracks found")
 
-  let track = captionTracks.find((t: { languageCode: string }) => t.languageCode === "en")
+  let track = captionTracks.find((t: { languageCode: string; kind?: string }) => t.languageCode === "en" && t.kind === "asr")
+  if (!track) track = captionTracks.find((t: { languageCode: string }) => t.languageCode === "en")
   if (!track) track = captionTracks[0]
   if (!track?.baseUrl) throw new Error("No caption URL available")
 
@@ -35,28 +36,48 @@ async function fetchTranscriptFromInnerTube(videoId: string, clientName: string,
 
   const xml = await captionRes.text()
   const segments: string[] = []
-  const regex = /<text[^>]*>([\s\S]*?)<\/text>/g
-  let match
-  while ((match = regex.exec(xml)) !== null) {
-    const text = match[1].replace(/&amp;#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#39;/g, "'").replace(/<[^>]+>/g, "").trim()
-    if (text) segments.push(text)
+
+  // srv3 format: <p t="ms" d="ms"><s>word</s><s t="ms">word</s></p>
+  const pRegex = /<p[^>]*>([\s\S]*?)<\/p>/g
+  let pMatch
+  while ((pMatch = pRegex.exec(xml)) !== null) {
+    const inner = pMatch[1]
+    const words: string[] = []
+    const sRegex = /<s[^>]*>([\s\S]*?)<\/s>/g
+    let sMatch
+    while ((sMatch = sRegex.exec(inner)) !== null) {
+      const text = sMatch[1].replace(/&amp;#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#39;/g, "'").trim()
+      if (text) words.push(text)
+    }
+    if (words.length > 0) segments.push(words.join(" "))
   }
+
+  // fallback: classic format <text start="s" dur="s">content</text>
+  if (segments.length === 0) {
+    const textRegex = /<text[^>]*>([\s\S]*?)<\/text>/g
+    let textMatch
+    while ((textMatch = textRegex.exec(xml)) !== null) {
+      const text = textMatch[1].replace(/&amp;#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#39;/g, "'").trim()
+      if (text) segments.push(text)
+    }
+  }
+
   if (segments.length === 0) throw new Error("No transcript segments parsed")
   return segments.join(" ")
 }
 
 async function extractYouTubeTranscript(videoId: string): Promise<string> {
   const clients = [
+    { name: "ANDROID", version: "20.10.38", ua: "com.google.android.youtube/20.10.38 (Linux; U; Android 14)" },
     { name: "WEB", version: "2.20250618.01.00", ua: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36" },
     { name: "WEB_EMBEDDED_PLAYER", version: "1.20250618.01.00", ua: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36" },
-    { name: "TVHTML5_SIMPLY_EMBEDDED_PLAYER", version: "2.0", ua: "Mozilla/5.0" },
-    { name: "ANDROID", version: "20.10.38", ua: "com.google.android.youtube/20.10.38 (Linux; U; Android 14)" },
+    { name: "TVHTML5_SIMPLY_EMBEDDED_PLAYER", version: "2.0", ua: "Mozilla/5.0", extra: { thirdParty: { embedUrl: "https://www.google.com" } } },
   ]
 
   const errors: string[] = []
   for (const c of clients) {
     try {
-      return await fetchTranscriptFromInnerTube(videoId, c.name, c.version, c.ua)
+      return await fetchTranscriptFromInnerTube(videoId, c.name, c.version, c.ua, c.extra)
     } catch (err) {
       errors.push(`${c.name}: ${err instanceof Error ? err.message : String(err)}`)
     }
@@ -170,14 +191,13 @@ export async function POST(request: NextRequest) {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+              "User-Agent": "com.google.android.youtube/20.10.38 (Linux; U; Android 14)",
             },
             body: JSON.stringify({
               context: {
                 client: {
-                  clientName: "WEB",
-                  clientVersion: "2.20240101.00.00",
-                  hl: "en",
+                  clientName: "ANDROID",
+                  clientVersion: "20.10.38",
                 },
               },
               videoId,

@@ -89,66 +89,66 @@ export default async function AnalyticsPage() {
   const maxActivity = Math.max(...activityHeatmap.map((d) => d.count), 1)
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 overflow-hidden w-full max-w-full">
       <Breadcrumbs items={[{ label: "Analytics" }]} />
 
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Analytics</h1>
-        <p className="text-muted-foreground">Track your learning progress over time.</p>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Analytics</h1>
+        <p className="text-sm text-muted-foreground">Track your learning progress over time.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border bg-card p-5 flex items-center gap-4">
-          <div className="rounded-lg bg-primary/10 p-3">
-            <TrendingUp size={20} className="text-primary" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
+        <div className="rounded-xl border bg-card p-2.5 sm:p-4 flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className="rounded-lg bg-primary/10 p-1.5 sm:p-2.5 shrink-0">
+            <TrendingUp size={16} className="text-primary" />
           </div>
-          <div>
-            <div className="text-2xl font-bold">{overallUnderstanding}%</div>
-            <div className="text-xs text-muted-foreground">Understanding</div>
-          </div>
-        </div>
-        <div className="rounded-xl border bg-card p-5 flex items-center gap-4">
-          <div className="rounded-lg bg-green-500/10 p-3">
-            <Target size={20} className="text-green-500" />
-          </div>
-          <div>
-            <div className="text-2xl font-bold">{overallRetention}%</div>
-            <div className="text-xs text-muted-foreground">Retention</div>
+          <div className="min-w-0">
+            <div className="text-lg sm:text-2xl font-bold leading-tight">{overallUnderstanding}%</div>
+            <div className="text-[10px] sm:text-xs text-muted-foreground truncate">Understanding</div>
           </div>
         </div>
-        <div className="rounded-xl border bg-card p-5 flex items-center gap-4">
-          <div className="rounded-lg bg-amber-500/10 p-3">
-            <Flame size={20} className="text-amber-500" />
+        <div className="rounded-xl border bg-card p-2.5 sm:p-4 flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className="rounded-lg bg-green-500/10 p-1.5 sm:p-2.5 shrink-0">
+            <Target size={16} className="text-green-500" />
           </div>
-          <div>
-            <div className="text-2xl font-bold">{streak}</div>
-            <div className="text-xs text-muted-foreground">Day Streak</div>
+          <div className="min-w-0">
+            <div className="text-lg sm:text-2xl font-bold leading-tight">{overallRetention}%</div>
+            <div className="text-[10px] sm:text-xs text-muted-foreground truncate">Retention</div>
           </div>
         </div>
-        <div className="rounded-xl border bg-card p-5 flex items-center gap-4">
-          <div className="rounded-lg bg-blue-500/10 p-3">
-            <ClipboardCheck size={20} className="text-blue-500" />
+        <div className="rounded-xl border bg-card p-2.5 sm:p-4 flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className="rounded-lg bg-amber-500/10 p-1.5 sm:p-2.5 shrink-0">
+            <Flame size={16} className="text-amber-500" />
           </div>
-          <div>
-            <div className="text-2xl font-bold">{accuracy}%</div>
-            <div className="text-xs text-muted-foreground">Overall Accuracy</div>
+          <div className="min-w-0">
+            <div className="text-lg sm:text-2xl font-bold leading-tight">{streak}</div>
+            <div className="text-[10px] sm:text-xs text-muted-foreground truncate">Day Streak</div>
+          </div>
+        </div>
+        <div className="rounded-xl border bg-card p-2.5 sm:p-4 flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className="rounded-lg bg-blue-500/10 p-1.5 sm:p-2.5 shrink-0">
+            <ClipboardCheck size={16} className="text-blue-500" />
+          </div>
+          <div className="min-w-0">
+            <div className="text-lg sm:text-2xl font-bold leading-tight">{accuracy}%</div>
+            <div className="text-[10px] sm:text-xs text-muted-foreground truncate">Accuracy</div>
           </div>
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="rounded-xl border bg-card p-5 lg:col-span-2">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-            <TrendingUp size={18} />
+      <div className="space-y-4 sm:space-y-6 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-6">
+        <div className="rounded-xl border bg-card p-3 sm:p-5 lg:col-span-2 min-w-0">
+          <h2 className="mb-3 sm:mb-4 flex items-center gap-2 text-base sm:text-lg font-semibold">
+            <TrendingUp size={18} className="shrink-0" />
             Score Trend
           </h2>
           {trendData.length < 2 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="mb-4 flex gap-6">
-                <ProgressRing value={overallUnderstanding} size={80} strokeWidth={6} />
-                <ProgressRing value={overallRetention} size={80} strokeWidth={6} />
+            <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center">
+              <div className="mb-4 flex gap-4 sm:gap-6">
+                <ProgressRing value={overallUnderstanding} size={64} strokeWidth={5} />
+                <ProgressRing value={overallRetention} size={64} strokeWidth={5} />
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground max-w-xs">
                 {trendData.length === 0
                   ? "Complete a quiz to start tracking your trend."
                   : "Take more quizzes to see your score trend over time."}
@@ -159,13 +159,13 @@ export default async function AnalyticsPage() {
           )}
         </div>
 
-        <div className="rounded-xl border bg-card p-5">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-            <BarChart3 size={18} />
+        <div className="rounded-xl border bg-card p-3 sm:p-5 min-w-0">
+          <h2 className="mb-3 sm:mb-4 flex items-center gap-2 text-base sm:text-lg font-semibold">
+            <BarChart3 size={18} className="shrink-0" />
             Activity
           </h2>
           {activityHeatmap.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center">
               <ClipboardCheck size={32} className="mb-2 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">No quiz activity yet.</p>
             </div>
@@ -173,7 +173,7 @@ export default async function AnalyticsPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Last 30 days</span>
-                <span className="font-medium">{totalAttempts} questions answered</span>
+                <span className="font-medium">{totalAttempts} answered</span>
               </div>
               <div className="flex gap-0.5 flex-wrap">
                 {activityHeatmap.map((day) => (
@@ -183,7 +183,7 @@ export default async function AnalyticsPage() {
                     title={`${day.date}: ${day.count} questions (${day.accuracy}% accuracy)`}
                   >
                     <div
-                      className="size-3 rounded-sm transition-colors"
+                      className="size-2.5 sm:size-3 rounded-sm transition-colors"
                       style={{
                         backgroundColor: day.count === 0
                           ? "hsl(var(--muted))"
@@ -193,7 +193,7 @@ export default async function AnalyticsPage() {
                   </div>
                 ))}
               </div>
-              <div className="flex items-center gap-4 text-[10px] text-muted-foreground">
+              <div className="flex items-center gap-3 sm:gap-4 text-[10px] text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <div className="size-2 rounded-sm bg-green-500/60" />
                   80%+
@@ -229,46 +229,46 @@ export default async function AnalyticsPage() {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border bg-card p-5 min-w-0">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-            <BookOpen size={18} />
+      <div className="space-y-4 sm:space-y-6 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-6">
+        <div className="rounded-xl border bg-card p-3 sm:p-5 min-w-0">
+          <h2 className="mb-3 sm:mb-4 flex items-center gap-2 text-base sm:text-lg font-semibold">
+            <BookOpen size={18} className="shrink-0" />
             Topic Breakdown
           </h2>
           {topicData.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center">
               <Target size={32} className="mb-2 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">No topics assessed yet.</p>
               <p className="text-xs text-muted-foreground mt-1">Take a quiz to start tracking topic mastery.</p>
             </div>
           ) : topicData.length <= 5 ? (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {topicData.map((t) => (
-                <div key={t.topic} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">{t.topic}</span>
-                    <span className="text-xs text-muted-foreground">{t.totalAttempts} questions</span>
+                <div key={t.topic} className="space-y-1.5 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-medium truncate min-w-0">{t.topic}</span>
+                    <span className="text-[10px] sm:text-xs text-muted-foreground shrink-0">{t.totalAttempts} q</span>
                   </div>
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-2">
-                      <span className="w-16 text-[10px] text-muted-foreground">Understood</span>
-                      <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <span className="w-12 sm:w-16 text-[9px] sm:text-[10px] text-muted-foreground shrink-0">Understood</span>
+                      <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden min-w-0">
                         <div
                           className="h-full rounded-full bg-green-500 transition-all"
                           style={{ width: `${t.understanding}%` }}
                         />
                       </div>
-                      <span className="w-10 text-right text-[10px] font-medium">{Math.round(t.understanding)}%</span>
+                      <span className="w-8 sm:w-10 text-right text-[9px] sm:text-[10px] font-medium shrink-0">{Math.round(t.understanding)}%</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="w-16 text-[10px] text-muted-foreground">Retained</span>
-                      <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <span className="w-12 sm:w-16 text-[9px] sm:text-[10px] text-muted-foreground shrink-0">Retained</span>
+                      <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden min-w-0">
                         <div
                           className="h-full rounded-full bg-amber-500 transition-all"
                           style={{ width: `${t.retention}%` }}
                         />
                       </div>
-                      <span className="w-10 text-right text-[10px] font-medium">{Math.round(t.retention)}%</span>
+                      <span className="w-8 sm:w-10 text-right text-[9px] sm:text-[10px] font-medium shrink-0">{Math.round(t.retention)}%</span>
                     </div>
                   </div>
                 </div>
@@ -279,32 +279,29 @@ export default async function AnalyticsPage() {
           )}
         </div>
 
-        <div className="rounded-xl border bg-card p-5">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-            <ClipboardCheck size={18} />
+        <div className="rounded-xl border bg-card p-3 sm:p-5 min-w-0">
+          <h2 className="mb-3 sm:mb-4 flex items-center gap-2 text-base sm:text-lg font-semibold">
+            <ClipboardCheck size={18} className="shrink-0" />
             Recent Quizzes
           </h2>
           {quizzes.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center">
               <ClipboardCheck size={32} className="mb-2 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">No quizzes taken yet.</p>
             </div>
           ) : (
             <div className="space-y-2">
               {quizzes.slice(0, 10).map((quiz) => {
-                const quizAttempts = attempts.filter((a) =>
-                  quiz.title && true
-                )
                 const quizCorrect = Math.round(Math.random() * 40 + 60)
                 return (
-                  <div key={quiz.id} className="flex items-center justify-between rounded-lg border p-3 text-sm">
+                  <div key={quiz.id} className="flex items-center justify-between rounded-lg border p-2.5 sm:p-3 min-w-0">
                     <div className="min-w-0 flex-1">
-                      <span className="font-medium truncate block">{quiz.title}</span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="font-medium text-sm truncate block">{quiz.title}</span>
+                      <span className="text-[10px] sm:text-xs text-muted-foreground">
                         {new Date(quiz.created_at).toLocaleDateString()} · {quiz.difficulty}
                       </span>
                     </div>
-                    <span className={`shrink-0 ml-3 rounded-full px-2 py-0.5 text-xs font-medium ${
+                    <span className={`shrink-0 ml-2 sm:ml-3 rounded-full px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-medium ${
                       quizCorrect >= 80
                         ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                         : quizCorrect >= 60

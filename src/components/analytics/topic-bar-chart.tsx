@@ -9,7 +9,7 @@ interface TopicBarChartProps {
 
 export function TopicBarChart({ data }: TopicBarChartProps) {
   return (
-    <div className="w-full" style={{ height: 300 }}>
+    <div className="w-full h-[250px] sm:h-[300px]">
       <Bar
         data={{
           labels: data.map((d) => d.topic),

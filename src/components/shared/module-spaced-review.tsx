@@ -153,31 +153,30 @@ export function ModuleSpacedReview({ moduleId }: ModuleSpacedReviewProps) {
       </div>
 
       <div
-        className="cursor-pointer select-none"
+        className="cursor-pointer select-none overflow-hidden rounded-xl border bg-card"
         onClick={() => !flipped && setFlipped(true)}
-        style={{ perspective: "1000px", minHeight: "280px" }}
       >
         <div
           className={cn(
-            "relative h-full min-h-[280px] transition-transform duration-500 rounded-xl border bg-card",
+            "relative transition-transform duration-500",
             flipped && "[transform:rotateX(180deg)]"
           )}
           style={{ transformStyle: "preserve-3d" }}
         >
           <div
-            className="absolute inset-0 flex flex-col items-center justify-center p-8"
+            className="flex flex-col items-center justify-center p-6 sm:p-10 min-h-[280px] max-h-[400px] overflow-y-auto"
             style={{ backfaceVisibility: "hidden" }}
           >
             <p className="mb-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">Question</p>
-            <p className="text-base leading-relaxed text-center whitespace-pre-wrap">{current.question}</p>
+            <p className="text-base leading-relaxed text-center whitespace-pre-wrap break-words">{current.question}</p>
             <p className="mt-6 text-xs text-muted-foreground">Tap to reveal</p>
           </div>
           <div
-            className="absolute inset-0 flex flex-col items-center justify-center p-8"
+            className="absolute inset-0 flex flex-col items-center justify-center p-6 sm:p-10 min-h-[280px] max-h-[400px] overflow-y-auto"
             style={{ backfaceVisibility: "hidden", transform: "rotateX(180deg)" }}
           >
             <p className="mb-4 text-xs font-medium text-green-600 uppercase tracking-wider">Answer</p>
-            <p className="text-base leading-relaxed text-center whitespace-pre-wrap">{current.answer}</p>
+            <p className="text-base leading-relaxed text-center whitespace-pre-wrap break-words">{current.answer}</p>
           </div>
         </div>
       </div>

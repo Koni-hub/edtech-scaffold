@@ -10,6 +10,21 @@ interface SparklineProps {
   className?: string
 }
 
+function resolveColor(el: HTMLElement, color: string): string {
+  const temp = document.createElement("div")
+  temp.style.color = color
+  el.appendChild(temp)
+  const resolved = getComputedStyle(temp).color
+  temp.remove()
+  return resolved
+}
+
+function colorWithAlpha(color: string, alpha: number): string {
+  const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
+  if (match) return `rgba(${match[1]}, ${match[2]}, ${match[3]}, ${alpha})`
+  return color
+}
+
 export function Sparkline({ data, width = 120, height = 32, color = "hsl(var(--primary))", className }: SparklineProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -32,9 +47,11 @@ export function Sparkline({ data, width = 120, height = 32, color = "hsl(var(--p
 
     ctx.clearRect(0, 0, width, height)
 
+    const resolved = resolveColor(canvas, color)
+
     const gradient = ctx.createLinearGradient(0, 0, 0, height)
-    gradient.addColorStop(0, color + "40")
-    gradient.addColorStop(1, color + "05")
+    gradient.addColorStop(0, colorWithAlpha(resolved, 0.25))
+    gradient.addColorStop(1, colorWithAlpha(resolved, 0.02))
 
     ctx.beginPath()
     ctx.moveTo(0, height)

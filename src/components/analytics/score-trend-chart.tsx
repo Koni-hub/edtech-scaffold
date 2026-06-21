@@ -9,7 +9,7 @@ interface ScoreTrendChartProps {
 
 export function ScoreTrendChart({ data }: ScoreTrendChartProps) {
   return (
-    <div className="w-full" style={{ height: 300 }}>
+    <div className="w-full h-[250px] sm:h-[300px]">
       <Line
         data={{
           labels: data.map((d) => {

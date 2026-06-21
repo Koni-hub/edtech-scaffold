@@ -57,7 +57,7 @@ export default async function DashboardPage() {
   const isNewUser = snapshots.length === 0 && recentAttempts.length === 0 && recentModules.length === 0
 
   return (
-    <div className="space-y-6">
+    <div className="w-full max-w-full space-y-6 overflow-hidden">
       {isNewUser && <OnboardingFlow />}
 
       <div>
@@ -93,7 +93,7 @@ export default async function DashboardPage() {
         <div className="rounded-xl border bg-card p-4 flex items-center gap-4">
           <Flame size={24} className="text-amber-500 shrink-0" />
           <div className="min-w-0 flex-1">
-            <div className="text-2xl font-bold leading-tight">{streak}</div>
+            <div className="text-2xl font-bold leading-tight truncate">{streak}</div>
             <div className="text-sm text-muted-foreground">Day Streak</div>
           </div>
         </div>
@@ -101,7 +101,7 @@ export default async function DashboardPage() {
         <div className="rounded-xl border bg-card p-4 flex items-center gap-4">
           <ClipboardCheck size={24} className="text-muted-foreground shrink-0" />
           <div className="min-w-0 flex-1">
-            <div className="text-2xl font-bold leading-tight">{quizzesTaken}</div>
+            <div className="text-2xl font-bold leading-tight truncate">{quizzesTaken}</div>
             <div className="text-sm text-muted-foreground">Quizzes Taken</div>
           </div>
         </div>
@@ -109,7 +109,7 @@ export default async function DashboardPage() {
         <div className="rounded-xl border bg-card p-4 flex items-center gap-4">
           <Target size={24} className="text-muted-foreground shrink-0" />
           <div className="min-w-0 flex-1">
-            <div className="text-2xl font-bold leading-tight">{topicsCovered}</div>
+            <div className="text-2xl font-bold leading-tight truncate">{topicsCovered}</div>
             <div className="text-sm text-muted-foreground">Topics Covered</div>
           </div>
         </div>

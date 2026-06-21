@@ -21,7 +21,7 @@ export function ModuleTabs({ moduleId, rawPdf, rawText, title }: ModuleTabsProps
   const [tab, setTab] = useState<Tab>("handout")
 
   return (
-    <div className="flex flex-col h-[calc(100vh-200px)]">
+    <div className="flex flex-col flex-1 min-h-0">
       <div className="flex gap-1 rounded-lg border bg-muted p-1 shrink-0">
         {(["handout", "ai-quiz", "flashcard", "spaced-review"] as Tab[]).map((t) => (
           <button

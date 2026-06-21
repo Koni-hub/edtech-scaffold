@@ -57,7 +57,7 @@ export default async function DashboardPage() {
   const isNewUser = snapshots.length === 0 && recentAttempts.length === 0 && recentModules.length === 0
 
   return (
-    <div className="w-full max-w-full space-y-4 sm:space-y-6 overflow-hidden">
+    <div className="w-full max-w-full space-y-4 sm:space-y-6">
       {isNewUser && <OnboardingFlow />}
 
       <div>
@@ -66,7 +66,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <div className="rounded-xl border bg-card p-3 sm:p-5 flex flex-col items-center gap-2 sm:gap-3">
+        <div className="rounded-xl border bg-card p-3 sm:p-5 flex flex-col items-center gap-2 sm:gap-3 min-w-0">
           <ProgressRing value={understanding} size={56} strokeWidth={5} />
           <div className="text-center min-w-0">
             <div className="text-[11px] sm:text-sm font-medium truncate">Understanding</div>
@@ -78,7 +78,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border bg-card p-3 sm:p-5 flex flex-col items-center gap-2 sm:gap-3">
+        <div className="rounded-xl border bg-card p-3 sm:p-5 flex flex-col items-center gap-2 sm:gap-3 min-w-0">
           <ProgressRing value={retention} size={56} strokeWidth={5} />
           <div className="text-center min-w-0">
             <div className="text-[11px] sm:text-sm font-medium truncate">Retention</div>

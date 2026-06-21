@@ -1,4 +1,4 @@
-import { StatCardRowSkeleton, ListSkeleton } from "@/components/shared/page-skeleton"
+import { StatCardRowSkeleton, ListSkeleton } from "@/components/modules/page-skeleton"
 
 export default function DashboardLoading() {
   return (
@@ -51,3 +51,4 @@ export default function DashboardLoading() {
     </div>
   )
 }
+

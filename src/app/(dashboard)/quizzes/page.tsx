@@ -1,8 +1,8 @@
 import Link from "next/link"
 import { BrainCircuit, ChevronRight, BarChart3, ClipboardCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { ScoreBadge } from "@/components/shared/score-badge"
-import { EmptyState } from "@/components/shared/empty-state"
+import { ScoreBadge } from "@/components/modules/score-badge"
+import { EmptyState } from "@/components/modules/empty-state"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/server"
 
@@ -90,4 +90,5 @@ export default async function QuizzesPage() {
     </div>
   )
 }
+
 

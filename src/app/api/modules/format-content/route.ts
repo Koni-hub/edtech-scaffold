@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { geminiFetch, parseGeminiResponse, isQuotaError } from "@/lib/llm/gemini-client"
+import { geminiFetch, parseGeminiResponse, isQuotaError } from "@/lib/ai/gemini-client"
 import { createClient } from "@/lib/supabase/server"
 
 const FORMAT_PROMPT = `You are an expert study note formatter. Given a raw transcript or article text, rewrite it as a well-structured study document.
@@ -52,3 +52,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: `Formatting failed: ${msg}` }, { status: 500 })
   }
 }
+

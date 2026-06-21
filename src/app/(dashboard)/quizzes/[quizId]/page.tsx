@@ -7,7 +7,7 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
-import { createAdaptiveState, recordAnswer, type AdaptiveState } from "@/lib/quiz/adaptive-difficulty"
+import { createAdaptiveState, recordAnswer, type AdaptiveState } from "@/lib/adaptive-difficulty"
 
 interface QuestionData {
   id: string
@@ -283,3 +283,4 @@ export default function QuizPage() {
     </div>
   )
 }
+

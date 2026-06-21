@@ -11,6 +11,7 @@ function approximateTokens(text: string): number {
   return Math.ceil(text.length / 4)
 }
 
+// FIXME: this doesn't handle code blocks or nested tables
 function splitIntoBlocks(rawText: string): string[] {
   const blocks: string[] = []
   const parts = rawText.split(/(\[Table\][\s\S]*?\[\/Table\])/g)

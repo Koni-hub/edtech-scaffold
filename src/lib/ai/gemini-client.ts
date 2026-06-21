@@ -16,18 +16,16 @@ export function geminiFetch(
   opts?: { temperature?: number; maxOutputTokens?: number; systemInstruction?: string; responseMimeType?: string }
 ): Promise<string> {
   const apiKey = getApiKey()
-  const bodyObj: Record<string, unknown> = {
+  const generationConfig: Record<string, unknown> = {
+    temperature: opts?.temperature ?? 0.7,
+    maxOutputTokens: opts?.maxOutputTokens ?? 16384,
+    responseMimeType: opts?.responseMimeType ?? "application/json",
+  }
+  const body = JSON.stringify({
     contents,
-    generationConfig: {
-      temperature: opts?.temperature ?? 0.7,
-      maxOutputTokens: opts?.maxOutputTokens ?? 16384,
-      responseMimeType: opts?.responseMimeType ?? "application/json",
-    },
-  }
-  if (opts?.systemInstruction) {
-    bodyObj.systemInstruction = { parts: [{ text: opts.systemInstruction }] }
-  }
-  const body = JSON.stringify(bodyObj)
+    generationConfig,
+    ...(opts?.systemInstruction ? { systemInstruction: { parts: [{ text: opts.systemInstruction }] } } : {}),
+  })
 
   return new Promise((resolve, reject) => {
     const url = new URL(`${API_BASE}/models/${model}:generateContent`)

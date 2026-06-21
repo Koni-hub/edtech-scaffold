@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { ProgressRing } from "@/components/ui/progress-ring"
 import { ScoreTrendChart } from "@/components/analytics/score-trend-chart"
 import { TopicBarChart } from "@/components/analytics/topic-bar-chart"
-import { Breadcrumbs } from "@/components/shared/breadcrumbs"
+import { Breadcrumbs } from "@/components/modules/breadcrumbs"
 
 export default async function AnalyticsPage() {
   const supabase = await createClient()
@@ -323,3 +323,4 @@ export default async function AnalyticsPage() {
     </div>
   )
 }
+

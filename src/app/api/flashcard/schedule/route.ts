@@ -1,34 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-
-function computeNextSR(
-  current: { easiness: number; interval: number; repetitions: number },
-  correct: boolean
-): { easiness: number; interval: number; repetitions: number; due_at: string } {
-  let { easiness, interval, repetitions } = current
-
-  if (correct) {
-    repetitions++
-    if (repetitions === 1) interval = 1
-    else if (repetitions === 2) interval = 6
-    else interval = Math.round(interval * easiness)
-    easiness = easiness + (0.1 - (1 - 0.8) * (0.28 + 0.1 * (5 - easiness)))
-    if (easiness < 1.3) easiness = 1.3
-  } else {
-    repetitions = 0
-    interval = 1
-  }
-
-  const dueDate = new Date()
-  dueDate.setDate(dueDate.getDate() + interval)
-
-  return {
-    easiness: Math.round(easiness * 100) / 100,
-    interval,
-    repetitions,
-    due_at: dueDate.toISOString(),
-  }
-}
+import { computeNextSR } from "@/lib/sm2"
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
@@ -57,18 +29,18 @@ export async function POST(request: NextRequest) {
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-  let body: Record<string, unknown>
+  let body: { moduleId?: string; term?: string; question?: string; answer?: string; correct?: boolean }
   try {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 })
   }
 
-  const moduleId = body.moduleId as string | undefined
-  const term = body.term as string | undefined
-  const question = (body.question as string) ?? ""
-  const answer = (body.answer as string) ?? ""
-  const correct = body.correct as boolean | undefined
+  const moduleId = body.moduleId
+  const term = body.term
+  const question = body.question ?? ""
+  const answer = body.answer ?? ""
+  const correct = body.correct
 
   if (!moduleId || !term) {
     return NextResponse.json({ error: "moduleId and term are required" }, { status: 400 })

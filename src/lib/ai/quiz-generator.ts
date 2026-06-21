@@ -26,7 +26,17 @@ interface GenerateQuizInput {
   topicLabels?: string[]
 }
 
-function validateAgainstSource(question: Record<string, unknown>, sourceText: string): boolean {
+interface RawQuestion {
+  question_text?: unknown
+  correct_answer?: unknown
+  question_type?: unknown
+  options?: unknown
+  explanation?: unknown
+  topic?: unknown
+  difficulty?: unknown
+}
+
+function validateAgainstSource(question: RawQuestion, sourceText: string): boolean {
   const questionText = String(question.question_text ?? "").toLowerCase()
   const correctAnswer = String(question.correct_answer ?? "").toLowerCase()
   const sourceLower = sourceText.toLowerCase()
@@ -93,7 +103,7 @@ export async function generateQuiz(input: GenerateQuizInput): Promise<GeneratedQ
         ], { temperature: 0.7, systemInstruction: systemPrompt })
 
         const { content } = parseGeminiResponse(raw)
-        const parsed = JSON.parse(content) as Record<string, unknown>
+        const parsed: { title?: unknown; topic_focus?: unknown; questions?: unknown[] } = JSON.parse(content)
 
         if (!parsed.title || !Array.isArray(parsed.questions) || parsed.questions.length === 0) {
           throw new Error("LLM returned malformed quiz structure")
@@ -104,9 +114,10 @@ export async function generateQuiz(input: GenerateQuizInput): Promise<GeneratedQ
           quizTopics = Array.isArray(parsed.topic_focus) ? parsed.topic_focus.map(String) : []
         }
 
-        for (const q of parsed.questions as Record<string, unknown>[]) {
+        for (const item of parsed.questions) {
           if (allQuestions.length >= input.questionCount) break
 
+          const q = item as RawQuestion
           const questionText = String(q.question_text ?? "").trim()
           if (!questionText) continue
 

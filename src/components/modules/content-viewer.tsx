@@ -84,7 +84,8 @@ export function ContentViewer({ content, title }: ContentViewerProps) {
     try {
       await navigator.clipboard.writeText(displayText)
       setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      const COPY_DELAY_MS = 2000
+      setTimeout(() => setCopied(false), COPY_DELAY_MS)
     } catch {
       toast.error("Failed to copy")
     }

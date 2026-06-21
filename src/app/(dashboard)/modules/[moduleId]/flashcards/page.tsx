@@ -7,10 +7,10 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
-import { calculateSM2 } from "@/lib/spaced-repetition/sm2"
-import { SwipeableCard } from "@/components/shared/swipeable-card"
-import { Breadcrumbs } from "@/components/shared/breadcrumbs"
-import type { ReviewQuality } from "@/lib/spaced-repetition/types"
+import { calculateSM2 } from "@/lib/sm2"
+import { SwipeableCard } from "@/components/modules/swipeable-card"
+import { Breadcrumbs } from "@/components/modules/breadcrumbs"
+import type { ReviewQuality } from "@/lib/sm2"
 
 interface FlashCard {
   id: number
@@ -269,3 +269,4 @@ export default function FlashcardsPage() {
     </div>
   )
 }
+

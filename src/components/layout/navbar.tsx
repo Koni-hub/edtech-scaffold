@@ -6,13 +6,14 @@ import { PanelLeft, User, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/layout/theme-toggle"
 import { useSidebar } from "@/components/layout/sidebar"
-import { SearchPalette } from "@/components/shared/search-palette"
+import { SearchPalette } from "@/components/modules/search-palette"
 import { createClient } from "@/lib/supabase/client"
 
 export function Navbar() {
   const router = useRouter()
   const { setOpen } = useSidebar()
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  // TODO: close dropdown on route change
   const [displayName, setDisplayName] = useState("User")
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -99,3 +100,4 @@ export function Navbar() {
     </header>
   )
 }
+

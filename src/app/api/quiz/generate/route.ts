@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import { chunkText } from "@/lib/llm/chunker"
-import { generateQuiz, type GeneratedQuiz } from "@/lib/llm/quiz-generator"
-import { generateEmbedding } from "@/lib/llm/embedder"
-import { cosineSimilarity } from "@/lib/llm/similarity"
-import type { QuizMode } from "@/lib/llm/prompts"
+import { chunkText } from "@/lib/ai/chunker"
+import { generateQuiz, type GeneratedQuiz } from "@/lib/ai/quiz-generator"
+import { generateEmbedding } from "@/lib/ai/embedder"
+import { cosineSimilarity } from "@/lib/ai/similarity"
+import type { QuizMode } from "@/lib/ai/prompts"
 import type { Module, ModuleChunk } from "@/lib/types/database"
 
 const MAX_QUESTIONS = 30
@@ -178,3 +178,4 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ quizId: quiz.id, questions })
 }
+

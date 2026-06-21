@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { CheckCircle2, XCircle, BrainCircuit, BarChart3, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { ScoreBadge } from "@/components/shared/score-badge"
+import { ScoreBadge } from "@/components/modules/score-badge"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 
@@ -204,3 +204,4 @@ export default function QuizResultsPage() {
     </div>
   )
 }
+

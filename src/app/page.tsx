@@ -1,10 +1,11 @@
 "use client"
 
 import Link from "next/link"
-import { BrainCircuit, BookOpen, BarChart3, Sparkles, Upload, Target, ArrowRight, Menu, X, Zap, Layers, GraduationCap, LineChart, Bot, Check, XIcon } from "lucide-react"
+import { BrainCircuit, Sparkles, ArrowRight, Menu, X, Zap, Layers, GraduationCap, BarChart3, Check, XIcon } from "lucide-react"
 import { ThemeToggle } from "@/components/layout/theme-toggle"
 import { useState, useRef, useEffect } from "react"
 import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion"
+import { features, steps, stats, testimonials, comparisonRows } from "./landing-data"
 
 function useMousePosition() {
   const [pos, setPos] = useState({ x: 0, y: 0 })
@@ -105,53 +106,6 @@ function FadeIn({ children, delay = 0, className }: { children: React.ReactNode;
   )
 }
 
-const features = [
-  {
-    icon: Upload, title: "Upload & Process",
-    description: "Upload PDFs and documents. AI automatically extracts, structures, and chunks your material into organized learning modules.",
-  },
-  {
-    icon: Bot, title: "AI Quiz Generation",
-    description: "Generate intelligent quizzes from your content. Multiple formats, adaptive difficulty, and instant feedback.",
-  },
-  {
-    icon: LineChart, title: "Deep Analytics",
-    description: "Track understanding scores, retention rates, and topic mastery with rich visualizations over time.",
-  },
-  {
-    icon: Target, title: "Smart Review",
-    description: "Identify weak areas with data-driven insights. Get personalized recommendations for targeted practice.",
-  },
-  {
-    icon: GraduationCap, title: "Flashcard Mode",
-    description: "Reinforce knowledge with AI-generated flashcards using spaced repetition for optimal retention.",
-  },
-  {
-    icon: Layers, title: "Multi-Subject",
-    description: "Organize modules by subject, switch between topics seamlessly, and manage your entire curriculum.",
-  },
-]
-
-const steps = [
-  { icon: Upload, title: "Upload", description: "Drop your PDFs and study materials into the platform." },
-  { icon: Bot, title: "Process", description: "AI analyzes content and builds structured learning modules." },
-  { icon: BookOpen, title: "Practice", description: "Take AI-generated quizzes and review with flashcards." },
-  { icon: BarChart3, title: "Master", description: "Track progress and solidify understanding over time." },
-]
-
-const stats = [
-  { value: "10K+", label: "Quizzes Generated" },
-  { value: "5K+", label: "Active Learners" },
-  { value: "50+", label: "Subjects" },
-  { value: "92%", label: "Satisfaction" },
-]
-
-const testimonials = [
-  { quote: "Syntra transformed how I study. The AI-generated quizzes are incredibly relevant.", author: "Alex M.", role: "Medical Student" },
-  { quote: "The analytics helped me identify exactly which topics I was struggling with.", author: "Sarah K.", role: "Computer Science" },
-  { quote: "Uploading lecture notes and getting instant practice questions is a game changer.", author: "James R.", role: "Engineering" },
-]
-
 const containerVariants = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.08 } },
@@ -173,34 +127,8 @@ export default function LandingPage() {
   useEffect(() => { setWinSize({ w: window.innerWidth, h: window.innerHeight }) }, [])
   const heroRef = useRef<HTMLDivElement>(null)
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "WebApplication",
-        name: "Syntra",
-        alternateName: "Study Your Notes with Tracking, Review, and Adaptation",
-        description: "AI-powered learning platform. Upload materials, generate intelligent quizzes, and track understanding over time.",
-        url: "https://syntra-learn.vercel.app",
-        applicationCategory: "EducationalApplication",
-        operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-        author: { "@type": "Organization", name: "Syntra" },
-      },
-      {
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          { "@type": "ListItem", position: 1, name: "Home", item: "https://syntra-learn.vercel.app" },
-          { "@type": "ListItem", position: 2, name: "Features", item: "https://syntra-learn.vercel.app/#features" },
-          { "@type": "ListItem", position: 3, name: "Documentation", item: "https://syntra-learn.vercel.app/docs" },
-        ],
-      },
-    ],
-  }
-
   return (
     <div className="flex min-h-screen flex-col">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2.5">
@@ -693,18 +621,7 @@ export default function LandingPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { feature: "AI quiz from uploads", syntra: true, nlm: false, sf: true, qz: false, kt: true },
-                    { feature: "Deep learning analytics", syntra: true, nlm: false, sf: true, qz: false, kt: false },
-                    { feature: "Topic mastery breakdown", syntra: true, nlm: false, sf: false, qz: false, kt: false },
-                    { feature: "Spaced repetition", syntra: true, nlm: false, sf: true, qz: true, kt: true },
-                    { feature: "Multiple question formats", syntra: true, nlm: true, sf: true, qz: true, kt: true },
-                    { feature: "Progress over time", syntra: true, nlm: false, sf: false, qz: true, kt: true },
-                    { feature: "Upload your own materials", syntra: true, nlm: true, sf: true, qz: false, kt: false },
-                    { feature: "Free tier available", syntra: true, nlm: true, sf: false, qz: true, kt: true },
-                    { feature: "Adaptive difficulty", syntra: true, nlm: false, sf: false, qz: false, kt: false },
-                    { feature: "Flashcard review", syntra: true, nlm: true, sf: true, qz: true, kt: true },
-                  ].map((row, i) => (
+                  {comparisonRows.map((row, i) => (
                     <motion.tr
                       key={row.feature}
                       initial={{ opacity: 0, x: -20 }}

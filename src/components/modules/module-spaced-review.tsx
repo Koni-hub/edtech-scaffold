@@ -5,8 +5,8 @@ import { ChevronLeft, ChevronRight, RotateCw, Frown, Meh, ThumbsUp } from "lucid
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { calculateSM2 } from "@/lib/spaced-repetition/sm2"
-import type { ReviewQuality } from "@/lib/spaced-repetition/types"
+import { calculateSM2 } from "@/lib/sm2"
+import type { ReviewQuality } from "@/lib/sm2"
 
 interface ModuleSpacedReviewProps {
   moduleId: string

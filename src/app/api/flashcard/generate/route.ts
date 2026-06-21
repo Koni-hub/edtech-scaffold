@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import { generateAIFlashcards } from "@/lib/llm/ai-flashcard-generator"
-import { generateEmbedding } from "@/lib/llm/embedder"
-import { cosineSimilarity } from "@/lib/llm/similarity"
+import { generateAIFlashcards } from "@/lib/ai/ai-flashcard-generator"
+import { generateEmbedding } from "@/lib/ai/embedder"
+import { cosineSimilarity } from "@/lib/ai/similarity"
 import type { Module } from "@/lib/types/database"
 
 const MAX_COUNT = 30
@@ -103,3 +103,4 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+

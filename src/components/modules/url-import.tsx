@@ -37,9 +37,10 @@ export function UrlImport() {
       setSuccess(true)
       toast.success("Content imported! Processing...", { id: "url-import" })
 
+      const REDIRECT_DELAY_MS = 1500
       setTimeout(() => {
         router.push(`/modules/${data.moduleId}`)
-      }, 1500)
+      }, REDIRECT_DELAY_MS)
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Import failed"
       toast.error(msg, { id: "url-import" })

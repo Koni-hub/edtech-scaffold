@@ -4,8 +4,8 @@ import { createClient } from "@/lib/supabase/server"
 import { ProgressRing } from "@/components/ui/progress-ring"
 import { Sparkline } from "@/components/ui/sparkline"
 import { Button } from "@/components/ui/button"
-import { OnboardingFlow } from "@/components/shared/onboarding-flow"
-import { DailyGoalCard } from "@/components/shared/daily-goal-card"
+import { OnboardingFlow } from "@/components/modules/onboarding-flow"
+import { DailyGoalCard } from "@/components/modules/daily-goal-card"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -193,3 +193,4 @@ export default async function DashboardPage() {
     </div>
   )
 }
+

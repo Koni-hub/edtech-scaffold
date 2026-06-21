@@ -1,6 +1,12 @@
 import { geminiFetch, isQuotaError, parseGeminiResponse, GEMINI_MODELS } from "./gemini-client"
 import { FLASHCARD_SYSTEM_PROMPT } from "./prompts"
 
+interface RawFlashCard {
+  term?: unknown
+  question?: unknown
+  answer?: unknown
+}
+
 export interface AIFlashCard {
   term: string
   question: string
@@ -13,7 +19,7 @@ interface GenerateFlashcardsInput {
   count?: number
 }
 
-function validateCard(card: { term?: unknown; question?: unknown; answer?: unknown }, sourceText: string): boolean {
+function validateCard(card: RawFlashCard, sourceText: string): boolean {
   const term = String(card.term ?? "").trim()
   const question = String(card.question ?? "").trim()
   const answer = String(card.answer ?? "").trim()
@@ -48,7 +54,7 @@ export async function generateAIFlashcards(input: GenerateFlashcardsInput): Prom
       ], { temperature: 0.5, systemInstruction: FLASHCARD_SYSTEM_PROMPT })
 
       const { content } = parseGeminiResponse(raw)
-      const parsed = JSON.parse(content) as Record<string, unknown>
+      const parsed: { flashcards?: RawFlashCard[] } = JSON.parse(content)
 
       if (!Array.isArray(parsed.flashcards) || parsed.flashcards.length === 0) {
         throw new Error("LLM returned no flashcards")
@@ -57,7 +63,7 @@ export async function generateAIFlashcards(input: GenerateFlashcardsInput): Prom
       const cards: AIFlashCard[] = []
       const seenTerms = new Set<string>()
 
-      for (const card of parsed.flashcards as Record<string, unknown>[]) {
+      for (const card of parsed.flashcards) {
         if (!validateCard(card, contextText)) continue
 
         const term = String(card.term ?? "").trim()

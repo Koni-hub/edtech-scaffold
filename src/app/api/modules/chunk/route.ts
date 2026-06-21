@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import { chunkText } from "@/lib/llm/chunker"
+import { chunkText } from "@/lib/ai/chunker"
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
   // Try embeddings (best-effort)
   if (process.env.GEMINI_API_KEY) {
     try {
-      const { generateEmbeddings } = await import("@/lib/llm/embedder")
+      const { generateEmbeddings } = await import("@/lib/ai/embedder")
       const chunkContents = inserted.map((c: { content: string }) => c.content)
       const embeddings = await generateEmbeddings(chunkContents)
       for (let i = 0; i < inserted.length; i++) {
@@ -68,3 +68,4 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ chunkCount: textChunks.length })
 }
+

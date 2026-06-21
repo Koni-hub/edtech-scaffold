@@ -5,7 +5,7 @@ import { Sparkles, Loader2, ChevronLeft, ChevronRight, CheckCircle2, XCircle, Ro
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { createAdaptiveState, recordAnswer, type QuestionDifficulty, type AdaptiveState } from "@/lib/quiz/adaptive-difficulty"
+import { createAdaptiveState, recordAnswer, type QuestionDifficulty, type AdaptiveState } from "@/lib/adaptive-difficulty"
 
 interface Option {
   label: string
@@ -381,3 +381,4 @@ export function ModuleAiQuiz({ moduleId }: ModuleAiQuizProps) {
     </div>
   )
 }
+

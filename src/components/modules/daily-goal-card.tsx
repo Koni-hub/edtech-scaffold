@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from "react"
-import { Flame, Target, TrendingUp, Loader2, CheckCircle2 } from "lucide-react"
+import { Target, Loader2, CheckCircle2 } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -74,7 +74,7 @@ export function DailyGoalCard() {
       .update({
         goal_quizzes: goalQuizzes,
         goal_flashcards: goalFlashcards,
-      } as never)
+      })
       .eq("id", user.id)
 
     setGoal((prev) => prev ? {

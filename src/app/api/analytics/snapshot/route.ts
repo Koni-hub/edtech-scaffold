@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import { calculateUnderstandingScore } from "@/lib/analytics/understanding-score"
-import { calculateRetentionScore } from "@/lib/analytics/retention-score"
+import { calculateUnderstandingScore } from "@/lib/analytics"
+import { calculateRetentionScore } from "@/lib/analytics"
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()

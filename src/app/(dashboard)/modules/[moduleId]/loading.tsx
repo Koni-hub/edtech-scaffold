@@ -1,4 +1,4 @@
-import { BreadcrumbSkeleton } from "@/components/shared/page-skeleton"
+import { BreadcrumbSkeleton } from "@/components/modules/page-skeleton"
 
 export default function ModuleDetailLoading() {
   return (
@@ -47,3 +47,4 @@ export default function ModuleDetailLoading() {
     </div>
   )
 }
+

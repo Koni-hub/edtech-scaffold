@@ -1,8 +1,8 @@
 import Link from "next/link"
 import { Plus, Inbox } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { EmptyState } from "@/components/shared/empty-state"
-import { ModuleList } from "@/components/shared/module-list"
+import { EmptyState } from "@/components/modules/empty-state"
+import { ModuleList } from "@/components/modules/module-list"
 import { createClient } from "@/lib/supabase/server"
 
 export default async function ModulesPage() {
@@ -44,3 +44,4 @@ export default async function ModulesPage() {
     </div>
   )
 }
+

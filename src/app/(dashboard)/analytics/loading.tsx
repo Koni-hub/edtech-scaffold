@@ -1,4 +1,4 @@
-import { StatCardRowSkeleton } from "@/components/shared/page-skeleton"
+import { StatCardRowSkeleton } from "@/components/modules/page-skeleton"
 
 export default function AnalyticsLoading() {
   return (
@@ -90,3 +90,4 @@ export default function AnalyticsLoading() {
     </div>
   )
 }
+

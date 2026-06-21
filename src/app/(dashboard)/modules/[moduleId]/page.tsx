@@ -1,10 +1,10 @@
 import { notFound, redirect } from "next/navigation"
 import { ArrowLeft, BookOpen, FileText, FileCode, Loader2, CheckCircle2, AlertCircle } from "lucide-react"
 import Link from "next/link"
-import { DeleteButton } from "@/components/shared/delete-button"
+import { DeleteButton } from "@/components/modules/delete-button"
 import { createClient } from "@/lib/supabase/server"
-import { ModuleTabs } from "@/components/shared/module-tabs"
-import { Breadcrumbs } from "@/components/shared/breadcrumbs"
+import { ModuleTabs } from "@/components/modules/module-tabs"
+import { Breadcrumbs } from "@/components/modules/breadcrumbs"
 
 const statusIcon: Record<string, React.ReactNode> = {
   processing: <Loader2 size={14} className="animate-spin text-amber-500" />,
@@ -106,3 +106,4 @@ export default async function ModuleDetailPage({ params }: {
     </div>
   )
 }
+

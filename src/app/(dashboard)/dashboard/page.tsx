@@ -57,145 +57,141 @@ export default async function DashboardPage() {
   const isNewUser = snapshots.length === 0 && recentAttempts.length === 0 && recentModules.length === 0
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-6">
       {isNewUser && <OnboardingFlow />}
 
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">Welcome back! Here is your learning overview.</p>
+        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground">Welcome back! Here is your learning overview.</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-5">
-        <div className="rounded-xl border bg-card p-3 sm:p-5 flex items-center gap-3 sm:flex-col sm:items-center sm:gap-2 min-w-0">
+      <div className="space-y-3">
+        <div className="rounded-xl border bg-card p-4 flex items-center gap-4">
           <ProgressRing value={understanding} size={48} strokeWidth={4} className="shrink-0" />
-          <div className="text-left sm:text-center min-w-0 flex-1 sm:flex-none">
-            <div className="text-[11px] sm:text-sm font-medium truncate">Understanding</div>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-medium">Understanding</div>
             {understandingHistory.length > 1 && (
-              <div className="mt-1 sm:flex sm:justify-center">
-                <Sparkline data={understandingHistory} width={60} height={18} />
+              <div className="mt-1">
+                <Sparkline data={understandingHistory} width={80} height={18} />
               </div>
             )}
           </div>
         </div>
 
-        <div className="rounded-xl border bg-card p-3 sm:p-5 flex items-center gap-3 sm:flex-col sm:items-center sm:gap-2 min-w-0">
+        <div className="rounded-xl border bg-card p-4 flex items-center gap-4">
           <ProgressRing value={retention} size={48} strokeWidth={4} className="shrink-0" />
-          <div className="text-left sm:text-center min-w-0 flex-1 sm:flex-none">
-            <div className="text-[11px] sm:text-sm font-medium truncate">Retention</div>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-medium">Retention</div>
             {retentionHistory.length > 1 && (
-              <div className="mt-1 sm:flex sm:justify-center">
-                <Sparkline data={retentionHistory} width={60} height={18} color="var(--color-success)" />
+              <div className="mt-1">
+                <Sparkline data={retentionHistory} width={80} height={18} color="var(--color-success)" />
               </div>
             )}
           </div>
         </div>
 
-        <div className="rounded-xl border bg-card p-3 sm:p-5 flex items-center gap-3 sm:flex-col sm:items-center sm:gap-1 min-w-0">
-          <Flame size={20} className="text-amber-500 shrink-0" />
-          <div className="text-left sm:text-center min-w-0 flex-1 sm:flex-none">
-            <div className="text-xl sm:text-3xl font-bold leading-tight">{streak}</div>
-            <div className="text-[11px] sm:text-sm text-muted-foreground">Day Streak</div>
+        <div className="rounded-xl border bg-card p-4 flex items-center gap-4">
+          <Flame size={24} className="text-amber-500 shrink-0" />
+          <div className="min-w-0 flex-1">
+            <div className="text-2xl font-bold leading-tight">{streak}</div>
+            <div className="text-sm text-muted-foreground">Day Streak</div>
           </div>
         </div>
 
-        <div className="rounded-xl border bg-card p-3 sm:p-5 flex items-center gap-3 sm:flex-col sm:items-center sm:gap-1 min-w-0">
-          <ClipboardCheck size={20} className="text-muted-foreground shrink-0" />
-          <div className="text-left sm:text-center min-w-0 flex-1 sm:flex-none">
-            <div className="text-xl sm:text-3xl font-bold leading-tight">{quizzesTaken}</div>
-            <div className="text-[11px] sm:text-sm text-muted-foreground truncate">Quizzes Taken</div>
+        <div className="rounded-xl border bg-card p-4 flex items-center gap-4">
+          <ClipboardCheck size={24} className="text-muted-foreground shrink-0" />
+          <div className="min-w-0 flex-1">
+            <div className="text-2xl font-bold leading-tight">{quizzesTaken}</div>
+            <div className="text-sm text-muted-foreground">Quizzes Taken</div>
           </div>
         </div>
 
-        <div className="rounded-xl border bg-card p-3 sm:p-5 flex items-center gap-3 sm:flex-col sm:items-center sm:gap-1 min-w-0">
-          <Target size={20} className="text-muted-foreground shrink-0" />
-          <div className="text-left sm:text-center min-w-0 flex-1 sm:flex-none">
-            <div className="text-xl sm:text-3xl font-bold leading-tight">{topicsCovered}</div>
-            <div className="text-[11px] sm:text-sm text-muted-foreground truncate">Topics Covered</div>
+        <div className="rounded-xl border bg-card p-4 flex items-center gap-4">
+          <Target size={24} className="text-muted-foreground shrink-0" />
+          <div className="min-w-0 flex-1">
+            <div className="text-2xl font-bold leading-tight">{topicsCovered}</div>
+            <div className="text-sm text-muted-foreground">Topics Covered</div>
           </div>
         </div>
       </div>
 
-      <div className="space-y-4 sm:space-y-6 lg:grid lg:grid-cols-3 lg:gap-6">
-        <div className="rounded-xl border bg-card p-3 sm:p-5 lg:col-span-2 min-w-0">
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <h2 className="text-base sm:text-lg font-semibold">Recent Activity</h2>
-            <Link href="/quizzes" className="text-xs text-primary hover:underline flex items-center gap-1 shrink-0">
-              View all <ArrowRight size={12} />
-            </Link>
-          </div>
-          {recentAttempts.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No quiz attempts yet. Take your first quiz to see activity here.</p>
-          ) : (
-            <div className="space-y-2">
-              {recentAttempts.slice(0, 8).map((attempt) => (
-                <div key={attempt.id} className="flex items-center justify-between rounded-lg border p-2.5 sm:p-3 min-w-0">
-                  <div className="min-w-0 flex-1">
-                    <span className="font-medium text-sm truncate block">{attempt.quiz?.title ?? "Quiz"}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(attempt.attempted_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <span className={`shrink-0 ml-2 sm:ml-3 rounded-full px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-medium ${
-                    attempt.is_correct
-                      ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                      : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                  }`}>
-                    {attempt.is_correct ? "Correct" : "Incorrect"}
+      <DailyGoalCard />
+
+      <div className="rounded-xl border bg-card p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-semibold">Recent Activity</h2>
+          <Link href="/quizzes" className="text-xs text-primary hover:underline flex items-center gap-1 shrink-0">
+            View all <ArrowRight size={12} />
+          </Link>
+        </div>
+        {recentAttempts.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No quiz attempts yet. Take your first quiz to see activity here.</p>
+        ) : (
+          <div className="space-y-2">
+            {recentAttempts.slice(0, 8).map((attempt) => (
+              <div key={attempt.id} className="flex items-center justify-between rounded-lg border p-3">
+                <div className="min-w-0 flex-1">
+                  <span className="font-medium text-sm truncate block">{attempt.quiz?.title ?? "Quiz"}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(attempt.attempted_at).toLocaleDateString()}
                   </span>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="space-y-4 sm:space-y-6 min-w-0">
-          <DailyGoalCard />
-
-          <div className="rounded-xl border bg-card p-3 sm:p-5 min-w-0">
-            <h2 className="mb-3 sm:mb-4 text-base sm:text-lg font-semibold">Topics to Review</h2>
-            {lowScoreTopics.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                {topics.length === 0
-                  ? "No topics yet — take a quiz to start tracking."
-                  : "All topics are looking good!"}
-              </p>
-            ) : (
-              <ul className="space-y-2">
-                {lowScoreTopics.map((topic) => (
-                  <li key={topic.id} className="flex items-center justify-between text-sm min-w-0">
-                    <span className="font-medium truncate min-w-0">{topic.topic}</span>
-                    <span className="flex items-center gap-2 shrink-0 ml-2">
-                      <span className="text-red-600 text-xs sm:text-sm">{Math.round(topic.understanding_score)}%</span>
-                      <Link href="/quizzes/generate" className="text-[10px] sm:text-xs text-primary hover:underline">
-                        Practice
-                      </Link>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          {recentModules.length > 0 && (
-            <div className="rounded-xl border bg-card p-3 sm:p-5 min-w-0">
-              <div className="flex items-center justify-between mb-2 sm:mb-3">
-                <h2 className="text-sm font-semibold">Recent Modules</h2>
-                <Link href="/modules" className="text-xs text-primary hover:underline shrink-0">View all</Link>
+                <span className={`shrink-0 ml-3 rounded-full px-2 py-0.5 text-xs font-medium ${
+                  attempt.is_correct
+                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                    : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                }`}>
+                  {attempt.is_correct ? "Correct" : "Incorrect"}
+                </span>
               </div>
-              <ul className="space-y-2">
-                {recentModules.map((m) => (
-                  <li key={m.id}>
-                    <Link href={`/modules/${m.id}`} className="flex items-center gap-2 text-sm hover:text-primary transition-colors min-w-0">
-                      <BookOpen size={14} className="shrink-0 text-muted-foreground" />
-                      <span className="truncate">{m.title}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
+
+      <div className="rounded-xl border bg-card p-4">
+        <h2 className="mb-3 text-lg font-semibold">Topics to Review</h2>
+        {lowScoreTopics.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            {topics.length === 0
+              ? "No topics yet — take a quiz to start tracking."
+              : "All topics are looking good!"}
+          </p>
+        ) : (
+          <ul className="space-y-2">
+            {lowScoreTopics.map((topic) => (
+              <li key={topic.id} className="flex items-center justify-between text-sm">
+                <span className="font-medium truncate min-w-0">{topic.topic}</span>
+                <span className="flex items-center gap-2 shrink-0 ml-2">
+                  <span className="text-red-600 text-sm">{Math.round(topic.understanding_score)}%</span>
+                  <Link href="/quizzes/generate" className="text-xs text-primary hover:underline">
+                    Practice
+                  </Link>
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {recentModules.length > 0 && (
+        <div className="rounded-xl border bg-card p-4">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-lg font-semibold">Recent Modules</h2>
+            <Link href="/modules" className="text-xs text-primary hover:underline shrink-0">View all</Link>
+          </div>
+          <ul className="space-y-2">
+            {recentModules.map((m) => (
+              <li key={m.id}>
+                <Link href={`/modules/${m.id}`} className="flex items-center gap-2 text-sm hover:text-primary transition-colors min-w-0">
+                  <BookOpen size={14} className="shrink-0 text-muted-foreground" />
+                  <span className="truncate">{m.title}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   )
 }

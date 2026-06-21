@@ -21,8 +21,8 @@ export function ModuleTabs({ moduleId, rawPdf, rawText, title }: ModuleTabsProps
   const [tab, setTab] = useState<Tab>("handout")
 
   return (
-    <div className="space-y-4">
-      <div className="flex gap-1 rounded-lg border bg-muted p-1">
+    <div className="flex flex-col h-[calc(100vh-200px)]">
+      <div className="flex gap-1 rounded-lg border bg-muted p-1 shrink-0">
         {(["handout", "ai-quiz", "flashcard", "spaced-review"] as Tab[]).map((t) => (
           <button
             key={t}
@@ -37,7 +37,7 @@ export function ModuleTabs({ moduleId, rawPdf, rawText, title }: ModuleTabsProps
       </div>
 
       {tab === "handout" && (
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-4 h-[calc(100vh-300px)]">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-4 flex-1 min-h-0 mt-4">
           {rawPdf ? (
             <PdfViewer dataUrl={rawPdf} title={title} />
           ) : rawText ? (
@@ -52,19 +52,19 @@ export function ModuleTabs({ moduleId, rawPdf, rawText, title }: ModuleTabsProps
       )}
 
       {tab === "ai-quiz" && (
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto flex-1 min-h-0 overflow-y-auto mt-4">
           <ModuleAiQuiz moduleId={moduleId} />
         </div>
       )}
 
       {tab === "flashcard" && (
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto flex-1 min-h-0 overflow-y-auto mt-4">
           <ModuleFlashcard moduleId={moduleId} />
         </div>
       )}
 
       {tab === "spaced-review" && (
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto flex-1 min-h-0 overflow-y-auto mt-4">
           <ModuleSpacedReview moduleId={moduleId} />
         </div>
       )}

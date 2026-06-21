@@ -36,12 +36,15 @@ export function TopicBarChart({ data }: TopicBarChartProps) {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { display: true },
+            legend: {
+              display: true,
+              labels: { color: "var(--foreground)", font: { size: 12 } },
+            },
             tooltip: {
-              backgroundColor: "hsl(var(--card))",
-              titleColor: "hsl(var(--foreground))",
-              bodyColor: "hsl(var(--muted-foreground))",
-              borderColor: "hsl(var(--border))",
+              backgroundColor: "var(--card)",
+              titleColor: "var(--foreground)",
+              bodyColor: "var(--muted-foreground)",
+              borderColor: "var(--border)",
               borderWidth: 1,
               padding: 10,
               cornerRadius: 8,
@@ -49,14 +52,14 @@ export function TopicBarChart({ data }: TopicBarChartProps) {
           },
           scales: {
             x: {
-              ticks: { color: "hsl(var(--muted-foreground))", font: { size: 11 } },
+              ticks: { color: "var(--foreground)", font: { size: 11 } },
               grid: { display: false },
             },
             y: {
               min: 0,
               max: 100,
-              ticks: { color: "hsl(var(--muted-foreground))", font: { size: 11 }, stepSize: 25 },
-              grid: { color: "hsl(var(--muted))" },
+              ticks: { color: "var(--foreground)", font: { size: 11 }, stepSize: 25 },
+              grid: { color: "var(--muted)" },
             },
           },
         }}

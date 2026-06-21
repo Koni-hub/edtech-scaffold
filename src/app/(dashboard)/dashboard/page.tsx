@@ -57,7 +57,7 @@ export default async function DashboardPage() {
   const isNewUser = snapshots.length === 0 && recentAttempts.length === 0 && recentModules.length === 0
 
   return (
-    <div className="space-y-6 overflow-hidden w-full max-w-full">
+    <div className="space-y-6 w-full">
       {isNewUser && <OnboardingFlow />}
 
       <div>
@@ -66,46 +66,52 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-5">
-        <div className="rounded-xl border bg-card p-3 sm:p-5 flex flex-col items-center justify-center gap-2 min-w-0">
-          <ProgressRing value={understanding} size={56} strokeWidth={5} />
-          <div className="text-center w-full min-w-0">
+        <div className="rounded-xl border bg-card p-3 sm:p-5 flex items-center gap-3 sm:flex-col sm:items-center sm:gap-2 min-w-0">
+          <ProgressRing value={understanding} size={48} strokeWidth={4} className="shrink-0" />
+          <div className="text-left sm:text-center min-w-0 flex-1 sm:flex-none">
             <div className="text-[11px] sm:text-sm font-medium truncate">Understanding</div>
             {understandingHistory.length > 1 && (
-              <div className="mt-1 flex justify-center">
+              <div className="mt-1 sm:flex sm:justify-center">
                 <Sparkline data={understandingHistory} width={60} height={18} />
               </div>
             )}
           </div>
         </div>
 
-        <div className="rounded-xl border bg-card p-3 sm:p-5 flex flex-col items-center justify-center gap-2 min-w-0">
-          <ProgressRing value={retention} size={56} strokeWidth={5} />
-          <div className="text-center w-full min-w-0">
+        <div className="rounded-xl border bg-card p-3 sm:p-5 flex items-center gap-3 sm:flex-col sm:items-center sm:gap-2 min-w-0">
+          <ProgressRing value={retention} size={48} strokeWidth={4} className="shrink-0" />
+          <div className="text-left sm:text-center min-w-0 flex-1 sm:flex-none">
             <div className="text-[11px] sm:text-sm font-medium truncate">Retention</div>
             {retentionHistory.length > 1 && (
-              <div className="mt-1 flex justify-center">
-                <Sparkline data={retentionHistory} width={60} height={18} color="hsl(142, 71%, 45%)" />
+              <div className="mt-1 sm:flex sm:justify-center">
+                <Sparkline data={retentionHistory} width={60} height={18} color="var(--color-success)" />
               </div>
             )}
           </div>
         </div>
 
-        <div className="rounded-xl border bg-card p-3 sm:p-5 flex flex-col items-center justify-center gap-1 min-w-0">
+        <div className="rounded-xl border bg-card p-3 sm:p-5 flex items-center gap-3 sm:flex-col sm:items-center sm:gap-1 min-w-0">
           <Flame size={20} className="text-amber-500 shrink-0" />
-          <div className="text-xl sm:text-3xl font-bold leading-tight">{streak}</div>
-          <div className="text-[11px] sm:text-sm text-muted-foreground">Day Streak</div>
+          <div className="text-left sm:text-center min-w-0 flex-1 sm:flex-none">
+            <div className="text-xl sm:text-3xl font-bold leading-tight">{streak}</div>
+            <div className="text-[11px] sm:text-sm text-muted-foreground">Day Streak</div>
+          </div>
         </div>
 
-        <div className="rounded-xl border bg-card p-3 sm:p-5 flex flex-col items-center justify-center gap-1 min-w-0">
+        <div className="rounded-xl border bg-card p-3 sm:p-5 flex items-center gap-3 sm:flex-col sm:items-center sm:gap-1 min-w-0">
           <ClipboardCheck size={20} className="text-muted-foreground shrink-0" />
-          <div className="text-xl sm:text-3xl font-bold leading-tight">{quizzesTaken}</div>
-          <div className="text-[11px] sm:text-sm text-muted-foreground truncate">Quizzes Taken</div>
+          <div className="text-left sm:text-center min-w-0 flex-1 sm:flex-none">
+            <div className="text-xl sm:text-3xl font-bold leading-tight">{quizzesTaken}</div>
+            <div className="text-[11px] sm:text-sm text-muted-foreground truncate">Quizzes Taken</div>
+          </div>
         </div>
 
-        <div className="rounded-xl border bg-card p-3 sm:p-5 flex flex-col items-center justify-center gap-1 min-w-0">
+        <div className="rounded-xl border bg-card p-3 sm:p-5 flex items-center gap-3 sm:flex-col sm:items-center sm:gap-1 min-w-0">
           <Target size={20} className="text-muted-foreground shrink-0" />
-          <div className="text-xl sm:text-3xl font-bold leading-tight">{topicsCovered}</div>
-          <div className="text-[11px] sm:text-sm text-muted-foreground truncate">Topics Covered</div>
+          <div className="text-left sm:text-center min-w-0 flex-1 sm:flex-none">
+            <div className="text-xl sm:text-3xl font-bold leading-tight">{topicsCovered}</div>
+            <div className="text-[11px] sm:text-sm text-muted-foreground truncate">Topics Covered</div>
+          </div>
         </div>
       </div>
 

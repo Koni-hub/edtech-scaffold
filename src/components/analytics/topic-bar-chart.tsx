@@ -1,5 +1,6 @@
 "use client"
 
+import { useChartColors } from "@/lib/use-chart-colors"
 import "@/lib/chart-setup"
 import { Bar } from "react-chartjs-2"
 
@@ -8,6 +9,7 @@ interface TopicBarChartProps {
 }
 
 export function TopicBarChart({ data }: TopicBarChartProps) {
+  const colors = useChartColors()
   return (
     <div className="w-full h-[250px] sm:h-[300px]">
       <Bar
@@ -17,16 +19,16 @@ export function TopicBarChart({ data }: TopicBarChartProps) {
             {
               label: "Understanding",
               data: data.map((d) => d.understanding),
-              backgroundColor: "rgba(34,197,94,0.7)",
-              borderColor: "#22c55e",
+              backgroundColor: colors.chart1Bar,
+              borderColor: colors.chart1,
               borderWidth: 1,
               borderRadius: 4,
             },
             {
               label: "Retention",
               data: data.map((d) => d.retention),
-              backgroundColor: "rgba(245,158,11,0.7)",
-              borderColor: "#f59e0b",
+              backgroundColor: colors.chart2Bar,
+              borderColor: colors.chart2,
               borderWidth: 1,
               borderRadius: 4,
             },
@@ -38,13 +40,13 @@ export function TopicBarChart({ data }: TopicBarChartProps) {
           plugins: {
             legend: {
               display: true,
-              labels: { color: "var(--foreground)", font: { size: 12 } },
+              labels: { color: colors.foreground, font: { size: 12 } },
             },
             tooltip: {
-              backgroundColor: "var(--card)",
-              titleColor: "var(--foreground)",
-              bodyColor: "var(--muted-foreground)",
-              borderColor: "var(--border)",
+              backgroundColor: colors.card,
+              titleColor: colors.foreground,
+              bodyColor: colors.mutedForeground,
+              borderColor: colors.border,
               borderWidth: 1,
               padding: 10,
               cornerRadius: 8,
@@ -52,14 +54,14 @@ export function TopicBarChart({ data }: TopicBarChartProps) {
           },
           scales: {
             x: {
-              ticks: { color: "var(--foreground)", font: { size: 11 } },
+              ticks: { color: colors.foreground, font: { size: 11 } },
               grid: { display: false },
             },
             y: {
               min: 0,
               max: 100,
-              ticks: { color: "var(--foreground)", font: { size: 11 }, stepSize: 25 },
-              grid: { color: "var(--muted)" },
+              ticks: { color: colors.foreground, font: { size: 11 }, stepSize: 25 },
+              grid: { color: colors.muted },
             },
           },
         }}

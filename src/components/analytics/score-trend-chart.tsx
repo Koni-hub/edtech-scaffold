@@ -1,5 +1,6 @@
 "use client"
 
+import { useChartColors } from "@/lib/use-chart-colors"
 import "@/lib/chart-setup"
 import { Line } from "react-chartjs-2"
 
@@ -8,6 +9,7 @@ interface ScoreTrendChartProps {
 }
 
 export function ScoreTrendChart({ data }: ScoreTrendChartProps) {
+  const colors = useChartColors()
   return (
     <div className="w-full h-[250px] sm:h-[300px]">
       <Line
@@ -20,8 +22,10 @@ export function ScoreTrendChart({ data }: ScoreTrendChartProps) {
             {
               label: "Understanding",
               data: data.map((d) => d.understanding),
-              borderColor: "#22c55e",
-              backgroundColor: "rgba(34,197,94,0.1)",
+              borderColor: colors.chart1,
+              backgroundColor: colors.chart1Fill,
+              pointBackgroundColor: colors.chart1,
+              pointBorderColor: colors.chart1,
               fill: true,
               tension: 0.3,
               pointRadius: 3,
@@ -30,8 +34,10 @@ export function ScoreTrendChart({ data }: ScoreTrendChartProps) {
             {
               label: "Retention",
               data: data.map((d) => d.retention),
-              borderColor: "#f59e0b",
-              backgroundColor: "rgba(245,158,11,0.1)",
+              borderColor: colors.chart2,
+              backgroundColor: colors.chart2Fill,
+              pointBackgroundColor: colors.chart2,
+              pointBorderColor: colors.chart2,
               fill: true,
               tension: 0.3,
               pointRadius: 3,
@@ -45,13 +51,13 @@ export function ScoreTrendChart({ data }: ScoreTrendChartProps) {
           plugins: {
             legend: {
               display: true,
-              labels: { color: "var(--foreground)", font: { size: 12 } },
+              labels: { color: colors.foreground, font: { size: 12 } },
             },
             tooltip: {
-              backgroundColor: "var(--card)",
-              titleColor: "var(--foreground)",
-              bodyColor: "var(--muted-foreground)",
-              borderColor: "var(--border)",
+              backgroundColor: colors.card,
+              titleColor: colors.foreground,
+              bodyColor: colors.mutedForeground,
+              borderColor: colors.border,
               borderWidth: 1,
               padding: 10,
               cornerRadius: 8,
@@ -59,14 +65,14 @@ export function ScoreTrendChart({ data }: ScoreTrendChartProps) {
           },
           scales: {
             x: {
-              ticks: { color: "var(--foreground)", font: { size: 11 } },
-              grid: { color: "var(--muted)" },
+              ticks: { color: colors.foreground, font: { size: 11 } },
+              grid: { color: colors.muted },
             },
             y: {
               min: 0,
               max: 100,
-              ticks: { color: "var(--foreground)", font: { size: 11 } },
-              grid: { color: "var(--muted)" },
+              ticks: { color: colors.foreground, font: { size: 11 } },
+              grid: { color: colors.muted },
             },
           },
         }}

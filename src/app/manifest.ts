@@ -1,0 +1,32 @@
+import type { MetadataRoute } from "next";
+
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    name: "Syntra — AI-Powered Learning Platform",
+    short_name: "Syntra",
+    description:
+      "Upload your materials, generate intelligent quizzes, track understanding with deep analytics, and master any subject through adaptive practice.",
+    start_url: "/",
+    display: "standalone",
+    background_color: "#ffffff",
+    theme_color: "#6366f1",
+    orientation: "portrait-primary",
+    categories: ["education", "productivity"],
+    lang: "en",
+    icons: [
+      {
+        src: "/icon-192x192.png",
+        sizes: "192x192",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
+        src: "/icon-512x512.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "any",
+      },
+    ],
+    screenshots: [],
+  };
+}

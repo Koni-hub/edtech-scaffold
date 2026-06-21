@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner"
+import { PwaInstallPrompt } from "@/components/layout/pwa-install-prompt"
 import "./globals.css";
 
 const inter = Inter({
@@ -39,6 +40,18 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
+    apple: "/icon-192x192.png",
+  },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "Syntra",
+    statusBarStyle: "default",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "default",
   },
   openGraph: {
     title: "Syntra — Study Your Notes with Tracking, Review, and Adaptation",
@@ -65,6 +78,13 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#6366f1",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -85,6 +105,7 @@ export default function RootLayout({
         >
           {children}
           <Toaster richColors closeButton position="top-right" />
+          <PwaInstallPrompt />
         </ThemeProvider>
       </body>
     </html>

@@ -31,26 +31,27 @@ export function DailyGoalCard() {
       const today = new Date().toISOString().split("T")[0]
 
       const [quizzesRes, flashcardsRes, settingsRes] = await Promise.all([
-        supabase
-          .from("quiz_attempts")
-          .select("id", { count: "exact", head: true })
-          .eq("user_id", user.id)
-          .gte("attempted_at", today)
-          .then((r) => ({ count: r.count ?? 0 })),
-        supabase
-          .from("flashcard_schedule")
-          .select("id", { count: "exact", head: true })
-          .eq("user_id", user.id)
-          .gte("updated_at", today)
-          .then((r) => ({ count: r.count ?? 0 }))
-          .catch(() => ({ count: 0 })),
-        supabase
-          .from("profiles")
-          .select("goal_quizzes, goal_flashcards")
-          .eq("id", user.id)
-          .maybeSingle()
-          .then((r) => r.data)
-          .catch(() => null),
+        Promise.resolve(
+          supabase
+            .from("quiz_attempts")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", user.id)
+            .gte("attempted_at", today)
+        ).then((r) => ({ count: r.count ?? 0 })),
+        Promise.resolve(
+          supabase
+            .from("flashcard_schedule")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", user.id)
+            .gte("updated_at", today)
+        ).then((r) => ({ count: r.count ?? 0 })).catch(() => ({ count: 0 })),
+        Promise.resolve(
+          supabase
+            .from("profiles")
+            .select("goal_quizzes, goal_flashcards")
+            .eq("id", user.id)
+            .maybeSingle()
+        ).then((r) => r.data).catch(() => null),
       ])
 
       const gq = settingsRes?.goal_quizzes ?? 3

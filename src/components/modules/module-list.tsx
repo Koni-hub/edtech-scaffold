@@ -82,7 +82,7 @@ export function ModuleList({ modules }: ModuleListProps) {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((mod) => (
           <Link key={mod.id} href={`/modules/${mod.id}`} className="block">
-            <div className="group rounded-xl border bg-card p-5 transition-colors hover:bg-accent/50">
+            <div className="group flex h-full flex-col rounded-xl border bg-card p-5 transition-colors hover:bg-accent/50">
               <div className="flex items-start justify-between">
                 <div className="rounded-lg bg-primary/10 p-2 text-primary">
                   <BookOpen size={20} />
@@ -92,24 +92,26 @@ export function ModuleList({ modules }: ModuleListProps) {
                   <span>{statusLabel[mod.status]}</span>
                 </div>
               </div>
-              <h3 className="mt-3 font-semibold group-hover:text-primary">{mod.title}</h3>
+              <h3 className="mt-3 line-clamp-1 font-semibold group-hover:text-primary">{mod.title}</h3>
               {mod.category && (
-                <p className="mt-1 text-xs text-muted-foreground">{mod.category}</p>
+                <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">{mod.category}</p>
               )}
               <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
                 {mod.description ?? "No description"}
               </p>
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {mod.topic_labels?.map((topic: string) => (
-                  <span
-                    key={topic}
-                    className="rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground"
-                  >
-                    {topic}
-                  </span>
-                ))}
-              </div>
-              <div className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
+              {mod.topic_labels?.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {mod.topic_labels.map((topic: string) => (
+                    <span
+                      key={topic}
+                      className="rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground"
+                    >
+                      {topic}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="mt-auto pt-3 flex items-center gap-1 text-xs text-muted-foreground">
                 <Clock size={12} />
                 {new Date(mod.created_at).toLocaleDateString()}
               </div>

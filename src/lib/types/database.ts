@@ -13,6 +13,26 @@ export interface Profile {
   updated_at: string
 }
 
+export interface StructuredContentTable {
+  rows: string[][]
+  startIndex: number
+  endIndex: number
+}
+
+export interface StructuredContentSection {
+  heading: string
+  level: number
+  startIndex: number
+}
+
+export interface StructuredContent {
+  tables: StructuredContentTable[]
+  sections: StructuredContentSection[]
+  pageCount: number
+  hasImages: boolean
+  source: "pdf-parse" | "ocr"
+}
+
 export interface Module {
   id: string
   user_id: string
@@ -22,7 +42,7 @@ export interface Module {
   storage_path: string | null
   raw_text: string | null
   raw_pdf: string | null
-  structured_content: Record<string, unknown> | null
+  structured_content: StructuredContent | null
   status: "processing" | "ready" | "failed"
   category: string | null
   topic_labels: string[]

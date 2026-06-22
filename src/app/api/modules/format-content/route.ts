@@ -22,14 +22,14 @@ export async function POST(request: NextRequest) {
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-  let body: Record<string, unknown>
+  let body: { content?: string }
   try {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 })
   }
 
-  const content = (body.content as string)?.trim()
+  const content = body.content?.trim()
   if (!content || content.length < 20) {
     return NextResponse.json({ error: "Content too short" }, { status: 400 })
   }

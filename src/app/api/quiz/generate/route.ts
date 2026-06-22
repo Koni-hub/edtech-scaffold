@@ -18,17 +18,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  let body: Record<string, unknown>
+  let body: { moduleId?: string; questionCount?: number; difficulty?: string; quizMode?: string }
   try {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 })
   }
 
-  const moduleId = body.moduleId as string | undefined
-  const questionCount = Math.min(Number(body.questionCount) || 5, MAX_QUESTIONS)
-  const difficulty = (body.difficulty as string) || "medium"
-  const quizMode = (body.quizMode as string) || "mixed"
+  const moduleId = body.moduleId
+  const questionCount = Math.min(body.questionCount || 5, MAX_QUESTIONS)
+  const difficulty = body.difficulty || "medium"
+  const quizMode = body.quizMode || "mixed"
 
   if (!moduleId) {
     return NextResponse.json({ error: "moduleId is required" }, { status: 400 })

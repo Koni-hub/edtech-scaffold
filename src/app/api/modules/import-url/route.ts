@@ -159,15 +159,15 @@ export async function POST(request: NextRequest) {
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-  let body: Record<string, unknown>
+  let body: { url?: string; category?: string }
   try {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 })
   }
 
-  const url = (body.url as string)?.trim()
-  const category = (body.category as string) || null
+  const url = body.url?.trim()
+  const category = body.category || null
   if (!url) return NextResponse.json({ error: "URL is required" }, { status: 400 })
 
   try {

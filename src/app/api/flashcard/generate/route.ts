@@ -16,15 +16,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  let body: Record<string, unknown>
+  let body: { moduleId?: string; count?: number }
   try {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 })
   }
 
-  const moduleId = body.moduleId as string | undefined
-  const count = Math.min(Number(body.count) || 10, MAX_COUNT)
+  const moduleId = body.moduleId
+  const count = Math.min(body.count || 10, MAX_COUNT)
 
   if (!moduleId) {
     return NextResponse.json({ error: "moduleId is required" }, { status: 400 })

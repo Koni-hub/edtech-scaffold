@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { extractPdfContent } from "@/lib/pdf-extract"
+import type { StructuredContent } from "@/lib/types/database"
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 const ALLOWED_TYPES = [".pdf", ".txt", ".md"]
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
 
     let rawText = ""
     let rawPdf: string | null = null
-    let structuredContent: Record<string, unknown> | null = null
+    let structuredContent: StructuredContent | null = null
 
     if (isPdf) {
       const arrayBuffer = await file.arrayBuffer()
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
       rawText = await file.text()
     }
 
-    async function insertModule(insert: Record<string, unknown>) {
+    async function insertModule(insert: object) {
       const { data, error } = await supabase
         .from("modules")
         .insert({ category: category || null, ...insert })
@@ -102,24 +103,22 @@ export async function POST(request: NextRequest) {
     let moduleId: string | null = null
 
     if (rawPdf) {
-      const insertData: Record<string, unknown> = {
+      const insertData = {
         user_id: user.id,
         title,
-        content_type: "pdf",
+        content_type: "pdf" as const,
         storage_path: null,
         raw_text: rawText,
         raw_pdf: rawPdf,
-        status: "processing",
-        topic_labels: [],
-      }
-      if (structuredContent) {
-        insertData.structured_content = structuredContent
+        status: "processing" as const,
+        topic_labels: [] as string[],
+        ...(structuredContent ? { structured_content: structuredContent } : {}),
       }
 
       const { data, error } = await insertModule(insertData)
 
       if (error?.message?.includes("raw_pdf") || error?.message?.includes("structured_content")) {
-        const fallbackData: Record<string, unknown> = {
+        const fallbackData = {
           user_id: user.id,
           title,
           content_type: "pdf",

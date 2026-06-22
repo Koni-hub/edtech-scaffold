@@ -187,68 +187,42 @@ export default function LandingPage() {
             className="absolute -top-32 -right-32 size-96 rounded-full bg-primary/5 blur-3xl pointer-events-none"
           />
             <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative w-full mx-auto max-w-7xl px-4 pb-16 pt-24 sm:px-6 sm:pt-32 lg:px-8">
-            <div className="mx-auto max-w-3xl text-center">
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="mb-8 inline-flex items-center gap-2 rounded-full border bg-muted/50 px-4 py-1.5 text-xs font-medium">
-                <Sparkles className="size-3.5 text-primary" />
-                Study Your Notes with Tracking, Review & Adaptation
-              </motion.div>
-              <motion.h1
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.1 }}
-                className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-7xl"
-              >
-                Learn Smarter with{" "}
-                <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">AI-Driven Insights</span>
-              </motion.h1>
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.25 }}
-                className="mt-6 text-base leading-relaxed text-muted-foreground sm:text-lg max-w-xl mx-auto"
-              >
-                Syntra — Study Your Notes with Tracking, Review, and Adaptation. Upload materials, generate intelligent quizzes, and track your understanding over time.
-              </motion.p>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
-              >
-                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                  <Link href="/register" className="inline-flex h-11 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-lg border border-transparent bg-primary px-6 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/80 shadow-sm">
+            <FadeIn>
+              <div className="mx-auto max-w-3xl text-center">
+                <div className="mb-8 inline-flex items-center gap-2 rounded-full border bg-muted/50 px-4 py-1.5 text-xs font-medium">
+                  <Sparkles className="size-3.5 text-primary" />
+                  Study Your Notes with Tracking, Review & Adaptation
+                </div>
+                <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-7xl">
+                  Learn Smarter with{" "}
+                  <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">AI-Driven Insights</span>
+                </h1>
+                <p className="mt-6 text-base leading-relaxed text-muted-foreground sm:text-lg max-w-xl mx-auto">
+                  Syntra — Study Your Notes with Tracking, Review, and Adaptation. Upload materials, generate intelligent quizzes, and track your understanding over time.
+                </p>
+                <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                  <Link href="/register" className="inline-flex h-11 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-lg border border-transparent bg-primary px-6 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/80 shadow-sm hover:scale-[1.03] active:scale-[0.97]">
                     Get Started Free
                     <ArrowRight className="size-4" />
                   </Link>
-                </motion.div>
-                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                  <Link href="#features" className="inline-flex h-11 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-background px-6 text-sm font-medium text-foreground transition-all hover:bg-muted">
+                  <Link href="#features" className="inline-flex h-11 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-background px-6 text-sm font-medium text-foreground transition-all hover:bg-muted hover:scale-[1.03] active:scale-[0.97]">
                     <Zap className="size-4" />
                     See Features
                   </Link>
-                </motion.div>
-              </motion.div>
-            </div>
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="relative mt-20 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4"
-            >
+                </div>
+              </div>
+            </FadeIn>
+            <div className="relative mt-20 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
               {stats.map((stat, i) => (
-                <motion.div
+                <div
                   key={stat.label}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.7 + i * 0.1 }}
-                  whileHover={{ y: -4, boxShadow: "0 8px 30px hsl(var(--primary) / 0.1)" }}
-                  className="rounded-xl border bg-card/50 p-5 text-center backdrop-blur-sm transition-all"
+                  className="rounded-xl border bg-card/50 p-5 text-center backdrop-blur-sm transition-all hover:-translate-y-1 hover:shadow-[0_8px_30px_hsl(var(--primary)/0.1)]"
                 >
                   <div className="text-2xl font-bold tracking-tight sm:text-3xl">{stat.value}</div>
                   <div className="mt-1 text-xs text-muted-foreground sm:text-sm">{stat.label}</div>
-                </motion.div>
+                </div>
               ))}
-            </motion.div>
+            </div>
           </motion.div>
 
         </section>
@@ -475,12 +449,8 @@ export default function LandingPage() {
                 {steps.map((step, index) => {
                   const Icon = step.icon
                   return (
-                    <motion.div
+                    <div
                       key={step.title}
-                      initial={{ opacity: 0, y: 30 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: index * 0.15, duration: 0.5 }}
                       className="relative flex flex-col items-center text-center flex-1 px-2"
                     >
                       <div className="relative z-10 flex size-16 items-center justify-center rounded-full border-2 border-primary/30 bg-background shadow-sm">
@@ -488,13 +458,7 @@ export default function LandingPage() {
                       </div>
                       {index < steps.length - 1 && (
                         <div className="absolute top-8 left-[calc(50%+2.5rem)] right-[calc(-50%+2.5rem)] h-px">
-                          <motion.div
-                            initial={{ scaleX: 0 }}
-                            whileInView={{ scaleX: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: index * 0.15 + 0.25, duration: 0.4, ease: "easeInOut" }}
-                            className="h-full w-full origin-left border-t border-dashed border-muted-foreground/30"
-                          />
+                          <div className="h-full w-full origin-left border-t border-dashed border-muted-foreground/30" />
                         </div>
                       )}
                       <div className="mt-4 flex size-12 items-center justify-center rounded-xl bg-primary/10">
@@ -502,7 +466,7 @@ export default function LandingPage() {
                       </div>
                       <h3 className="mt-3 text-sm font-semibold">{step.title}</h3>
                       <p className="mt-1 text-xs leading-relaxed text-muted-foreground max-w-[180px]">{step.description}</p>
-                    </motion.div>
+                    </div>
                   )
                 })}
               </div>
@@ -511,12 +475,8 @@ export default function LandingPage() {
                 {steps.map((step, index) => {
                   const Icon = step.icon
                   return (
-                    <motion.div
+                    <div
                       key={step.title}
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: index * 0.1, duration: 0.4 }}
                       className="relative flex items-start gap-4 pl-0"
                     >
                       {index < steps.length - 1 && (
@@ -534,7 +494,7 @@ export default function LandingPage() {
                           <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{step.description}</p>
                         </div>
                       </div>
-                    </motion.div>
+                    </div>
                   )
                 })}
               </div>
@@ -622,12 +582,8 @@ export default function LandingPage() {
                 </thead>
                 <tbody>
                   {comparisonRows.map((row, i) => (
-                    <motion.tr
+                    <tr
                       key={row.feature}
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.05, duration: 0.3 }}
                       className="border-b last:border-0 hover:bg-muted/30 transition-colors"
                     >
                       <td className="py-3 pr-4 font-medium text-foreground whitespace-nowrap">{row.feature}</td>
@@ -636,56 +592,41 @@ export default function LandingPage() {
                       <td className="py-3 px-4">{row.sf ? <Check className="size-4 text-muted-foreground" /> : <XIcon className="size-4 text-muted-foreground/40" />}</td>
                       <td className="py-3 px-4">{row.qz ? <Check className="size-4 text-muted-foreground" /> : <XIcon className="size-4 text-muted-foreground/40" />}</td>
                       <td className="py-3 px-4">{row.kt ? <Check className="size-4 text-muted-foreground" /> : <XIcon className="size-4 text-muted-foreground/40" />}</td>
-                    </motion.tr>
+                    </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-            <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              className="mt-8 text-center text-xs text-muted-foreground"
-            >
+            <p className="mt-8 text-center text-xs text-muted-foreground">
               Feature availability based on free tiers as of June 2026. Syntra features subject to change.
-            </motion.p>
+            </p>
           </div>
         </Section>
 
         <Section className="border-t py-20 sm:py-28">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7 }}
-              className="relative overflow-hidden rounded-2xl border bg-card px-6 py-14 text-center sm:px-16 sm:py-20"
-            >
+            <div className="relative overflow-hidden rounded-2xl border bg-card px-6 py-14 text-center sm:px-16 sm:py-20">
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
               <div className="absolute -top-20 -right-20 size-64 rounded-full bg-primary/5 blur-3xl" />
               <div className="relative mx-auto max-w-xl">
-                <motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.6 }} className="mb-4 inline-flex size-12 items-center justify-center rounded-xl bg-primary shadow-sm mx-auto">
+                <div className="mb-4 inline-flex size-12 items-center justify-center rounded-xl bg-primary shadow-sm mx-auto transition-transform duration-500 hover:rotate-[360deg]">
                   <BrainCircuit className="size-6 text-primary-foreground" />
-                </motion.div>
+                </div>
                 <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Ready to Learn Smarter?</h2>
                 <p className="mt-4 text-base text-muted-foreground">
                   Join thousands of learners transforming their education with AI-powered insights and personalized analytics.
                 </p>
                 <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                  <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
-                    <Link href="/register" className="inline-flex h-11 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-lg border border-transparent bg-primary px-6 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/80 shadow-sm">
-                      Get Started Free
-                      <ArrowRight className="size-4" />
-                    </Link>
-                  </motion.div>
-                  <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
-                    <Link href="/docs" className="inline-flex h-11 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-background px-6 text-sm font-medium text-foreground transition-all hover:bg-muted">
-                      Read Documentation
-                    </Link>
-                  </motion.div>
+                  <Link href="/register" className="inline-flex h-11 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-lg border border-transparent bg-primary px-6 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/80 shadow-sm hover:scale-[1.04] active:scale-[0.96]">
+                    Get Started Free
+                    <ArrowRight className="size-4" />
+                  </Link>
+                  <Link href="/docs" className="inline-flex h-11 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-background px-6 text-sm font-medium text-foreground transition-all hover:bg-muted hover:scale-[1.04] active:scale-[0.96]">
+                    Read Documentation
+                  </Link>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </Section>
       </main>

@@ -3,11 +3,11 @@ declare module "pdf-parse/lib/pdf-parse.js" {
     text: string
     numpages: number
     numrender: number
-    info: Record<string, unknown>
-    metadata: Record<string, unknown>
+    info: { [key: string]: unknown }
+    metadata: { [key: string]: unknown }
     version: string
   }
 
-  function pdf(dataBuffer: Buffer, options?: { pagerender?: (pageData: Record<string, unknown>) => string }): Promise<PDFParseResult>
+  function pdf(dataBuffer: Buffer, options?: { pagerender?: (pageData: { [key: string]: unknown }) => string }): Promise<PDFParseResult>
   export default pdf
 }

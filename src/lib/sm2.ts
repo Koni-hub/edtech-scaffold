@@ -1,5 +1,3 @@
-import { createClient } from "@/lib/supabase/server"
-
 export type ReviewQuality = 0 | 1 | 2 | 3 | 4 | 5
 
 export interface FlashcardSchedule {
@@ -87,27 +85,12 @@ export function computeNextSR(
   current: { easiness: number; interval: number; repetitions: number },
   correct: boolean
 ): { easiness: number; interval: number; repetitions: number; due_at: string } {
-  let { easiness, interval, repetitions } = current
-
-  if (correct) {
-    repetitions++
-    if (repetitions === 1) interval = 1
-    else if (repetitions === 2) interval = 6
-    else interval = Math.round(interval * easiness)
-    easiness = easiness + (0.1 - (1 - 0.8) * (0.28 + 0.1 * (5 - easiness)))
-    if (easiness < 1.3) easiness = 1.3
-  } else {
-    repetitions = 0
-    interval = 1
-  }
-
-  const dueDate = new Date()
-  dueDate.setDate(dueDate.getDate() + interval)
-
+  const quality: ReviewQuality = correct ? 4 : 0
+  const next = calculateSM2(quality, current)
   return {
-    easiness: Math.round(easiness * 100) / 100,
-    interval,
-    repetitions,
-    due_at: dueDate.toISOString(),
+    easiness: next.easiness,
+    interval: next.interval,
+    repetitions: next.repetitions,
+    due_at: next.dueAt.toISOString(),
   }
 }

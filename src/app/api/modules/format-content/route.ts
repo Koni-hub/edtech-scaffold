@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { geminiFetch, parseGeminiResponse, isQuotaError } from "@/lib/ai/gemini-client"
 import { createClient } from "@/lib/supabase/server"
+import { checkQuota, incrementUsage } from "@/lib/quota-check"
 
 const FORMAT_PROMPT = `You are an expert study note formatter. Given a raw transcript or article text, rewrite it as a well-structured study document.
 
@@ -33,7 +34,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Content too short" }, { status: 400 })
   }
 
+  const quota = await checkQuota(user.id, "enhance_content")
+  if (!quota.allowed) {
+    return NextResponse.json({
+      error: quota.reason ?? "Daily limit reached",
+      remaining: quota.remaining,
+      resetAt: quota.resetAt,
+      tier: quota.tier,
+    }, { status: 429 })
+  }
+
   try {
+    await incrementUsage(user.id, "enhance_content")
     const raw = await geminiFetch("gemini-2.5-flash", [
       { role: "user", parts: [{ text: content }] },
     ], {

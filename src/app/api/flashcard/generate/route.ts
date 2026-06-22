@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { generateAIFlashcards } from "@/lib/ai/ai-flashcard-generator"
 import { generateEmbedding } from "@/lib/ai/embedder"
 import { cosineSimilarity } from "@/lib/ai/similarity"
+import { checkQuota, incrementUsage } from "@/lib/quota-check"
 import type { Module } from "@/lib/types/database"
 
 const MAX_COUNT = 30
@@ -41,6 +42,16 @@ export async function POST(request: NextRequest) {
 
   if ((mod as Module).user_id !== user.id) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+  }
+
+  const quota = await checkQuota(user.id, "flashcard_generate")
+  if (!quota.allowed) {
+    return NextResponse.json({
+      error: quota.reason ?? "Daily limit reached",
+      remaining: quota.remaining,
+      resetAt: quota.resetAt,
+      tier: quota.tier,
+    }, { status: 429 })
   }
 
   const rawText = (mod as Module).raw_text
@@ -87,6 +98,8 @@ export async function POST(request: NextRequest) {
       }
     }
   }
+
+  await incrementUsage(user.id, "flashcard_generate")
 
   try {
     const flashcards = await generateAIFlashcards({

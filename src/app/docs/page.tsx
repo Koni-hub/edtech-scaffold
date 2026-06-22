@@ -154,10 +154,11 @@ const faqItems = [
   { q: "What file formats are supported?", a: "PDF (with OCR fallback for scanned documents), plain text, and pasted content. You can also import from YouTube video URLs and any website URL." },
   { q: "How does PDF extraction work?", a: "Syntra extracts PDF text using pdf-parse v1 (based on pdfjs-dist v2) — reliable in serverless environments with no worker bundling issues. Tables are detected via pipe/tab heuristics. Scanned documents fall back to Tesseract.js OCR with a 25-second timeout. Files up to 10MB are supported." },
   { q: "Is my data secure?", a: "Yes. All data is encrypted in transit and at rest via Supabase. API keys are passed via secure headers, not URL parameters. Row Level Security (RLS) ensures users can only access their own data." },
-  { q: "How accurate is AI quiz generation?", a: "Syntra uses Gemini 2.5 Flash with enhanced prompts including few-shot examples, question diversity rules, and distractor quality guidelines. Questions are validated against source content, and the system retries with adjusted instructions if quality is low." },
+  { q: "How accurate is AI quiz generation?", a: "Syntra uses Gemini 2.5 Flash with enhanced prompts including few-shot examples, question diversity rules, and distractor quality guidelines. The system retries with adjusted instructions if quality is low." },
   { q: "What is spaced repetition?", a: "Spaced repetition (SM-2 algorithm) schedules flashcard reviews at optimal intervals. Cards you find easy are shown less frequently, while difficult cards appear more often. The schedule is computed server-side based on your responses." },
   { q: "How does the streak work?", a: "Your daily streak tracks consecutive days of learning activity. Generate a quiz, review flashcards, or upload a module to maintain your streak. The dashboard shows your current streak with a flame icon." },
-  { q: "Can I import from YouTube?", a: "Yes. Paste a YouTube video URL and Syntra will extract the transcript (auto-detects available caption languages, falls back to the first available language if English is not found) and create a module from the video content. Great for lecture videos and educational content." },
+  { q: "What are the usage limits?", a: "Free accounts can generate up to 3 quizzes, 5 flashcard sets, and 3 content enhancements per day. Limits reset every 24 hours from your first use. Pro accounts ($12/month) get unlimited access to all features. Upgrade from Settings > Billing." },
+  { q: "Can I import from YouTube?", a: "Yes. Paste a YouTube video URL and Syntra will extract metadata via the YouTube Data API v3, then scrape the caption tracks directly from the video page HTML (auto-detects available caption languages, falls back to the first available language if English is not found). This approach works reliably from serverless environments where InnerTube-based APIs are blocked." },
   { q: "Is there a limit on modules or quizzes?", a: "Free accounts have a reasonable usage limit. Check your account settings for specific limits. Pro users get unlimited modules, quizzes, and advanced analytics." },
 ]
 
@@ -178,7 +179,7 @@ function buildSearchIndex(): SearchIndexEntry[] {
   return [
     { id: "overview", title: "Overview", text: "Everything you need to get started with Syntra from uploading your first module to tracking your learning analytics documentation" },
     { id: "quickstart", title: "Quickstart", text: "Get started with Syntra in minutes authentication upload module quiz generation flashcard generation import createClient" },
-    { id: "pricing", title: "Pricing", text: "Free plan includes modules quizzes basic analytics flashcard review Pro plan unlimited modules quizzes advanced analytics priority support per month" },
+    { id: "pricing", title: "Pricing", text: "Free plan includes modules daily limits quiz flashcard generations content enhancements analytics YouTube import Pro plan unlimited everything modules quizzes flashcards priority support per month" },
     { id: "build-paths", title: "Build paths", text: "Choose your path to start learning effectively Syntra Dashboard AI Quiz Engine progress rings sparklines streak tracking adaptive difficulty" },
     { id: "start-building", title: "Start building", text: "Explore what you can do with Syntra upload PDFs import URL generate quizzes study flashcards track analytics review weak areas" },
     { id: "modules", title: "Modules", text: "Upload your learning materials PDF text YouTube URL website content Syntra turns them into structured interactive modules AI automatically parses extracts key concepts creates navigable learning modules Handout tab shows raw text with Enhance button Gemini formatting" },
@@ -187,12 +188,12 @@ function buildSearchIndex(): SearchIndexEntry[] {
     { id: "analytics", title: "Analytics", text: "Track your learning performance EWMA based understanding scores retention trends topic mastery breakdown daily streaks recent quiz performance focus study time on weak areas" },
     { id: "spaced-repetition", title: "Spaced Repetition", text: "SM-2 algorithm schedules flashcard reviews at optimal intervals cards you find easy shown less frequently difficult cards appear more often server side computation" },
     { id: "upload", title: "Uploading materials", text: "Supported formats PDF with OCR fallback plain text pasted content files up to 10MB table detection pdf-parse v1 no worker issues scanned documents URL import YouTube transcript auto language detect" },
-    { id: "import-url", title: "Importing from URLs", text: "YouTube video URL website URL paste link AI extracts transcript auto detect caption language falls back to first available InnerTube API creates module from web content" },
+    { id: "import-url", title: "Importing from URLs", text: "YouTube video URL website URL paste link AI extracts transcript YouTube Data API v3 caption scrape from video page HTML auto detect caption language creates module from web content" },
     { id: "generate", title: "Generating quizzes", text: "Create custom quizzes from your uploaded modules in seconds select module choose question count pick topics Gemini 2.5 Flash generates questions with few shot examples diversity rules distractor quality" },
     { id: "generate-flashcards", title: "Generating flashcards", text: "Create AI flashcards from module content term validation source text verification count control difficulty assessment" },
     { id: "review", title: "Reviewing results", text: "Understand your quiz performance breakdown of correct and incorrect answers explanations for every question answer normalization track scores over time highlights topics needing more practice" },
     { id: "track", title: "Tracking progress", text: "Monitor your learning journey over time dashboard aggregates modules created quizzes taken average scores retention trends daily streaks analytics page for topic radar charts and score trends" },
-    { id: "faq", title: "Frequently asked questions", text: "Common questions about using Syntra file formats supported PDF text URL YouTube transcript auto language detect data secure encrypted Supabase authentication AI quiz generation accuracy spaced repetition streak tracking" },
+    { id: "faq", title: "Frequently asked questions", text: "Common questions about using Syntra file formats supported PDF text URL YouTube transcript auto language detect data secure encrypted Supabase authentication AI quiz generation accuracy spaced repetition streak tracking usage limits daily quota free pro" },
     { id: "support", title: "Support", text: "Still have questions get started today explore all features hands on free" },
   ]
 }
@@ -554,9 +555,10 @@ export default function DocsPage() {
                     <p className="mt-0.5 text-xs text-muted-foreground">forever</p>
                     <ul className="mt-4 space-y-2 text-xs">
                       <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Up to 3 modules</li>
-                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> 10 quizzes per month</li>
+                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> 3 quiz generations / day</li>
+                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> 5 flashcard generations / day</li>
+                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> 3 content enhancements / day</li>
                       <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Basic analytics</li>
-                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Flashcard review</li>
                       <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> YouTube URL import</li>
                     </ul>
                   </div>
@@ -567,7 +569,8 @@ export default function DocsPage() {
                     <p className="mt-0.5 text-xs text-muted-foreground">per month</p>
                     <ul className="mt-4 space-y-2 text-xs">
                       <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Unlimited modules</li>
-                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Unlimited quizzes</li>
+                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Unlimited quizzes & flashcards</li>
+                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Unlimited content enhancements</li>
                       <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Advanced analytics & insights</li>
                       <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Priority support</li>
                       <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> All import sources</li>
@@ -683,7 +686,7 @@ export default function DocsPage() {
                     <div>
                       <h3 className="text-sm font-semibold">AI-powered quiz generation</h3>
                       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                        Powered by <strong>Gemini 2.5 Flash</strong> with enhanced prompts including few-shot examples, question diversity rules, and distractor quality guidelines. Quizzes include multiple-choice, true/false, and short-answer questions. Questions are validated against source content, deduplicated across retries, and scored with answer normalization (A/a/True/true all work).
+                        Powered by <strong>Gemini 2.5 Flash</strong> with enhanced prompts including few-shot examples, question diversity rules, and distractor quality guidelines. Quizzes include multiple-choice, true/false, and short-answer questions. Questions are deduplicated across retries and scored with answer normalization (A/a/True/true all work).
                       </p>
                       <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
                         <li className="flex items-center gap-1.5"><span className="size-1 rounded-full bg-primary" /> Adaptive difficulty (upgrades after 3 correct, downgrades after 2 wrong)</li>
@@ -864,7 +867,7 @@ export default function DocsPage() {
                     <li>Click <strong>Generate</strong> &mdash; your quiz is ready in seconds</li>
                   </ol>
                   <div className="mt-3 rounded-md bg-muted/50 p-3 text-xs text-muted-foreground">
-                    <strong>How it works:</strong> Gemini 2.5 Flash generates questions using few-shot examples and diversity rules. Each question is validated against the source content. If too many questions are filtered out, the system retries with adjusted instructions. Duplicate questions are removed across retries.
+                      <strong>How it works:</strong> Gemini 2.5 Flash generates questions using few-shot examples and diversity rules. Duplicate questions are removed across retries. The system retries with adjusted instructions if quality is low.
                   </div>
                   <Link href="/quizzes/generate" className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
                     Generate a quiz <ArrowRight className="size-3" />

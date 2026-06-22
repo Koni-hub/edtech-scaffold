@@ -4,6 +4,7 @@ import { chunkText } from "@/lib/ai/chunker"
 import { generateQuiz, type GeneratedQuiz } from "@/lib/ai/quiz-generator"
 import { generateEmbedding } from "@/lib/ai/embedder"
 import { cosineSimilarity } from "@/lib/ai/similarity"
+import { checkQuota, incrementUsage } from "@/lib/quota-check"
 import type { QuizMode } from "@/lib/ai/prompts"
 import type { Module, ModuleChunk } from "@/lib/types/database"
 
@@ -45,6 +46,16 @@ export async function POST(request: NextRequest) {
 
   if ((module as Module).user_id !== user.id) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+  }
+
+  const quota = await checkQuota(user.id, "quiz_generate")
+  if (!quota.allowed) {
+    return NextResponse.json({
+      error: quota.reason ?? "Daily limit reached",
+      remaining: quota.remaining,
+      resetAt: quota.resetAt,
+      tier: quota.tier,
+    }, { status: 429 })
   }
 
   const chunks = await supabase
@@ -117,6 +128,7 @@ export async function POST(request: NextRequest) {
 
   let generated: GeneratedQuiz
   try {
+    await incrementUsage(user.id, "quiz_generate")
     generated = await generateQuiz({
       moduleTitle: (module as Module).title,
       chunks: selectedChunks,

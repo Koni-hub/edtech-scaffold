@@ -152,35 +152,6 @@ export default function ModuleUploadPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <button
-          onClick={() => inputRef.current?.click()}
-          className={`rounded-xl border-2 border-dashed p-6 text-center transition-colors ${
-            isDragOver
-              ? "border-primary bg-primary/5"
-              : "border-muted-foreground/25 hover:border-muted-foreground/50"
-          }`}
-        >
-          <Upload size={24} className="mx-auto mb-2 text-muted-foreground" />
-          <p className="text-sm font-medium">Upload File</p>
-          <p className="text-xs text-muted-foreground">PDF, TXT, MD</p>
-        </button>
-        <a
-          href="/modules/upload#import"
-          onClick={(e) => {
-            e.preventDefault();
-            document
-              .getElementById("url-import")
-              ?.scrollIntoView({ behavior: "smooth" });
-          }}
-          className="rounded-xl border-2 border-dashed p-6 text-center transition-colors border-muted-foreground/25 hover:border-muted-foreground/50"
-        >
-          <Link2 size={24} className="mx-auto mb-2 text-muted-foreground" />
-          <p className="text-sm font-medium">Import from URL</p>
-          <p className="text-xs text-muted-foreground">YouTube or website</p>
-        </a>
-      </div>
-
       {currentStepIndex < 0 && (
         <>
           <div className="space-y-1.5">

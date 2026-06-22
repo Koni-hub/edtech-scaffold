@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin"
-import { getQuotaLimits, isPro, getCounterField } from "@/lib/quota"
+import { getLimit } from "@/lib/quota"
 
 const RESET_INTERVAL_MS = 24 * 60 * 60 * 1000
 
@@ -7,7 +7,6 @@ export interface QuotaCheck {
   allowed: boolean
   remaining: number
   resetAt: string | null
-  tier: string
   reason?: string
 }
 
@@ -15,15 +14,14 @@ export async function checkQuota(userId: string, action: string): Promise<QuotaC
   const supabase = createAdminClient()
   const { data: profile } = await supabase
     .from("profiles")
-    .select("subscription_tier, usage_reset_at, quiz_count, flashcard_count, enhance_count, subscription_status")
+    .select("usage_reset_at, quiz_count, flashcard_count, enhance_count")
     .eq("id", userId)
     .single()
 
   if (!profile) {
-    return { allowed: false, remaining: 0, resetAt: null, tier: "free", reason: "Profile not found" }
+    return { allowed: false, remaining: 0, resetAt: null, reason: "Profile not found" }
   }
 
-  const tier = profile.subscription_tier ?? "free"
   const resetAt = profile.usage_reset_at
   const now = new Date()
   const resetTime = new Date(resetAt).getTime()
@@ -42,15 +40,10 @@ export async function checkQuota(userId: string, action: string): Promise<QuotaC
       .eq("id", userId)
   }
 
-  if (isPro(tier) && profile.subscription_status === "active") {
-    return { allowed: true, remaining: Infinity, resetAt: null, tier }
-  }
-
-  const limit = getQuotaLimits(tier, action)
-  const counterField = getCounterField(action)
+  const limit = getLimit(action)
   const currentCount =
-    counterField === "quiz_count" ? quizCount
-    : counterField === "flashcard_count" ? flashcardCount
+    action === "quiz_generate" ? quizCount
+    : action === "flashcard_generate" ? flashcardCount
     : enhanceCount
 
   const remaining = Math.max(0, limit - currentCount)
@@ -61,28 +54,30 @@ export async function checkQuota(userId: string, action: string): Promise<QuotaC
       allowed: false,
       remaining: 0,
       resetAt: nextReset,
-      tier,
       reason: `Daily ${action.replace("_", " ")} limit reached (${limit}/${limit}). Resets in 24h.`,
     }
   }
 
-  return { allowed: true, remaining, resetAt: nextReset, tier }
+  return { allowed: true, remaining, resetAt: nextReset }
 }
 
 export async function incrementUsage(userId: string, action: string): Promise<void> {
   const supabase = createAdminClient()
-  const field = getCounterField(action)
+  const field =
+    action === "quiz_generate" ? "quiz_count"
+    : action === "flashcard_generate" ? "flashcard_count"
+    : action === "enhance_content" ? "enhance_count"
+    : null
+
   if (!field) return
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("subscription_tier, subscription_status, quiz_count, flashcard_count, enhance_count")
+    .select("quiz_count, flashcard_count, enhance_count")
     .eq("id", userId)
     .single()
 
   if (!profile) return
-
-  if (isPro(profile.subscription_tier) && profile.subscription_status === "active") return
 
   await supabase
     .from("profiles")

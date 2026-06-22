@@ -157,7 +157,7 @@ const faqItems = [
   { q: "How accurate is AI quiz generation?", a: "Syntra uses Gemini 2.5 Flash with enhanced prompts including few-shot examples, question diversity rules, and distractor quality guidelines. The system retries with adjusted instructions if quality is low." },
   { q: "What is spaced repetition?", a: "Spaced repetition (SM-2 algorithm) schedules flashcard reviews at optimal intervals. Cards you find easy are shown less frequently, while difficult cards appear more often. The schedule is computed server-side based on your responses." },
   { q: "How does the streak work?", a: "Your daily streak tracks consecutive days of learning activity. Generate a quiz, review flashcards, or upload a module to maintain your streak. The dashboard shows your current streak with a flame icon." },
-  { q: "What are the usage limits?", a: "Free accounts can generate up to 3 quizzes, 5 flashcard sets, and 3 content enhancements per day. Limits reset every 24 hours from your first use. Pro accounts ($12/month) get unlimited access to all features. Upgrade from Settings > Billing." },
+  { q: "What are the usage limits?", a: "Free accounts can generate up to 3 quizzes, 5 flashcard sets, and 3 content enhancements per day. Limits reset every 24 hours from your first use." },
   { q: "Can I import from YouTube?", a: "Yes. Paste a YouTube video URL and Syntra will extract metadata via the YouTube Data API v3, then scrape the caption tracks directly from the video page HTML (auto-detects available caption languages, falls back to the first available language if English is not found). This approach works reliably from serverless environments where InnerTube-based APIs are blocked." },
   { q: "Is there a limit on modules or quizzes?", a: "Free accounts have a reasonable usage limit. Check your account settings for specific limits. Pro users get unlimited modules, quizzes, and advanced analytics." },
 ]
@@ -179,7 +179,7 @@ function buildSearchIndex(): SearchIndexEntry[] {
   return [
     { id: "overview", title: "Overview", text: "Everything you need to get started with Syntra from uploading your first module to tracking your learning analytics documentation" },
     { id: "quickstart", title: "Quickstart", text: "Get started with Syntra in minutes authentication upload module quiz generation flashcard generation import createClient" },
-    { id: "pricing", title: "Pricing", text: "Free plan includes modules daily limits quiz flashcard generations content enhancements analytics YouTube import Pro plan unlimited everything modules quizzes flashcards priority support per month" },
+    { id: "pricing", title: "Pricing", text: "Free plan forever daily limits quiz flashcard generations content enhancements analytics YouTube import" },
     { id: "build-paths", title: "Build paths", text: "Choose your path to start learning effectively Syntra Dashboard AI Quiz Engine progress rings sparklines streak tracking adaptive difficulty" },
     { id: "start-building", title: "Start building", text: "Explore what you can do with Syntra upload PDFs import URL generate quizzes study flashcards track analytics review weak areas" },
     { id: "modules", title: "Modules", text: "Upload your learning materials PDF text YouTube URL website content Syntra turns them into structured interactive modules AI automatically parses extracts key concepts creates navigable learning modules Handout tab shows raw text with Enhance button Gemini formatting" },
@@ -193,7 +193,7 @@ function buildSearchIndex(): SearchIndexEntry[] {
     { id: "generate-flashcards", title: "Generating flashcards", text: "Create AI flashcards from module content term validation source text verification count control difficulty assessment" },
     { id: "review", title: "Reviewing results", text: "Understand your quiz performance breakdown of correct and incorrect answers explanations for every question answer normalization track scores over time highlights topics needing more practice" },
     { id: "track", title: "Tracking progress", text: "Monitor your learning journey over time dashboard aggregates modules created quizzes taken average scores retention trends daily streaks analytics page for topic radar charts and score trends" },
-    { id: "faq", title: "Frequently asked questions", text: "Common questions about using Syntra file formats supported PDF text URL YouTube transcript auto language detect data secure encrypted Supabase authentication AI quiz generation accuracy spaced repetition streak tracking usage limits daily quota free pro" },
+    { id: "faq", title: "Frequently asked questions", text: "Common questions about using Syntra file formats supported PDF text URL YouTube transcript auto language detect data secure encrypted Supabase authentication AI quiz generation accuracy spaced repetition streak tracking usage limits daily quota free" },
     { id: "support", title: "Support", text: "Still have questions get started today explore all features hands on free" },
   ]
 }
@@ -560,20 +560,6 @@ export default function DocsPage() {
                       <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> 3 content enhancements / day</li>
                       <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Basic analytics</li>
                       <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> YouTube URL import</li>
-                    </ul>
-                  </div>
-                  <div className="rounded-lg border border-primary/30 bg-card p-5">
-                    <div className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">Most popular</div>
-                    <h3 className="mt-1 text-sm font-semibold">Pro</h3>
-                    <p className="mt-1 text-2xl font-bold">$12</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">per month</p>
-                    <ul className="mt-4 space-y-2 text-xs">
-                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Unlimited modules</li>
-                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Unlimited quizzes & flashcards</li>
-                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Unlimited content enhancements</li>
-                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Advanced analytics & insights</li>
-                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> Priority support</li>
-                      <li className="flex items-center gap-2"><Check className="size-3 text-primary shrink-0" /> All import sources</li>
                     </ul>
                   </div>
                 </div>

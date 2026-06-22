@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { User, Save, Loader2, Download, Lock, Target, Sun, Moon, Monitor, Trash2, Sparkles, CreditCard, ExternalLink } from "lucide-react"
+import { User, Save, Loader2, Download, Lock, Target, Sun, Moon, Monitor } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
@@ -23,13 +23,6 @@ export default function SettingsPage() {
   const [pwSaved, setPwSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [pwError, setPwError] = useState<string | null>(null)
-  const [billingTier, setBillingTier] = useState("free")
-  const [billingStatus, setBillingStatus] = useState<string | null>(null)
-  const [quizCount, setQuizCount] = useState(0)
-  const [flashcardCount, setFlashcardCount] = useState(0)
-  const [enhanceCount, setEnhanceCount] = useState(0)
-  const [usageResetAt, setUsageResetAt] = useState<string | null>(null)
-  const [billingLoading, setBillingLoading] = useState(false)
 
   const fetchProfile = useCallback(async () => {
     const supabase = createClient()
@@ -37,19 +30,13 @@ export default function SettingsPage() {
     if (!user) return
     const { data } = await supabase
       .from("profiles")
-      .select("display_name, goal_quizzes, goal_flashcards, subscription_tier, subscription_status, quiz_count, flashcard_count, enhance_count, usage_reset_at")
+      .select("display_name, goal_quizzes, goal_flashcards")
       .eq("id", user.id)
       .maybeSingle()
     if (data) {
       setDisplayName(data.display_name || "")
       setGoalQuizzes(data.goal_quizzes ?? 3)
       setGoalFlashcards(data.goal_flashcards ?? 10)
-      setBillingTier(data.subscription_tier ?? "free")
-      setBillingStatus(data.subscription_status)
-      setQuizCount(data.quiz_count ?? 0)
-      setFlashcardCount(data.flashcard_count ?? 0)
-      setEnhanceCount(data.enhance_count ?? 0)
-      setUsageResetAt(data.usage_reset_at)
     }
   }, [])
 
@@ -125,32 +112,6 @@ export default function SettingsPage() {
     a.click()
     URL.revokeObjectURL(url)
     toast.success("Data exported!")
-  }
-
-  async function handleUpgrade() {
-    setBillingLoading(true)
-    try {
-      const res = await fetch("/api/stripe/create-checkout", { method: "POST" })
-      const data = await res.json()
-      if (data.url) window.location.href = data.url
-      else toast.error(data.error ?? "Failed to create checkout")
-    } catch {
-      toast.error("Failed to start upgrade")
-    }
-    setBillingLoading(false)
-  }
-
-  async function handleManageBilling() {
-    setBillingLoading(true)
-    try {
-      const res = await fetch("/api/stripe/create-portal", { method: "POST" })
-      const data = await res.json()
-      if (data.url) window.location.href = data.url
-      else toast.error(data.error ?? "Failed to open billing portal")
-    } catch {
-      toast.error("Failed to open billing portal")
-    }
-    setBillingLoading(false)
   }
 
   return (
@@ -254,89 +215,6 @@ export default function SettingsPage() {
             </Button>
           </CardFooter>
         </form>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles size={18} />
-            {billingTier === "pro" ? "Pro Plan" : "Upgrade to Pro"}
-          </CardTitle>
-          <CardDescription>
-            {billingTier === "pro"
-              ? "You're on the Pro plan. Enjoy unlimited access!"
-              : "Unlock unlimited quizzes, flashcards, and content enhancements."}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="rounded-lg border p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">
-                  {billingTier === "pro" ? "Pro" : "Free"}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {billingTier === "pro"
-                    ? billingStatus === "active" ? "Active" : billingStatus ?? "Unknown"
-                    : "Free tier"}
-                </p>
-              </div>
-              {billingTier === "pro" ? (
-                <span className="rounded-full bg-green-500/10 px-2.5 py-0.5 text-xs font-medium text-green-600">
-                  Active
-                </span>
-              ) : (
-                <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                  $12/mo
-                </span>
-              )}
-            </div>
-          </div>
-
-          {billingTier === "free" && (
-            <div className="space-y-2">
-              <h4 className="text-xs font-medium text-muted-foreground">Today's Usage</h4>
-              <div className="space-y-1.5 text-xs">
-                <div className="flex items-center justify-between">
-                  <span>Quiz generations</span>
-                  <span className={quizCount >= 3 ? "text-destructive font-medium" : "text-muted-foreground"}>
-                    {quizCount} / 3
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Flashcard generations</span>
-                  <span className={flashcardCount >= 5 ? "text-destructive font-medium" : "text-muted-foreground"}>
-                    {flashcardCount} / 5
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Content enhances</span>
-                  <span className={enhanceCount >= 3 ? "text-destructive font-medium" : "text-muted-foreground"}>
-                    {enhanceCount} / 3
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <Button
-            className="w-full"
-            onClick={billingTier === "pro" ? handleManageBilling : handleUpgrade}
-            disabled={billingLoading}
-          >
-            {billingLoading ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <>
-                {billingTier === "pro" ? (
-                  <><CreditCard size={16} /> Manage Billing</>
-                ) : (
-                  <><Sparkles size={16} /> Upgrade to Pro — $12/mo</>
-                )}
-              </>
-            )}
-          </Button>
-        </CardContent>
       </Card>
 
       <Card>

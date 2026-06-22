@@ -40,7 +40,6 @@ export async function POST(request: NextRequest) {
       error: quota.reason ?? "Daily limit reached",
       remaining: quota.remaining,
       resetAt: quota.resetAt,
-      tier: quota.tier,
     }, { status: 429 })
   }
 

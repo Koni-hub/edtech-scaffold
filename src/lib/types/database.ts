@@ -3,10 +3,6 @@ export interface Profile {
   display_name: string
   avatar_url: string | null
   role: "student" | "educator" | "admin"
-  subscription_tier: "free" | "pro"
-  stripe_customer_id: string | null
-  stripe_subscription_id: string | null
-  subscription_status: string | null
   usage_reset_at: string
   quiz_count: number
   flashcard_count: number

@@ -36,40 +36,6 @@ interface RawQuestion {
   difficulty?: unknown
 }
 
-function validateAgainstSource(question: RawQuestion, sourceText: string): boolean {
-  const questionText = String(question.question_text ?? "").toLowerCase()
-  const correctAnswer = String(question.correct_answer ?? "").toLowerCase()
-  const sourceLower = sourceText.toLowerCase()
-
-  if (!questionText || !correctAnswer) return false
-
-  const contentWords = correctAnswer.split(/\s+/).filter((w) => w.length > 3)
-  if (contentWords.length > 0) {
-    const matchCount = contentWords.filter((w) => sourceLower.includes(w)).length
-    if (matchCount < Math.ceil(contentWords.length * 0.5)) return false
-  }
-
-  if (question.question_type === "mcq") {
-    const options = question.options as { label: string; text: string }[] | undefined
-    if (!options || options.length < 2) return false
-    const validLabels = options.map((o) => o.label)
-    if (!validLabels.includes(String(question.correct_answer ?? ""))) return false
-    const optionTexts = options.map((o) => o.text.toLowerCase())
-    const distractorMatches = optionTexts.map((t) => {
-      const words = t.split(/\s+/).filter((w) => w.length > 3)
-      return words.filter((w) => sourceLower.includes(w)).length
-    })
-    const totalDistractorWords = optionTexts.reduce((s, t) => s + t.split(/\s+/).filter((w) => w.length > 3).length, 0)
-    if (totalDistractorWords > 10 && distractorMatches.reduce((a, b) => a + b, 0) < 2) return false
-  }
-
-  if (question.question_type === "true_false") {
-    if (correctAnswer !== "a" && correctAnswer !== "b") return false
-  }
-
-  return true
-}
-
 export async function generateQuiz(input: GenerateQuizInput): Promise<GeneratedQuiz> {
   let contextText = ""
   for (const chunk of input.chunks) {
@@ -123,8 +89,6 @@ export async function generateQuiz(input: GenerateQuizInput): Promise<GeneratedQ
 
           const exists = allQuestions.some((eq) => eq.question_text === questionText)
           if (exists) continue
-
-          if (!validateAgainstSource(q, contextText)) continue
 
           const questionType = (() => {
             if (quizMode === "short_answer") return "mcq" as const

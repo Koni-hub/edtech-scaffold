@@ -1,7 +1,83 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { chunkText } from "@/lib/ai/chunker"
-import { YoutubeTranscript } from "youtube-transcript"
+
+async function fetchYouTubePage(videoId: string): Promise<string> {
+  const res = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+      "Accept-Language": "en-US,en;q=0.9",
+      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "Cookie": "CONSENT=YES+cb.20210328-17-p0.en+FX+{}",
+    },
+    signal: AbortSignal.timeout(10000),
+    redirect: "follow",
+  })
+  if (!res.ok) throw new Error(`YouTube page fetch failed: ${res.status}`)
+  return res.text()
+}
+
+function extractCaptionUrls(pageHtml: string): { url: string; lang: string }[] {
+  const tracks: { url: string; lang: string }[] = []
+  const captionMatch = pageHtml.match(/"captionTracks":\[([\s\S]*?)\]/)
+  if (!captionMatch) return tracks
+
+  const urlPattern = /"baseUrl":"([^"]+)"/g
+  const langPattern = /"languageCode":"([^"]+)"/g
+
+  const urlBlock = captionMatch[1]
+  const urls: string[] = []
+  const langs: string[] = []
+
+  let m: RegExpExecArray | null
+  while ((m = urlPattern.exec(urlBlock)) !== null) {
+    urls.push(m[1].replace(/\\u0026/g, "&"))
+  }
+  while ((m = langPattern.exec(urlBlock)) !== null) {
+    langs.push(m[1])
+  }
+
+  for (let i = 0; i < urls.length; i++) {
+    tracks.push({ url: urls[i], lang: langs[i] || "en" })
+  }
+  return tracks
+}
+
+async function fetchTranscriptFromCaptionUrl(captionUrl: string): Promise<string> {
+  const res = await fetch(captionUrl + "&fmt=srv3", {
+    headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+    signal: AbortSignal.timeout(8000),
+  })
+  if (!res.ok) throw new Error(`Caption fetch failed: ${res.status}`)
+
+  const xml = await res.text()
+  const segments: string[] = []
+
+  const pRegex = /<p[^>]*>([\s\S]*?)<\/p>/g
+  let pMatch: RegExpExecArray | null
+  while ((pMatch = pRegex.exec(xml)) !== null) {
+    const inner = pMatch[1]
+    const words: string[] = []
+    const sRegex = /<s[^>]*>([\s\S]*?)<\/s>/g
+    let sMatch: RegExpExecArray | null
+    while ((sMatch = sRegex.exec(inner)) !== null) {
+      const text = sMatch[1].replace(/&amp;#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#39;/g, "'").trim()
+      if (text) words.push(text)
+    }
+    if (words.length > 0) segments.push(words.join(" "))
+  }
+
+  if (segments.length === 0) {
+    const textRegex = /<text[^>]*>([\s\S]*?)<\/text>/g
+    let textMatch: RegExpExecArray | null
+    while ((textMatch = textRegex.exec(xml)) !== null) {
+      const text = textMatch[1].replace(/&amp;#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#39;/g, "'").trim()
+      if (text) segments.push(text)
+    }
+  }
+
+  return segments.join(" ")
+}
 
 async function extractWebPageContent(url: string): Promise<{ title: string; text: string }> {
   const res = await fetch(url, {
@@ -92,92 +168,56 @@ export async function POST(request: NextRequest) {
         if (oembed?.author_name) title += ` by ${oembed.author_name}`
       }
 
-      let rawTranscript = ""
+      let pageHtml = ""
       try {
-        const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), 5000)
-        const transcript = await YoutubeTranscript.fetchTranscript(videoId, { lang: "en" })
-        clearTimeout(timeoutId)
-        rawTranscript = transcript.map((t) => t.text).join(" ")
-      } catch { /* transcript unavailable */ }
+        pageHtml = await fetchYouTubePage(videoId)
+      } catch { /* page fetch failed */ }
+
+      if (pageHtml) {
+        const titleMatch = pageHtml.match(/<meta[^>]*property="og:title"[^>]*content="([^"]*)"/i)
+        if (titleMatch?.[1] && title === `YouTube: ${videoId}`) {
+          title = `YouTube: ${titleMatch[1]}`
+        }
+      }
+
+      let rawTranscript = ""
+      if (pageHtml) {
+        const captionTracks = extractCaptionUrls(pageHtml)
+        const enTrack = captionTracks.find((t) => t.lang === "en") || captionTracks[0]
+        if (enTrack) {
+          try {
+            rawTranscript = await fetchTranscriptFromCaptionUrl(enTrack.url)
+          } catch { /* caption fetch failed */ }
+        }
+      }
 
       if (rawTranscript && rawTranscript.length > 30) {
         rawText = `${title}\n\nTranscript:\n${rawTranscript}`.trim()
       }
 
-      if (!rawText || rawText.length < 30) {
-        try {
-          const playerRes = await fetch("https://www.youtube.com/youtubei/v1/player?prettyPrint=false", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "User-Agent": "com.google.android.youtube/20.10.38 (Linux; U; Android 14)",
-            },
-            body: JSON.stringify({
-              context: { client: { clientName: "ANDROID", clientVersion: "20.10.38" } },
-              videoId,
-            }),
-            signal: AbortSignal.timeout(5000),
-          })
-          if (playerRes.ok) {
-            const playerData = await playerRes.json()
-            const details = playerData.videoDetails
-            if (details) {
-              if (details.title && title === `YouTube: ${videoId}`) {
-                title = `YouTube: ${details.title}`
-                if (details.author) title += ` by ${details.author}`
-              }
-              const desc = details.shortDescription || ""
-              if (desc && desc.length > 30) {
-                rawText = `${title}\n\n${desc.replace(/\n/g, " ").trim()}`.trim()
-              }
-            }
+      if (!rawText || rawText.length < 30 && pageHtml) {
+        let fullDesc = ""
+        const descPatterns = [
+          /"shortDescription":"([\s\S]*?)","is/,
+          /"description":{"simpleText":"([\s\S]*?)"}/,
+          /"shortDescription":"([\s\S]*?)(?:","|")/,
+        ]
+        for (const pattern of descPatterns) {
+          const match = pageHtml.match(pattern)
+          if (match?.[1]) {
+            fullDesc = match[1].replace(/\\n/g, " ").replace(/\\"/g, '"').trim()
+            break
           }
-        } catch { /* innertube player failed */ }
-      }
+        }
 
-      if (!rawText || rawText.length < 30) {
-        try {
-          const pageRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
-            headers: {
-              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-              "Accept-Language": "en-US,en;q=0.9",
-              "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-              "Cookie": "CONSENT=YES+cb.20210328-17-p0.en+FX+{}",
-            },
-            signal: AbortSignal.timeout(8000),
-            redirect: "follow",
-          })
-          const pageHtml = await pageRes.text()
+        const ogDesc = pageHtml?.match(/<meta[^>]*property="og:description"[^>]*content="([^"]*)"/i)
+        const metaDesc = pageHtml?.match(/<meta[^>]*name="description"[^>]*content="([^"]*)"/i)
+        const pageDesc = ogDesc?.[1] || metaDesc?.[1] || ""
 
-          const titleMatch = pageHtml.match(/<meta[^>]*property="og:title"[^>]*content="([^"]*)"/i)
-          if (titleMatch?.[1] && title === `YouTube: ${videoId}`) {
-            title = `YouTube: ${titleMatch[1]}`
-          }
-
-          let fullDesc = ""
-          const descPatterns = [
-            /"shortDescription":"([\s\S]*?)","is/,
-            /"description":{"simpleText":"([\s\S]*?)"}/,
-            /"shortDescription":"([\s\S]*?)(?:","|")/,
-          ]
-          for (const pattern of descPatterns) {
-            const match = pageHtml.match(pattern)
-            if (match?.[1]) {
-              fullDesc = match[1].replace(/\\n/g, " ").replace(/\\"/g, '"').trim()
-              break
-            }
-          }
-
-          const ogDesc = pageHtml.match(/<meta[^>]*property="og:description"[^>]*content="([^"]*)"/i)
-          const metaDesc = pageHtml.match(/<meta[^>]*name="description"[^>]*content="([^"]*)"/i)
-          const pageDesc = ogDesc?.[1] || metaDesc?.[1] || ""
-
-          const description = fullDesc || pageDesc
-          if (description && description !== "Enjoy the videos and music you love, upload original content, and share it all with friends, family, and the world on YouTube.") {
-            rawText = rawText || `${title}\n\n${description}`.trim()
-          }
-        } catch { /* page fetch failed */ }
+        const description = fullDesc || pageDesc
+        if (description && description !== "Enjoy the videos and music you love, upload original content, and share it all with friends, family, and the world on YouTube.") {
+          rawText = rawText || `${title}\n\n${description}`.trim()
+        }
       }
 
       if (!rawText || rawText.length < 30) {
@@ -248,4 +288,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: `Import failed: ${msg}` }, { status: 500 })
   }
 }
-

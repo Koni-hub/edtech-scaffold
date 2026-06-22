@@ -1,4 +1,4 @@
-const CACHE_NAME = "syntra-v1"
+const CACHE_NAME = "syntra-v2"
 
 const STATIC_ASSETS = [
   "/",
@@ -20,6 +20,7 @@ self.addEventListener("install", (event) => {
       return cache.addAll(STATIC_ASSETS)
     })
   )
+  self.skipWaiting()
 })
 
 self.addEventListener("activate", (event) => {
@@ -32,6 +33,7 @@ self.addEventListener("activate", (event) => {
       )
     })
   )
+  self.clients.claim()
 })
 
 self.addEventListener("fetch", (event) => {

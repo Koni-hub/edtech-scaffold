@@ -35,21 +35,26 @@ export function DailyGoalCard() {
           .from("quiz_attempts")
           .select("id", { count: "exact", head: true })
           .eq("user_id", user.id)
-          .gte("attempted_at", today),
+          .gte("attempted_at", today)
+          .then((r) => ({ count: r.count ?? 0 })),
         supabase
           .from("flashcard_schedule")
           .select("id", { count: "exact", head: true })
           .eq("user_id", user.id)
-          .gte("updated_at", today),
+          .gte("updated_at", today)
+          .then((r) => ({ count: r.count ?? 0 }))
+          .catch(() => ({ count: 0 })),
         supabase
           .from("profiles")
           .select("goal_quizzes, goal_flashcards")
           .eq("id", user.id)
-          .maybeSingle(),
+          .maybeSingle()
+          .then((r) => r.data)
+          .catch(() => null),
       ])
 
-      const gq = settingsRes.data?.goal_quizzes ?? 3
-      const gf = settingsRes.data?.goal_flashcards ?? 10
+      const gq = settingsRes?.goal_quizzes ?? 3
+      const gf = settingsRes?.goal_flashcards ?? 10
       setGoalQuizzes(gq)
       setGoalFlashcards(gf)
 
@@ -69,13 +74,18 @@ export function DailyGoalCard() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    await supabase
+    const { error } = await supabase
       .from("profiles")
       .update({
         goal_quizzes: goalQuizzes,
         goal_flashcards: goalFlashcards,
       })
       .eq("id", user.id)
+
+    if (error) {
+      toast.error("Could not save goal. Please try again.")
+      return
+    }
 
     setGoal((prev) => prev ? {
       ...prev,

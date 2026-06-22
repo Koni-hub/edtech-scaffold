@@ -45,7 +45,7 @@ self.addEventListener("fetch", (event) => {
 
   if (isApiRoute) {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
+      fetch(event.request, { redirect: "follow" }).catch(() => caches.match(event.request))
     )
     return
   }
@@ -54,7 +54,7 @@ self.addEventListener("fetch", (event) => {
     caches.match(event.request).then((cached) => {
       return (
         cached ||
-        fetch(event.request).then((response) => {
+        fetch(event.request, { redirect: "follow" }).then((response) => {
           if (response.ok && event.request.url.startsWith(self.location.origin)) {
             const clone = response.clone()
             caches.open(CACHE_NAME).then((cache) => {

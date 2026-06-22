@@ -94,12 +94,46 @@ export async function POST(request: NextRequest) {
 
       let rawTranscript = ""
       try {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 5000)
         const transcript = await YoutubeTranscript.fetchTranscript(videoId, { lang: "en" })
+        clearTimeout(timeoutId)
         rawTranscript = transcript.map((t) => t.text).join(" ")
       } catch { /* transcript unavailable */ }
 
       if (rawTranscript && rawTranscript.length > 30) {
         rawText = `${title}\n\nTranscript:\n${rawTranscript}`.trim()
+      }
+
+      if (!rawText || rawText.length < 30) {
+        try {
+          const playerRes = await fetch("https://www.youtube.com/youtubei/v1/player?prettyPrint=false", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "User-Agent": "com.google.android.youtube/20.10.38 (Linux; U; Android 14)",
+            },
+            body: JSON.stringify({
+              context: { client: { clientName: "ANDROID", clientVersion: "20.10.38" } },
+              videoId,
+            }),
+            signal: AbortSignal.timeout(5000),
+          })
+          if (playerRes.ok) {
+            const playerData = await playerRes.json()
+            const details = playerData.videoDetails
+            if (details) {
+              if (details.title && title === `YouTube: ${videoId}`) {
+                title = `YouTube: ${details.title}`
+                if (details.author) title += ` by ${details.author}`
+              }
+              const desc = details.shortDescription || ""
+              if (desc && desc.length > 30) {
+                rawText = `${title}\n\n${desc.replace(/\n/g, " ").trim()}`.trim()
+              }
+            }
+          }
+        } catch { /* innertube player failed */ }
       }
 
       if (!rawText || rawText.length < 30) {
@@ -121,8 +155,19 @@ export async function POST(request: NextRequest) {
             title = `YouTube: ${titleMatch[1]}`
           }
 
-          const descriptionMatch = pageHtml.match(/"shortDescription":"([\s\S]*?)","is/)
-          const fullDesc = descriptionMatch?.[1]?.replace(/\\n/g, " ").replace(/\\"/g, '"').trim() || ""
+          let fullDesc = ""
+          const descPatterns = [
+            /"shortDescription":"([\s\S]*?)","is/,
+            /"description":{"simpleText":"([\s\S]*?)"}/,
+            /"shortDescription":"([\s\S]*?)(?:","|")/,
+          ]
+          for (const pattern of descPatterns) {
+            const match = pageHtml.match(pattern)
+            if (match?.[1]) {
+              fullDesc = match[1].replace(/\\n/g, " ").replace(/\\"/g, '"').trim()
+              break
+            }
+          }
 
           const ogDesc = pageHtml.match(/<meta[^>]*property="og:description"[^>]*content="([^"]*)"/i)
           const metaDesc = pageHtml.match(/<meta[^>]*name="description"[^>]*content="([^"]*)"/i)
@@ -136,10 +181,7 @@ export async function POST(request: NextRequest) {
       }
 
       if (!rawText || rawText.length < 30) {
-        return NextResponse.json(
-          { error: "Could not extract content from this YouTube video. It may have captions disabled and no description." },
-          { status: 400 }
-        )
+        rawText = `${title}\n\nVideo content could not be automatically extracted. Please add your notes manually.`
       }
     } else {
       const page = await extractWebPageContent(url)

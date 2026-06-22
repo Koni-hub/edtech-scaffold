@@ -1,5 +1,6 @@
 "use client"
 
+import { useChartColors } from "@/lib/use-chart-colors"
 import "@/lib/chart-setup"
 import { Radar } from "react-chartjs-2"
 
@@ -8,6 +9,7 @@ interface TopicRadarChartProps {
 }
 
 export function TopicRadarChart({ data }: TopicRadarChartProps) {
+  const colors = useChartColors()
   return (
     <div className="w-full" style={{ height: 350 }}>
       <Radar
@@ -17,15 +19,19 @@ export function TopicRadarChart({ data }: TopicRadarChartProps) {
             {
               label: "Understanding",
               data: data.map((d) => d.understanding),
-              borderColor: "#22c55e",
-              backgroundColor: "rgba(34,197,94,0.2)",
+              borderColor: colors.chart1,
+              backgroundColor: colors.chart1Fill,
+              pointBackgroundColor: colors.chart1,
+              pointBorderColor: colors.chart1,
               pointRadius: 3,
             },
             {
               label: "Retention",
               data: data.map((d) => d.retention),
-              borderColor: "#f59e0b",
-              backgroundColor: "rgba(245,158,11,0.2)",
+              borderColor: colors.chart2,
+              backgroundColor: colors.chart2Fill,
+              pointBackgroundColor: colors.chart2,
+              pointBorderColor: colors.chart2,
               pointRadius: 3,
             },
           ],
@@ -36,10 +42,10 @@ export function TopicRadarChart({ data }: TopicRadarChartProps) {
           plugins: {
             legend: { display: true },
             tooltip: {
-              backgroundColor: "hsl(var(--card))",
-              titleColor: "hsl(var(--foreground))",
-              bodyColor: "hsl(var(--muted-foreground))",
-              borderColor: "hsl(var(--border))",
+              backgroundColor: colors.card,
+              titleColor: colors.foreground,
+              bodyColor: colors.mutedForeground,
+              borderColor: colors.border,
               borderWidth: 1,
               padding: 10,
               cornerRadius: 8,
@@ -49,10 +55,10 @@ export function TopicRadarChart({ data }: TopicRadarChartProps) {
             r: {
               min: 0,
               max: 100,
-              ticks: { color: "hsl(var(--muted-foreground))", font: { size: 10 }, backdropColor: "transparent" },
-              grid: { color: "hsl(var(--muted))" },
-              angleLines: { color: "hsl(var(--muted))" },
-              pointLabels: { color: "hsl(var(--foreground))", font: { size: 11 } },
+              ticks: { color: colors.mutedForeground, font: { size: 10 }, backdropColor: "transparent" },
+              grid: { color: colors.muted },
+              angleLines: { color: colors.muted },
+              pointLabels: { color: colors.foreground, font: { size: 11 } },
             },
           },
         }}

@@ -17,6 +17,13 @@ interface ModuleTabsProps {
 
 type Tab = "handout" | "ai-quiz" | "flashcard" | "spaced-review";
 
+const tabs: { value: Tab; label: string }[] = [
+  { value: "handout", label: "Handout & Chat" },
+  { value: "ai-quiz", label: "AI Quiz" },
+  { value: "flashcard", label: "Flashcard" },
+  { value: "spaced-review", label: "Spaced Review" },
+];
+
 export function ModuleTabs({
   moduleId,
   rawPdf,
@@ -26,60 +33,59 @@ export function ModuleTabs({
   const [tab, setTab] = useState<Tab>("handout");
 
   return (
-    <div className="flex flex-col h-[calc(100vh-200px)]">
-      <div className="flex gap-1 rounded-lg border bg-muted p-1 shrink-0">
-        {(["handout", "ai-quiz", "flashcard", "spaced-review"] as Tab[]).map(
-          (t) => (
+    <div className="flex h-[calc(100vh-200px)] min-w-0 flex-col">
+      <div className="w-full overflow-x-auto">
+        <div className="flex w-max min-w-full shrink-0 gap-1 rounded-lg border bg-muted p-1">
+          {tabs.map((item) => (
             <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                tab === t
+              key={item.value}
+              onClick={() => setTab(item.value)}
+              className={`shrink-0 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                tab === item.value
                   ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {t === "handout"
-                ? "Handout & Chat"
-                : t === "ai-quiz"
-                  ? "AI Quiz"
-                  : t === "flashcard"
-                    ? "Flashcard"
-                    : "Spaced Review"}
+              {item.label}
             </button>
-          ),
-        )}
+          ))}
+        </div>
       </div>
 
       {tab === "handout" && (
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-4 flex-1 min-h-0 mt-4">
-          {rawPdf ? (
-            <PdfViewer dataUrl={rawPdf} title={title} />
-          ) : rawText ? (
-            <ContentViewer content={rawText} title={title} />
-          ) : (
-            <div className="rounded-xl border bg-card p-6 text-center text-muted-foreground">
-              No content available for this module.
-            </div>
-          )}
-          <ModuleChat moduleId={moduleId} />
+        <div className="mt-4 grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_400px]">
+          <div className="min-w-0">
+            {rawPdf ? (
+              <PdfViewer dataUrl={rawPdf} title={title} />
+            ) : rawText ? (
+              <ContentViewer content={rawText} title={title} />
+            ) : (
+              <div className="rounded-xl border bg-card p-6 text-center text-muted-foreground">
+                No content available for this module.
+              </div>
+            )}
+          </div>
+
+          <div className="min-w-0">
+            <ModuleChat moduleId={moduleId} />
+          </div>
         </div>
       )}
 
       {tab === "ai-quiz" && (
-        <div className="max-w-2xl mx-auto flex-1 min-h-0 overflow-y-auto mt-4">
+        <div className="mx-auto mt-4 min-h-0 w-full max-w-2xl flex-1 overflow-y-auto">
           <ModuleAiQuiz moduleId={moduleId} />
         </div>
       )}
 
       {tab === "flashcard" && (
-        <div className="max-w-2xl mx-auto flex-1 min-h-0 overflow-y-auto mt-4">
+        <div className="mx-auto mt-4 min-h-0 w-full max-w-2xl flex-1 overflow-y-auto">
           <ModuleFlashcard moduleId={moduleId} />
         </div>
       )}
 
       {tab === "spaced-review" && (
-        <div className="max-w-2xl mx-auto flex-1 min-h-0 overflow-y-auto mt-4">
+        <div className="mx-auto mt-4 min-h-0 w-full max-w-2xl flex-1 overflow-y-auto">
           <ModuleSpacedReview moduleId={moduleId} />
         </div>
       )}

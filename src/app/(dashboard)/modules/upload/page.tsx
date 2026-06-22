@@ -93,7 +93,7 @@ export default function ModuleUploadPage() {
         setCurrentStepIndex(2);
 
         const poll = async () => {
-          const pollRes = await fetch(`/api/modules/${id}/status`);
+          const pollRes = await fetch(`/api/modules/${id}/status?t=${Date.now()}`);
           if (!pollRes.ok) {
             pollRef.current = setTimeout(poll, 1500);
             return;

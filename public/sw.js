@@ -37,16 +37,22 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return
 
+  const url = new URL(event.request.url)
+  const isApiRoute = url.pathname.startsWith("/api/")
+
+  if (isApiRoute) {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(event.request))
+    )
+    return
+  }
+
   event.respondWith(
     caches.match(event.request).then((cached) => {
       return (
         cached ||
         fetch(event.request).then((response) => {
-          if (
-            response.ok &&
-            (event.request.url.startsWith(self.location.origin) ||
-              event.request.url.includes("/api/"))
-          ) {
+          if (response.ok && event.request.url.startsWith(self.location.origin)) {
             const clone = response.clone()
             caches.open(CACHE_NAME).then((cache) => {
               cache.put(event.request, clone)

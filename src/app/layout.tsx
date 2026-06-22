@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner"
 import { PwaInstallPrompt } from "@/components/layout/pwa-install-prompt"
+import { SwRegister } from "@/components/layout/sw-register"
 import "./globals.css";
 
 const inter = Inter({
@@ -106,6 +107,7 @@ export default function RootLayout({
           {children}
           <Toaster richColors closeButton position="top-right" />
           <PwaInstallPrompt />
+          <SwRegister />
         </ThemeProvider>
       </body>
     </html>

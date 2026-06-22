@@ -44,7 +44,11 @@ export async function POST(request: NextRequest) {
 
   if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 })
 
-  // Try embeddings (best-effort)
+  await supabase
+    .from("modules")
+    .update({ status: "ready" })
+    .eq("id", moduleId)
+
   if (process.env.GEMINI_API_KEY) {
     try {
       const { generateEmbeddings } = await import("@/lib/ai/embedder")
@@ -60,11 +64,6 @@ export async function POST(request: NextRequest) {
       console.warn("Embedding generation skipped:", e)
     }
   }
-
-  await supabase
-    .from("modules")
-    .update({ status: "ready" })
-    .eq("id", moduleId)
 
   return NextResponse.json({ chunkCount: textChunks.length })
 }

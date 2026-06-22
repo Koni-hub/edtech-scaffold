@@ -53,6 +53,10 @@ export default function ModuleUploadPage() {
 
   const handleFile = useCallback(
     async (selectedFile: File) => {
+      if (!category.trim()) {
+        toast.error("Please enter a category before uploading.", { id: "module-upload" });
+        return;
+      }
       setFile(selectedFile);
       setFailed(false);
       setCurrentStepIndex(-1);
@@ -187,6 +191,7 @@ export default function ModuleUploadPage() {
               onChange={(e) => setCategory(e.target.value)}
               placeholder="e.g. Mathematics, Science, History..."
               className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              required
             />
           </div>
           <div
@@ -334,7 +339,7 @@ function UrlImportSection() {
     /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)/.test(url);
 
   async function handleImport() {
-    if (!url.trim()) return;
+    if (!url.trim() || !category.trim()) return;
     setLoading(true);
     try {
       const res = await fetch("/api/modules/import-url", {
@@ -387,7 +392,7 @@ function UrlImportSection() {
         </div>
         <Button
           onClick={handleImport}
-          disabled={!url.trim() || loading || success}
+          disabled={!url.trim() || !category.trim() || loading || success}
           size="sm"
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : "Import"}
@@ -396,7 +401,7 @@ function UrlImportSection() {
       <Input
         value={category}
         onChange={(e) => setCategory(e.target.value)}
-        placeholder="Category (optional)"
+        placeholder="Category"
         className="h-8 text-xs"
         disabled={loading || success}
       />

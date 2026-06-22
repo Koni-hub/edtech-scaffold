@@ -96,9 +96,6 @@ export function ModuleList({ modules }: ModuleListProps) {
               {mod.category && (
                 <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">{mod.category}</p>
               )}
-              <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                {mod.description ?? "No description"}
-              </p>
               {mod.topic_labels?.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {mod.topic_labels.map((topic: string) => (
